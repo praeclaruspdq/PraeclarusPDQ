@@ -18,8 +18,8 @@ package com.processdataquality.praeclarus.ui.component;
 
 public class TreeItem {
 
-    private String label;
-    private TreeItem parent;
+    private final String label;
+    private final TreeItem parent;
 
     
     public TreeItem(String label, TreeItem parent) {

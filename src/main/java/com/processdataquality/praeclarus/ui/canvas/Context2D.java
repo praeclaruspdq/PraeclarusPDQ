@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component.canvas;
+package com.processdataquality.praeclarus.ui.canvas;
 
 import java.io.Serializable;
 
@@ -60,6 +60,12 @@ public class Context2D {
         callJs("clearRect", x, y, width, height);
     }
 
+    public void clear() {
+        double width = Double.parseDouble(_canvas.getElement().getAttribute("width"));
+        double height = Double.parseDouble(_canvas.getElement().getAttribute("height"));
+        clearRect(0,0, width -1, height -1);
+    }
+
     public void closePath() {
         callJs("closePath");
     }
@@ -74,6 +80,10 @@ public class Context2D {
 
     public void fillText(String text, double x, double y) {
         callJs("fillText", text, x, y);
+    }
+
+    public void fillText(String text, double x, double y, double maxWidth) {
+        callJs("fillText", text, x, y, maxWidth);
     }
 
     public void lineTo(double x, double y) {

@@ -35,12 +35,16 @@ public class Workspace {
     private final List<Table> _outputs = new ArrayList<>();
     private int _index = 0;
 
-    public void appendPlugin(PDQPlugin plugin) {
-        appendNode(NodeFactory.create(plugin));
+    public Node appendPlugin(PDQPlugin plugin) {
+        Node node = NodeFactory.create(plugin);
+        appendNode(node);
+        return node;
     }
 
-    public void insertPlugin(PDQPlugin plugin, int index) {
-        insertNode(index, NodeFactory.create(plugin));
+    public Node insertPlugin(PDQPlugin plugin, int index) {
+        Node node = NodeFactory.create(plugin);
+        insertNode(index, node);
+        return node;
     }
 
     public void appendNode(Node node) { _workflow.add(node); }

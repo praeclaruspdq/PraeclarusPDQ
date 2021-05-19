@@ -29,3 +29,19 @@ window.setDimensions = function() {
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
 }
+
+window.init = function() {
+    var canvas = document.getElementById("workflowCanvas");
+    canvas.addEventListener("mousedown", fireMouseDown, false);
+}
+
+function fireMouseDown(event) {
+    var x = event.pageX;
+    var y = event.pageY;
+    alert("x=" + x + " y=" + y);
+    var canvas = document.getElementById("workflowCanvas");
+    canvas.$server.mousedown(x, y);
+}
+
+
+

@@ -14,13 +14,11 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component.canvas;
+package com.processdataquality.praeclarus.ui.canvas;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 
 /**
@@ -43,6 +41,21 @@ public class Canvas extends Component implements HasStyle, HasSize {
         setId("workflowCanvas");
         _ctx = new Context2D(this);
         setCoOrdSpace(String.valueOf(width), String.valueOf(height));
+        UI.getCurrent().getPage().executeJs("window.init()");
+//        getElement().addEventListener("mousedown", (DomEventListener) domEvent ->
+//                System.out.println(domEvent.getEventData().toString()));
+//        this.getElement().addEventListener("mousedown", e -> {
+//            JsonObject o = e.getEventData();
+//            System.out.println(o.toString());
+//                });
+//            //    Notification.show("mousedown")
+        
+    }
+
+    @ClientCallable
+    private void mousedown(double x, double y) {
+        Notification.show("Mousedown: x=" + x + ", y=" + y);
+        //do something on the server-side
     }
 
 
@@ -66,41 +79,6 @@ public class Canvas extends Component implements HasStyle, HasSize {
         HasSize.super.setSizeFull();
     }
 
-
-    public void drawNode(int nodeCount) {
-        int sep = 50;
-        int width = 100;
-        int height = 80;
-        int x = 50 + ((sep + width) * nodeCount);
-        int y = 50;
-        _ctx.lineWidth(2);
-        _ctx.beginPath();
-        _ctx.rect(x, y, width, height);
-        _ctx.stroke();
-    
-        _ctx.beginPath();
-        _ctx.arc(x, y+40,5, 0, 360, false);
-        _ctx.fill();
-        _ctx.stroke();
-    
-        _ctx.beginPath();
-        _ctx.arc(x+100, y+40,5, 0, 360, false);
-        _ctx.fill();
-        _ctx.stroke();
-
-
-//        var words = name.split(" ");
-//        var y = topY + 20;
-//        var i;
-//        for (i=0; i < words.length; i++) {
-//            ctx.fillText(words[i], leftX + 10, y, 80);
-//            y = y + 30;
-//        }
-
-//        _ctx.beginPath();
-//        _ctx.rect(20, 20, 100, 80);
-//        _ctx.stroke();
-    }
 
 
     private void setCoOrdSpace(String width, String height) {

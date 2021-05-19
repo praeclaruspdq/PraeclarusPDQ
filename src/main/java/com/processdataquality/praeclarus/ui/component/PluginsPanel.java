@@ -45,6 +45,9 @@ public class PluginsPanel extends VerticalLayout {
         tree.addComponentHierarchyColumn(
                 item -> {
                     Span itemName = new Span(item.getName());
+                    if (!treeData.isLeaf(item)) {
+                        itemName.getElement().getStyle().set("font-weight", "bold");
+                    }
                     VerticalLayout itemLine = new VerticalLayout(itemName);
                     itemLine.setPadding(false);
                     itemLine.setSpacing(false);

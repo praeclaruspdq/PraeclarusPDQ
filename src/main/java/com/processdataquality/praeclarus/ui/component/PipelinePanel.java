@@ -19,8 +19,11 @@ package com.processdataquality.praeclarus.ui.component;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.PluginService;
 import com.processdataquality.praeclarus.ui.MainView;
-import com.processdataquality.praeclarus.ui.component.canvas.Canvas;
+import com.processdataquality.praeclarus.ui.canvas.Canvas;
+import com.processdataquality.praeclarus.ui.canvas.Vertex;
+import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.workspace.Workspace;
+import com.processdataquality.praeclarus.workspace.node.Node;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -44,7 +47,8 @@ import java.util.List;
 @JsModule("./src/test.js")
 public class PipelinePanel extends VerticalLayout {
 
-    private final Workspace _workspace;
+    private final Workspace _workspace;               // backend
+    private final Workflow _workflow;                 // frontend
     private final List<String> _pipeLabels = new ArrayList<>();
     private final List<PDQPlugin> _pipeItems = new ArrayList<>();
     private final MainView _parent;
@@ -58,6 +62,7 @@ public class PipelinePanel extends VerticalLayout {
     public PipelinePanel(MainView parent) {
         _parent = parent;
         _workspace = new Workspace();
+        _workflow = new Workflow(_canvas.getContext());
         _pipelineList = new ListBox<>();
         _runnerButtons = new RunnerButtons(_workspace, _parent.getResultsPanel());
         _runnerButtons.addButton(createRemoveButton());
@@ -90,8 +95,8 @@ public class PipelinePanel extends VerticalLayout {
                     TreeItem item = droppedItems.get(0);     // only one is dropped
                     _pipeLabels.add(item.getName());
                     _pipelineList.setItems(_pipeLabels);
-                    addPluginInstance(item);
-                    _canvas.drawNode(_workspace.getNodeCount());
+                    Node node = addPluginInstance(item);
+                    addVertex(node, _workspace.getNodeCount());
                 }
             }
         });
@@ -109,7 +114,7 @@ public class PipelinePanel extends VerticalLayout {
     }
 
 
-    private void addPluginInstance(TreeItem item) {
+    private Node addPluginInstance(TreeItem item) {
         String pTypeName = item.getRoot().getName();
         PDQPlugin instance = null;
         if (pTypeName.equals("Readers")) {
@@ -121,10 +126,20 @@ public class PipelinePanel extends VerticalLayout {
         if (pTypeName.equals("Patterns")) {
             instance = PluginService.patterns().newInstance(item.getName());
         }
-        _workspace.appendPlugin(instance);
+        Node node = _workspace.appendPlugin(instance);
         _runnerButtons.enable();
         _pipeItems.add(instance);
         showPluginProperties(_pipeItems.size() -1);
+        return node;
+    }
+
+
+    public void addVertex(Node node, int nodeCount) {
+        int sep = 50;
+        double x = 50 + ((sep + Vertex.WIDTH) * nodeCount);
+        double y = 50;
+
+        _workflow.addVertex(new Vertex(x, y, node));
     }
 
 
