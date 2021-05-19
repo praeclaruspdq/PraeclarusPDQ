@@ -1,7 +1,24 @@
+/*
+ * Copyright (c) 2021 Queensland University of Technology
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+
 package com.processdataquality.praeclarus.ui.component;
 
-import org.vaadin.pekkam.Canvas;
-import org.vaadin.pekkam.CanvasRenderingContext2D;
+
+import com.processdataquality.praeclarus.ui.component.canvas.Canvas;
+import com.processdataquality.praeclarus.ui.component.canvas.Context2D;
 
 /**
  * @author Michael Adams
@@ -25,8 +42,8 @@ public class PipelineCanvas extends Canvas {
     }
 
     public void drawLine(int x1, int y1, int x2, int y2) {
-        CanvasRenderingContext2D ctx = getContext();
-        ctx.setStrokeStyle("red");
+        Context2D ctx = getContext();
+//        ctx.setStrokeStyle("red");
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
