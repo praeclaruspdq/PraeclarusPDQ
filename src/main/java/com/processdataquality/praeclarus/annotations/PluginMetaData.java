@@ -32,5 +32,5 @@ public @interface PluginMetaData {
     String synopsis();
     String description() default "";
     String version() default "0.1";
-    PatternGroup group() default PatternGroup.NONE;
+    PatternGroup group() default PatternGroup.UNGROUPED;
 }

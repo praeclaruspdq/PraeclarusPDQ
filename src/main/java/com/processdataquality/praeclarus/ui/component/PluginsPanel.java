@@ -38,7 +38,7 @@ public class PluginsPanel extends VerticalLayout {
         TreeGrid<TreeItem> tree = new TreeGrid<>();
         TreeData treeData = new TreeData();
 
-        tree.setDragFilter(item -> item.getParent() != null);      // don't drag headers
+        tree.setDragFilter(treeData::isLeaf);      // don't drag headers
         tree.setRowsDraggable(true);
         tree.setSelectionMode(Grid.SelectionMode.NONE);
         tree.setItems(treeData.getRootItems(), treeData::getChildItems);

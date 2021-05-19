@@ -16,13 +16,10 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.plugin.PluginGroup;
-
 public class TreeItem {
 
     private String label;
     private TreeItem parent;
-    private PluginGroup group;
 
     
     public TreeItem(String label, TreeItem parent) {
@@ -34,9 +31,9 @@ public class TreeItem {
         return parent;
     }
 
-    public TreeItem getTopAncestor() {
+    public TreeItem getRoot() {
         TreeItem parent = getParent();
-        while (parent != null) {
+        while (parent.getParent() != null) {
             parent = parent.getParent();
         }
         return parent;

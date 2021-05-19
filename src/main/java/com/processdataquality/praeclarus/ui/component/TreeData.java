@@ -16,11 +16,11 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.pattern.PatternGroup;
 import com.processdataquality.praeclarus.plugin.PluginService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +46,11 @@ public class TreeData {
     }
 
 
+    public boolean isLeaf(TreeItem item) {
+        return getChildItems(item).isEmpty();
+    }
+
+
     private List<TreeItem> createItemList() {
         List<TreeItem> list = new ArrayList<>();
         TreeItem readers = new TreeItem("Readers", null);
@@ -57,6 +62,7 @@ public class TreeData {
         list.add(patterns);
         list.add(actions);
 
+
         for (String name : PluginService.readers().getPluginNames()) {
             list.add(new TreeItem(name, readers));
         }
@@ -65,13 +71,20 @@ public class TreeData {
             list.add(new TreeItem(name, writers));
         }
 
+        Map<PatternGroup, TreeItem> patternMap = new HashMap<>();
         for (String name : PluginService.patterns().getPluginNames()) {
-            list.add(new TreeItem(name, patterns));
+            PluginMetaData metadata = PluginService.patterns().getMetaData(name);
+            PatternGroup group = metadata != null ? metadata.group() : PatternGroup.UNGROUPED;
+            TreeItem groupItem = patternMap.get(group);
+            if (groupItem == null) {
+                groupItem = new TreeItem(group.getName(), patterns);
+                patternMap.put(group, groupItem);
+                list.add(groupItem);
+            }
+            list.add(new TreeItem(name, groupItem));
         }
 
         return list;
     }
-
-
-
+    
 }

@@ -25,7 +25,7 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.router.Route;
@@ -46,7 +46,7 @@ public class MainView extends VerticalLayout {
     public MainView() {
         _pipelinePanel = new PipelinePanel(this);
         _resultsPanel = new ResultsPanel(this);
-        add(new H1("Praeclarus PDQ"));
+        add(new H2("Praeclarus PDQ"));
         SplitLayout masterLayout = new SplitLayout();
         masterLayout.addToPrimary(leftPanel());
         masterLayout.addToSecondary(centrePanel());

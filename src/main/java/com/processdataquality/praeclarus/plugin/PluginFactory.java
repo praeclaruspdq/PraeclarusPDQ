@@ -57,6 +57,15 @@ public class PluginFactory<T> {
     }
 
 
+    public PluginMetaData getMetaData(String className) {
+        Class<?> clazz = _classMap.get(className);
+        if (clazz != null) {
+            return clazz.getAnnotation(PluginMetaData.class);
+        }
+        return null;
+    }
+
+
     public T newInstance(String className) {
         Class<T> clazz = _classMap.get(className);
         return newInstance(clazz);

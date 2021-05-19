@@ -66,20 +66,10 @@ public class PipelinePanel extends VerticalLayout {
         add(_runnerButtons);
         setSizeFull();
         addAttachListener(e -> _canvas.setDimensions());
-
-//        _canvas.setDimensions();
-//        add(new Html("<input type='file' id='file-input' onchange='inputselect()'/>"));
-
-
- //       UI.getCurrent().getPage().executeJs("window.posn()");
     }
 
- //   private ListBox<String> createCanvas() {
 
     private Div createCanvas() {
-//        HorizontalLayout hl = new HorizontalLayout();
-  //      _pipelineList.setSizeFull();
-
         _pipelineList.addValueChangeListener(e -> {
             String selected = e.getValue();
             _selectedIndex = 0;
@@ -92,7 +82,6 @@ public class PipelinePanel extends VerticalLayout {
         });
 
         DropTarget<Canvas> dropTarget = DropTarget.create(_canvas);
-//        DropTarget<ListBox<String>> dropTarget = DropTarget.create(_pipelineList);
         dropTarget.setDropEffect(DropEffect.COPY);
         dropTarget.addDropListener(event -> {
             if (event.getDropEffect() == DropEffect.COPY) {
@@ -103,16 +92,10 @@ public class PipelinePanel extends VerticalLayout {
                     _pipelineList.setItems(_pipeLabels);
                     addPluginInstance(item);
                     _canvas.drawNode(_workspace.getNodeCount());
-                    //UI.getCurrent().getPage().executeJs("window.drawStep($0)", item.getName());
                 }
             }
         });
 
- //       return _pipelineList;
-
- //       hl.add(_pipelineList, _canvas);
- //       _canvas.setSizeFull();
- //       hl.setSizeFull();
         Div div = new Div();
         div.add(_canvas);
         div.setSizeFull();
@@ -127,7 +110,7 @@ public class PipelinePanel extends VerticalLayout {
 
 
     private void addPluginInstance(TreeItem item) {
-        String pTypeName = item.getParent().getName();
+        String pTypeName = item.getRoot().getName();
         PDQPlugin instance = null;
         if (pTypeName.equals("Readers")) {
             instance = PluginService.readers().newInstance(item.getName());
