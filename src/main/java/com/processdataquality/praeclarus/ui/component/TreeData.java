@@ -71,6 +71,11 @@ public class TreeData {
             list.add(new TreeItem(name, writers));
         }
 
+        for (String name : PluginService.actions().getPluginNames()) {
+             list.add(new TreeItem(name, actions));
+         }
+
+
         Map<PatternGroup, TreeItem> patternMap = new HashMap<>();
         for (String name : PluginService.patterns().getPluginNames()) {
             PluginMetaData metadata = PluginService.patterns().getMetaData(name);

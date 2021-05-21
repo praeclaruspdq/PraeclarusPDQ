@@ -18,14 +18,11 @@ package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.workspace.node.Node;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author Michael Adams
  * @date 19/5/21
  */
-public class Vertex {
+public class Vertex implements CanvasPrimitive {
 
     public static final double WIDTH = 100;
     public static final double HEIGHT = 80;
@@ -33,9 +30,9 @@ public class Vertex {
     private double x;
     private double y;
     private String label;
-    private Node node;
-    private boolean selected;
-    private final Set<Port> _ports = new HashSet<>();
+    private final Node node;
+    private Port _inPort;
+    private Port _outPort;
 
     public Vertex(double x, double y, Node node) {
         this.x = x;
@@ -43,21 +40,44 @@ public class Vertex {
         this.label = node.getName();
         this.node = node;
         double halfHeight = HEIGHT / 2;
-        _ports.add(new Port(this, x, y + halfHeight));
-        _ports.add(new Port(this, x + WIDTH, y + halfHeight));
+        if (node.allowsInput()) {
+            _inPort = new Port(this, x, y + halfHeight, Port.Style.INPUT);
+        }
+        if (node.allowsOutput()) {
+            _outPort = new Port(this, x + WIDTH, y + halfHeight, Port.Style.OUTPUT);
+        }
     }
 
     
-    public void setSelected(boolean b) { selected = b; }
-
     public void setLabel(String label) { this.label = label; }
 
     public String getName() { return node.getName(); }
-    
 
-    public void render(Context2D ctx) {
-        ctx.lineWidth(2);
+
+    public Node getNode() { return node; }
+
+    
+    public boolean contains(double pX, double pY) {
+        return pX > x && pX < x + WIDTH && pY > y && pY < y + HEIGHT;
+    }
+
+
+    public Port getPortAt(double x, double y) {
+        if (_inPort != null && _inPort.contains(x, y)) {
+            return _inPort;
+        }
+        if (_outPort != null && _outPort.contains(x, y)) {
+            return _outPort;
+        }
+        return null;
+    }
+
+
+    public void render(Context2D ctx, CanvasPrimitive selected) {
+        String colour = this.equals(selected) ? "blue" : "gray";
         ctx.beginPath();
+        ctx.strokeStyle(colour);
+        ctx.lineWidth(1);
         ctx.rect(x, y, WIDTH, HEIGHT);
         ctx.stroke();
 
@@ -67,8 +87,11 @@ public class Vertex {
 
 
     private void renderPorts(Context2D ctx) {
-        for (Port port : _ports) {
-            port.render(ctx);
+        if (_inPort != null) {
+            _inPort.render(ctx, null);
+        }
+        if (_outPort != null) {
+            _outPort.render(ctx, null);
         }
     }
 
@@ -77,11 +100,14 @@ public class Vertex {
         double innerX = x + 10;
         double innerY = y + 20;
 
+        ctx.beginPath();
         ctx.font("16px Arial");
+//        ctx.fillStyle("black");
         for (String word : label.split(" ")) {
             ctx.fillText(word, innerX, innerY, WIDTH - 20);
             innerY+=30;
         }
+        ctx.stroke();
     }
 
 }

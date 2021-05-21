@@ -18,8 +18,10 @@ package com.processdataquality.praeclarus.ui.canvas;
 
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Wrapper for a HTML5 canvas. Heavily based on the org.vaadin.pekkam canvas addon.
@@ -31,6 +33,7 @@ import com.vaadin.flow.component.page.PendingJavaScriptResult;
 public class Canvas extends Component implements HasStyle, HasSize {
 
     private final Context2D _ctx;
+    private final List<CanvasEventListener> _listeners = new ArrayList<>();
 
     /**
      * Creates a new canvas with the given coordinate range
@@ -42,20 +45,30 @@ public class Canvas extends Component implements HasStyle, HasSize {
         _ctx = new Context2D(this);
         setCoOrdSpace(String.valueOf(width), String.valueOf(height));
         UI.getCurrent().getPage().executeJs("window.init()");
-//        getElement().addEventListener("mousedown", (DomEventListener) domEvent ->
-//                System.out.println(domEvent.getEventData().toString()));
-//        this.getElement().addEventListener("mousedown", e -> {
-//            JsonObject o = e.getEventData();
-//            System.out.println(o.toString());
-//                });
-//            //    Notification.show("mousedown")
-        
+    }
+
+    public void addListener(CanvasEventListener listener) {
+        _listeners.add(listener);
     }
 
     @ClientCallable
     private void mousedown(double x, double y) {
-        Notification.show("Mousedown: x=" + x + ", y=" + y);
-        //do something on the server-side
+        _listeners.forEach(l -> l.mouseDown(x, y));
+    }
+
+    @ClientCallable
+    private void mousemove(double x, double y) {
+        _listeners.forEach(l -> l.mouseMove(x, y));
+    }
+
+    @ClientCallable
+    private void mouseup(double x, double y) {
+        _listeners.forEach(l -> l.mouseUp(x, y));
+    }
+
+    @ClientCallable
+    private void mouseclick(double x, double y) {
+        _listeners.forEach(l -> l.mouseClick(x, y));
     }
 
 

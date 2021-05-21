@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.plugin;
 
+import com.processdataquality.praeclarus.action.Action;
 import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.reader.DataReader;
 import com.processdataquality.praeclarus.writer.DataWriter;
@@ -30,6 +31,7 @@ public class PluginService {
     private static final PluginFactory<DataWriter> WRITER_FACTORY = new PluginFactory<>(DataWriter.class);
     private static final PluginFactory<ImperfectionPattern> PATTERN_FACTORY
             = new PluginFactory<>(ImperfectionPattern.class);
+    private static final PluginFactory<Action> ACTION_FACTORY = new PluginFactory<>(Action.class);
 
 
     public static PluginFactory<DataReader> readers() { return READER_FACTORY; }
@@ -37,6 +39,8 @@ public class PluginService {
     public static PluginFactory<DataWriter> writers() { return WRITER_FACTORY; }
 
     public static PluginFactory<ImperfectionPattern> patterns() { return PATTERN_FACTORY; }
+
+    public static PluginFactory<Action> actions() { return ACTION_FACTORY; }
 
     
     public static PluginFactory<? extends PDQPlugin> factory(Class<? extends PDQPlugin> clazz) {
@@ -48,6 +52,9 @@ public class PluginService {
         }
         if (clazz.equals(ImperfectionPattern.class)) {
             return PATTERN_FACTORY;
+        }
+        if (clazz.equals(Action.class)) {
+            return ACTION_FACTORY;
         }
         return null;
     }

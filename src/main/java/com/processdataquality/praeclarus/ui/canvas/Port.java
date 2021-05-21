@@ -20,18 +20,22 @@ package com.processdataquality.praeclarus.ui.canvas;
  * @author Michael Adams
  * @date 19/5/21
  */
-public class Port {
+public class Port implements CanvasPrimitive {
 
-    private static final double RADIUS = 5;
+    public enum Style {INPUT, OUTPUT}
+
+    public static final double RADIUS = 6;
 
     private final Vertex parent;
-    private final double x;     // port centre
-    private final double y;     // port centre
+    private final Style style;
+    private final double x;     // origin
+    private final double y;     // origin
 
-    public Port(Vertex v, double x, double y) {
+    public Port(Vertex v, double x, double y, Style style) {
         parent = v;
         this.x = x;
         this.y = y;
+        this.style = style;
     }
 
     public double x() { return x; }
@@ -40,13 +44,28 @@ public class Port {
 
     public Vertex getParent() { return parent; }
 
+    public Style getStyle() { return style; }
 
-    public void render(Context2D ctx) {
+    public Point getConnectPoint() {
+        double px = style == Style.INPUT ? x - RADIUS : x + RADIUS;
+        return new Point(px, y);
+    }
+
+
+    public void render(Context2D ctx, CanvasPrimitive selected) {
+        double rotation = Math.PI / 2;
+        double startAngle = (style == Style.INPUT ? 0 : Math.PI) + rotation;
+        double endAngle = (style == Style.INPUT ? Math.PI  : Math.PI * 2) + rotation;
+
         ctx.beginPath();
-        ctx.arc(x, y,5, 0, 360, false);
+        ctx.strokeStyle("gray");
+        ctx.fillStyle("gray");
+        ctx.arc(x, y, RADIUS, startAngle, endAngle, false);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
     }
+
 
     public boolean contains(double pX, double pY) {
         double dx = pX - x;

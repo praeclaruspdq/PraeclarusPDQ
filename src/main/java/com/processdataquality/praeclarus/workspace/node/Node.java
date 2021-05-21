@@ -70,6 +70,10 @@ public abstract class Node {
     }
 
 
+    public boolean allowsInput() { return _allowedInputs > 0; }
+
+    public boolean allowsOutput() { return _allowedOutputs > 0; }
+
     public void clearInputs() { if (_inputs != null) _inputs.clear(); }
 
     public void clearInput(Table table) {

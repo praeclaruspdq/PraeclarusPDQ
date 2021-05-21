@@ -41,9 +41,11 @@ public class PropertiesPanel extends VerticalLayout {
     public void setPlugin(PDQPlugin plugin) {
         removeProperties();
         _plugin = plugin;
-        _form = createForm();
-        add(_form);
-        _form.setSizeFull();
+        if (plugin != null) {
+            _form = createForm();
+            add(_form);
+            _form.setSizeFull();
+        }
     }
 
 
