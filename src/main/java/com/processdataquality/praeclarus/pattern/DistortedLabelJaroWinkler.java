@@ -42,7 +42,7 @@ public class DistortedLabelJaroWinkler extends AbstractDistortedLabel {
     
     @Override
     protected void detect(StringColumn column, String s1, String s2) {
-        double threshold = getOptions().getDoubleValue("Threshold");
+        double threshold = getOptions().get("Threshold").asDouble();
         double distance = jaroWinkler.apply(s1, s2);
         if (distance > threshold && distance < 1.0) {
             addResult(column, s1, s2);
@@ -54,7 +54,7 @@ public class DistortedLabelJaroWinkler extends AbstractDistortedLabel {
     public Options getOptions() {
         Options options = super.getOptions();
         if (!options.containsKey("Threshold")) {
-            options.put("Threshold", 0.7);
+            options.add("Threshold", 0.7);
         }
         return options;
     }
@@ -71,7 +71,7 @@ public class DistortedLabelJaroWinkler extends AbstractDistortedLabel {
         master.column(0).appendCell("nomatch");
         DistortedLabelJaroWinkler jw = new DistortedLabelJaroWinkler();
         Options options = jw.getOptions();
-        options.put("Column Name", "Label1");
+        options.add("Column Name", "Label1");
         jw.setOptions(options);
         Table result = jw.detect(master);
         System.out.println(result.toString());

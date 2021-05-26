@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.workspace.node;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.reader.DataReader;
-import tech.tablesaw.api.Table;
 
 import java.io.IOException;
 
@@ -35,15 +34,12 @@ public class ReaderNode extends Node {
     }
 
     @Override
-    public Table run() {
+    public void run() {
         try {
-            Table t = ((DataReader) getPlugin()).read();
-            setOutput(t);
-            return t;
+            setOutput(((DataReader) getPlugin()).read());
         }
         catch (IOException ioException) {
             ioException.printStackTrace();
-            return null;
         }
     }
 }

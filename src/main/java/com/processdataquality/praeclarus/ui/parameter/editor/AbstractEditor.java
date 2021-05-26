@@ -55,7 +55,7 @@ public abstract class AbstractEditor extends HorizontalLayout {
     
     protected void updateProperties(PluginParameter parameter) {
         Options options = _plugin.getOptions();
-        options.put(parameter.getName(), parameter.getValue());
+        options.add(parameter.getName(), parameter.getValue());
         _plugin.setOptions(options);
     }
 

@@ -46,7 +46,7 @@ public class InnerJoin implements Action {
             throw new IllegalArgumentException("This action requires at least two tables as input.");
         }
         Table t1 = inputList.remove(0);
-        String colNames = getOptions().getStringValue("Columns");
+        String colNames = getOptions().get("Columns").asString();
         return t1.joinOn(colNames).inner(true,
                 inputList.toArray(new Table[] {}));
     }
@@ -55,7 +55,7 @@ public class InnerJoin implements Action {
     @Override
     public Options getOptions() {
         if (options.isEmpty()) {
-            options.put("Columns", "");
+            options.add("Columns", "");
         }
         return options;
     }

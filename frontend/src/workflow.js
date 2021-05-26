@@ -36,7 +36,6 @@ window.init = function() {
     canvas.addEventListener("mousemove", fireMouseMove, false);
     canvas.addEventListener("mouseup", fireMouseUp, false);
     canvas.addEventListener("click", fireClick, false);
-
 }
 
 function fireMouseDown(event) {

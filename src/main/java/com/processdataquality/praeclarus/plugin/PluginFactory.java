@@ -102,8 +102,6 @@ public class PluginFactory<T> {
             System.out.println(n);
         }
         DataWriter d = p.newInstance(list.get(0));
-        for (Map.Entry<String, Object> e : d.getOptions().entrySet()) {
-            System.out.println(e.getKey() + " " + e.getValue());
-        }
+
     }
 }

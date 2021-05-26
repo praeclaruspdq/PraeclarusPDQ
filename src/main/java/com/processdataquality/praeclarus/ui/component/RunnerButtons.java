@@ -16,14 +16,14 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.workspace.Workspace;
+import com.processdataquality.praeclarus.workspace.node.Node;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import tech.tablesaw.api.Table;
-
-import java.util.List;
+import com.vaadin.flow.component.notification.Notification;
 
 /**
  * @author Michael Adams
@@ -34,6 +34,7 @@ public class RunnerButtons extends Div {
     private enum State { RUNNING, STEPPING, IDLE }
 
     private final Workspace _workspace;
+    private final Workflow _workflow;
     private final ResultsPanel _resultsPanel;
 
     private State _state;
@@ -43,8 +44,9 @@ public class RunnerButtons extends Div {
     private Button _stopButton;
 
 
-    public RunnerButtons(Workspace workspace, ResultsPanel resultsPanel) {
+    public RunnerButtons(Workspace workspace, Workflow workflow, ResultsPanel resultsPanel) {
         _workspace = workspace;
+        _workflow = workflow;
         _resultsPanel = resultsPanel;
         addButtons();
         _state = State.IDLE;
@@ -63,9 +65,10 @@ public class RunnerButtons extends Div {
                 break;
             }
             case IDLE: {
-                _runButton.setEnabled(_workspace.canRun());
-                _stepButton.setEnabled(_workspace.canStep());
-                _backButton.setEnabled(_workspace.canStepBack());
+                Node node = _workflow.getSelectedNode();
+                _runButton.setEnabled(node != null);
+                _stepButton.setEnabled(node != null);
+                _backButton.setEnabled(node != null && node.hasPrevious());
                 _stopButton.setEnabled(false);
                 break;
             }
@@ -90,30 +93,49 @@ public class RunnerButtons extends Div {
     private void addButtons() {
         Icon runIcon = createIcon(VaadinIcon.PLAY, "green");
         _runButton = new Button(runIcon, e -> {
-            setState(State.RUNNING);
-            _workspace.restart();
-            List<Table> tables = _workspace.run();
-            List<String> titles = _workspace.getNodeNames();
-            _resultsPanel.addResults(titles, tables);
-            setState(State.IDLE);
+            Node node = _workflow.getSelectedNode();
+            if (node != null) {
+                setState(State.RUNNING);
+                try {
+                    _workspace.newRunner().run(node);
+                    _resultsPanel.addResults(node);
+                }
+                catch (IllegalArgumentException iae) {
+                    Notification.show(iae.getMessage());
+                }
+                finally {
+                    setState(State.IDLE);
+                }
+            }
         });
 
         Icon stepIcon = createIcon(VaadinIcon.STEP_FORWARD, "blue");
         _stepButton = new Button(stepIcon, e -> {
-            setState(State.STEPPING);
-            Table table = _workspace.step();
-            String title = _workspace.getLastNode().getName();
-            _resultsPanel.addResult(title, table);
-            setState(State.IDLE);
+            Node node = _workflow.getSelectedNode();
+            if (node != null) {
+                setState(State.STEPPING);
+                try {
+                    _workspace.newRunner().step(node);
+                    _resultsPanel.addResult(node);
+                }
+                catch (IllegalArgumentException iae) {
+                     Notification.show(iae.getMessage());
+                 }
+                 finally {
+                     setState(State.IDLE);
+                 }
+            }
         });
 
         Icon backIcon = createIcon(VaadinIcon.STEP_BACKWARD, "blue");
         _backButton = new Button(backIcon, e -> {
-            setState(State.STEPPING);
-            String title = _workspace.getLastNode().getName();
-            _resultsPanel.removeResult(title);
-            _workspace.back();
-            setState(State.IDLE);
+            Node node = _workflow.getSelectedNode();
+            if (node != null) {
+                setState(State.STEPPING);
+                _resultsPanel.removeResult(node);
+                _workspace.newRunner().back(node);
+                setState(State.IDLE);
+            }
         });
 
         Icon stopIcon = createIcon(VaadinIcon.CLOSE_CIRCLE_O,"red");

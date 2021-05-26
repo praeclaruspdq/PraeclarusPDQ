@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.ui.MainView;
+import com.processdataquality.praeclarus.workspace.node.Node;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -55,27 +56,32 @@ public class ResultsPanel extends VerticalLayout {
             selectedPage.setVisible(true);
         });
 
-        add(tabs, pages);
+        VerticalScrollLayout layout = new VerticalScrollLayout();
+        layout.add(tabs, pages);
+        add(layout);
         pages.setSizeFull();
         setSizeFull();
     }
 
-    public void addResult(String title, Table table) {
-        Tab tab = new Tab(title);
-        Div page = new Div(createGrid(table));
+    public void addResult(Node node) {
+        Tab tab = new Tab(node.getName());
+        Div page = new Div(createGrid(node.getOutput()));
         tabsToPages.put(tab, page);
         tabs.add(tab);
         pages.add(page);
     }
 
 
-    public void addResults(List<String> names, List<Table> tables) {
-        for (int i = 0; i < names.size(); i++) {
-             addResult(names.get(i), tables.get(i));
+    public void addResults(Node node) {
+        addResult(node);
+        while (node.hasNext()) {
+            node = node.next();
+            addResult(node);
         }
     }
 
-    public void removeResult(String title) {
+    public void removeResult(Node node) {
+        String title = node.getName();
         for (int i = 0; i < tabs.getComponentCount(); i++) {
              Tab tab = ((Tab) tabs.getComponentAt(i));
              if (tab.getLabel().equals(title)) {

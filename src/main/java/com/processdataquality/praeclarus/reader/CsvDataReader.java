@@ -37,22 +37,22 @@ public class CsvDataReader extends AbstractDataReader {
     public Options getOptions() {
         Options options = super.getOptions();
         if (! options.containsKey("Separator")) {
-            options.put("Separator", ',');
+            options.add("Separator", ',');
         }
         return options;
     }
 
 
     protected CsvReadOptions getReadOptions() {
-        String fileName = (String) _options.get("Source");
+        String fileName = _options.get("Source").asString();
         return CsvReadOptions.builder(fileName)
-                .separator((char) _options.get("Separator"))
-                .missingValueIndicator((String) _options.get("Missing Value"))
+                .separator(_options.get("Separator").asChar())
+                .missingValueIndicator(_options.get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
 //                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
 //                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
-                .header((boolean) _options.get("Header"))
-                .tableName((String) _options.get("Table Name"))
+                .header(_options.get("Header").asBoolean())
+                .tableName(_options.get("Table Name").asString())
 //                .sampleSize((int) _options.get("Sample"))
 //                .sample(((int) _options.get("Sample")) > 0)
                 .build();

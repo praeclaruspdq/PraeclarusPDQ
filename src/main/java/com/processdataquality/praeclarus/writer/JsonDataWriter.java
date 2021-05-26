@@ -43,8 +43,8 @@ public class JsonDataWriter implements DataWriter {
     public void write(Table table) throws IOException {
         if (_options == null) getOptions();  // fill null options with defaults
         JsonWriteOptions options = JsonWriteOptions.builder(
-                new Destination(new File((String) _options.get("Destination"))))
-                .header((boolean) _options.get("Header"))
+                new Destination(new File(_options.get("Destination").asString())))
+                .header(_options.get("Header").asBoolean())
                 .build();
         table.write().usingOptions(options);
     }
@@ -53,8 +53,8 @@ public class JsonDataWriter implements DataWriter {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.put("Header", true);
-            _options.put("Destination", "out.json");
+            _options.add("Header", true);
+            _options.add("Destination", "out.json");
         }
         return _options;
     }

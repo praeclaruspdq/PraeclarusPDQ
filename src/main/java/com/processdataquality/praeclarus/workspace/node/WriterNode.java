@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.workspace.node;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.writer.DataWriter;
-import tech.tablesaw.api.Table;
 
 import java.io.IOException;
 
@@ -35,15 +34,12 @@ public class WriterNode extends Node {
     }
 
     @Override
-    public Table run() {
+    public void run() {
         try {
-            Table t = getInput();
-            ((DataWriter) getPlugin()).write(t);
-            return t;
+            ((DataWriter) getPlugin()).write(getInput());
         }
         catch (IOException ioException) {
             ioException.printStackTrace();
-            return null;
         }
     }
 }

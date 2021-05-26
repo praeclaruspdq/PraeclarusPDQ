@@ -40,10 +40,11 @@ public class CsvDataWriter implements DataWriter {
     @Override
     public void write(Table table) throws IOException {
         if (_options == null) getOptions();  // fill null options with defaults
-        CsvWriteOptions options = CsvWriteOptions.builder((String) _options.get("Destination"))
-                .header((boolean) _options.get("Header"))
-                .separator((char) _options.get("Separator"))
-                .quoteChar((char) _options.get("Quote"))
+        CsvWriteOptions options = CsvWriteOptions.builder(
+                _options.get("Destination").asString())
+                .header(_options.get("Header").asBoolean())
+                .separator(_options.get("Separator").asChar())
+                .quoteChar(_options.get("Quote").asChar())
                 .build();
         table.write().usingOptions(options);
     }
@@ -52,10 +53,10 @@ public class CsvDataWriter implements DataWriter {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.put("Header", true);
-            _options.put("Destination", "out.csv");
-            _options.put("Separator", ',');
-            _options.put("Quote", '\"');
+            _options.add("Header", true);
+            _options.add("Destination", "out.csv");
+            _options.add("Separator", ',');
+            _options.add("Quote", '\"');
         }
         return _options;
     }

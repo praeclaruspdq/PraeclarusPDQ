@@ -20,8 +20,6 @@ import com.processdataquality.praeclarus.annotations.PluginMetaData;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.io.fixed.FixedWidthReadOptions;
 
-import java.time.format.DateTimeFormatter;
-
 /**
  * @author Michael Adams
  * @date 30/3/21
@@ -38,24 +36,24 @@ public class FixedWidthDataReader extends AbstractDataReader {
     public Options getOptions() {
         Options options = super.getOptions();
         if (! options.containsKey("Ends on New Line")) {
-            options.put("Separator", ",");
-            options.put("Ends on New Line", true);
+            options.add("Separator", ",");
+            options.add("Ends on New Line", true);
         }
         return options;
     }
 
     
     protected FixedWidthReadOptions getReadOptions() {
-        String fileName = (String) _options.get("Source");
+        String fileName = _options.get("Source").asString();
         return FixedWidthReadOptions.builder(fileName)
-                .missingValueIndicator((String) _options.get("Missing Value"))
-                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
-                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
-                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
-                .header((boolean) _options.get("Header"))
-                .tableName((String) _options.get("Table Name"))
-                .sample((boolean) _options.get("Sample"))
-                .recordEndsOnNewline((boolean) _options.get("Ends on New Line"))
+                .missingValueIndicator(_options.get("Missing Value").asString())
+//                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
+//                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
+//                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
+                .header(_options.get("Header").asBoolean())
+                .tableName(_options.get("Table Name").asString())
+                .sample(_options.get("Sample").asBoolean())
+                .recordEndsOnNewline(_options.get("Ends on New Line").asBoolean())
                 .build();
     }
 

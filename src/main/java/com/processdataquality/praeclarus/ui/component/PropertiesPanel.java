@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.PluginParameter;
@@ -30,7 +31,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public class PropertiesPanel extends VerticalLayout {
 
     private PDQPlugin _plugin;
-    private VerticalLayout _form = null;
+    private VerticalScrollLayout _form = null;
 
     public PropertiesPanel() {
         add(new H3("Parameters"));
@@ -56,11 +57,11 @@ public class PropertiesPanel extends VerticalLayout {
     }
 
 
-    private VerticalLayout createForm() {
-        VerticalLayout form = new VerticalLayout();
+    private VerticalScrollLayout createForm() {
+        VerticalScrollLayout form = new VerticalScrollLayout();
         Options options = _plugin.getOptions();
-        for (String key : options.keySet()) {
-            PluginParameter param = new PluginParameter(key, options.get(key), null);
+        for (Option option : options.values()) {
+            PluginParameter param = new PluginParameter(option.key(), option.get(), null);
             form.add(param.editor(_plugin));
         }
         return form;

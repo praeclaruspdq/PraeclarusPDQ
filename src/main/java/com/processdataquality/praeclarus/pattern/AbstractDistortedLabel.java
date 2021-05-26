@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.pattern;
 
+import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.Row;
@@ -81,7 +82,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
      */
     @Override
     public Table repair(Table master, Table changes) {
-        String colName = options.getStringValue("Column Name");
+        String colName = options.get("Column Name").asString();
         StringColumn repaired = (StringColumn) master.column(colName);
         for (Row row : changes) {
             repaired = repaired.replaceAll(
@@ -111,8 +112,8 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
     public Options getOptions() {
         if (options == null) {
             options = new Options();
-            options.put("Column Name", "");
-            options.put("Repair", false);
+            options.add("Column Name", "");
+            options.add("Repair", false);
         }
         return options;
     }
@@ -134,8 +135,14 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
      * @return the specified column
      */
     protected StringColumn getSelectedColumn(Table table) {
-        String colName = options.getStringValue("Column Name");
-        return (StringColumn) table.column(colName);
+        Option option = options.get("Column Name");
+        if (option != null) {
+            String colName = option.asString();
+            if (colName != null) {
+                return (StringColumn) table.column(colName);
+            }
+        }
+        throw new IllegalArgumentException("A value must be provided for the 'Column Name' property");
     }
 
 

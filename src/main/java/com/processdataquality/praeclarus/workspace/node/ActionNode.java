@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.workspace.node;
 
 import com.processdataquality.praeclarus.action.Action;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import tech.tablesaw.api.Table;
 
 /**
  * @author Michael Adams
@@ -33,9 +32,7 @@ public class ActionNode extends Node {
     }
 
     @Override
-    public Table run() {
-        Table t = ((Action) getPlugin()).run(getInputs());
-        setOutput(t);
-        return t;
+    public void run() {
+        setOutput(((Action) getPlugin()).run(getInputs()));
     }
 }

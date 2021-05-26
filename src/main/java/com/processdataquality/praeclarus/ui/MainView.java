@@ -44,8 +44,8 @@ public class MainView extends VerticalLayout {
 
 
     public MainView() {
-        _pipelinePanel = new PipelinePanel(this);
         _resultsPanel = new ResultsPanel(this);
+        _pipelinePanel = new PipelinePanel(this);
         add(new H2("Praeclarus PDQ"));
         SplitLayout masterLayout = new SplitLayout();
         masterLayout.addToPrimary(leftPanel());
@@ -65,7 +65,8 @@ public class MainView extends VerticalLayout {
         leftLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
         leftLayout.addToPrimary(new PluginsPanel());
         leftLayout.addToSecondary(_propsPanel);
-        leftLayout.setWidth("25%");
+        leftLayout.setWidth("20%");
+        leftLayout.addSplitterDragendListener(e -> _pipelinePanel.onResize());
         return leftLayout;
     }
 
@@ -75,8 +76,8 @@ public class MainView extends VerticalLayout {
         centreLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
         centreLayout.addToPrimary(_pipelinePanel);
         centreLayout.addToSecondary(_resultsPanel);
-        centreLayout.setWidth("75%");
-        centreLayout.setSplitterPosition(40);
+        centreLayout.setWidth("80%");
+//        centreLayout.setSplitterPosition(60);
         centreLayout.addSplitterDragendListener(e -> _pipelinePanel.onResize());
         return centreLayout;
     }

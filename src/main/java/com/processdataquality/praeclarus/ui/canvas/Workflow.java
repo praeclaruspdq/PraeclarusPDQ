@@ -18,6 +18,7 @@ package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.ui.component.PipelinePanel;
 import com.processdataquality.praeclarus.workspace.node.Node;
+import com.vaadin.flow.component.notification.Notification;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,6 +29,8 @@ import java.util.Set;
  */
 public class Workflow implements CanvasEventListener {
 
+    private enum State { VERTEX_DRAG, ARC_DRAW, NONE }
+
     private final PipelinePanel _parent;
     private final Context2D _ctx;
     private final Set<Vertex> _vertices = new HashSet<>();
@@ -35,6 +38,7 @@ public class Workflow implements CanvasEventListener {
 
     private ActiveLine activeLine;
     private CanvasPrimitive selected;
+    private State state = State.NONE;
 
 
     public Workflow(PipelinePanel parent, Context2D context) {
@@ -44,23 +48,54 @@ public class Workflow implements CanvasEventListener {
 
     @Override
     public void mouseDown(double x, double y) {
-        activeLine = new ActiveLine(x, y);
+        Port port = getPortAt(x, y);
+        if (port != null && port.isOutput()) {
+            activeLine = new ActiveLine(x, y);
+            state = State.ARC_DRAW;
+        }
+        else {
+            Vertex vertex = getVertexAt(x, y);
+            if (vertex != null) {
+                selected = vertex;
+                vertex.setDragOffset(x, y);
+                state = State.VERTEX_DRAG;
+            }
+        }
     }
 
     @Override
     public void mouseMove(double x, double y) {
-        render();
-        activeLine.lineTo(_ctx, x, y);
+        if (state == State.NONE) return;
+
+        if (state == State.ARC_DRAW) {
+            render();
+            activeLine.lineTo(_ctx, x, y);
+        }
+        else if (state == State.VERTEX_DRAG) {
+            ((Vertex) selected).moveTo(x, y);
+            render();
+        }
     }
 
     @Override
     public void mouseUp(double x, double y) {
-        Point start = activeLine.getStart();
-        Port source = getPortAt(start.x, start.y);
-        Port target = getPortAt(x, y);
-        if (source != null && target != null) {
-            _connectors.add(new Connector(source, target));
+        if (state == State.NONE) return;
+
+        if (state == State.ARC_DRAW) {
+            Point start = activeLine.getStart();
+            Port source = getPortAt(start.x, start.y);
+            Port target = getPortAt(x, y);
+            if (source != null && target != null) {
+                if (source.isOutput() && target.isInput()) {
+                    addConnector(new Connector(source, target));
+                }
+                else {
+                    Notification.show("Output port cannot be the target of a connection");
+                }
+            }
         }
+
+        state = State.NONE;     // if dragging nothing more to do
         render();
     }
 
@@ -69,11 +104,19 @@ public class Workflow implements CanvasEventListener {
         selected = setSelected(x, y);
         render();
         Node selectedNode = (selected instanceof Vertex) ? ((Vertex) selected).getNode() : null;
-        _parent.showPluginProperties(selectedNode);
+        _parent.changedSelected(selectedNode);
     }
 
 
     public CanvasPrimitive getSelected() { return selected; }
+
+
+    public Node getSelectedNode() {
+        if (selected instanceof Vertex) {
+            return ((Vertex) selected).getNode();
+        }
+        return null;
+    }
 
 
     public void removeSelected() {
@@ -86,9 +129,16 @@ public class Workflow implements CanvasEventListener {
     }
 
     
-    public void addVertex(Vertex v) {
-        _vertices.add(v);
+    public void addVertex(Vertex vertex) {
+        _vertices.add(vertex);
+        selected = vertex;
         render();
+    }
+
+
+    public void addVertex(Node node) {
+        Point p = getSuitableInsertPoint();
+        addVertex(new Vertex(p.x, p.y, node));
     }
 
 
@@ -120,12 +170,20 @@ public class Workflow implements CanvasEventListener {
 
     public void addConnector(Connector c) {
         _connectors.add(c);
+        Node source = c.getSource().getNode();
+        Node target = c.getTarget().getNode();
+        _parent.getWorkspace().connect(source, target);
         render();
     }
 
     public boolean removeConnector(Connector c) {
         boolean success = _connectors.remove(c);
-        if (success) render();
+        if (success) {
+            Node previous = c.getSource().getNode();
+            Node next = c.getTarget().getNode();
+            _parent.getWorkspace().disconnect(previous, next);
+            render();
+        }
         return success;
     }
 
@@ -136,7 +194,9 @@ public class Workflow implements CanvasEventListener {
                 removeSet.add(c);
             }
         }
-        _connectors.removeAll(removeSet);
+        for (Connector c : removeSet) {
+            removeConnector(c);
+        }
         render();
     }
 
@@ -151,8 +211,17 @@ public class Workflow implements CanvasEventListener {
         return null;
     }
 
+    private Vertex getVertexAt(double x, double y) {
+        for (Vertex vertex : _vertices) {
+            if (vertex.contains(x, y)) {
+                return vertex;
+            }
+        }
+        return null;
+    }
 
-    private void render() {
+
+    public void render() {
         _ctx.clear();
         for (Vertex vertex : _vertices) {
             vertex.render(_ctx, selected);
@@ -175,6 +244,25 @@ public class Workflow implements CanvasEventListener {
             }
         }
         return null;
+    }
+
+
+    private Point getSuitableInsertPoint() {
+        double x = 50;
+        double sepSpace = 100;
+        double y = 50;
+        boolean overlap;
+        do {
+            overlap = false;
+            for (Vertex vertex : _vertices) {
+                if (! vertex.contains(x + 10, y + 10)) continue;
+
+                overlap = true;
+                x = x + Vertex.WIDTH + sepSpace;
+            }
+        } while (overlap);
+
+        return new Point(x, y);
     }
 
 }

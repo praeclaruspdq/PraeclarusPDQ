@@ -27,38 +27,42 @@ public class Vertex implements CanvasPrimitive {
     public static final double WIDTH = 100;
     public static final double HEIGHT = 80;
 
-    private double x;
-    private double y;
-    private String label;
-    private final Node node;
+    private double _x;
+    private double _y;
+    private String _label;
+    private final Node _node;
     private Port _inPort;
     private Port _outPort;
+    private Point _dragOffset;
 
     public Vertex(double x, double y, Node node) {
-        this.x = x;
-        this.y = y;
-        this.label = node.getName();
-        this.node = node;
-        double halfHeight = HEIGHT / 2;
+        _x = x;
+        _y = y;
+        this._label = node.getName();
+        this._node = node;
         if (node.allowsInput()) {
-            _inPort = new Port(this, x, y + halfHeight, Port.Style.INPUT);
+            _inPort = new Port(this, Port.Style.INPUT);
         }
         if (node.allowsOutput()) {
-            _outPort = new Port(this, x + WIDTH, y + halfHeight, Port.Style.OUTPUT);
+            _outPort = new Port(this, Port.Style.OUTPUT);
         }
     }
 
-    
-    public void setLabel(String label) { this.label = label; }
 
-    public String getName() { return node.getName(); }
+    public double x() { return _x; }
+
+    public double y() { return  _y; }
+
+    public void setLabel(String label) { _label = label; }
+
+    public String getName() { return _node.getName(); }
 
 
-    public Node getNode() { return node; }
+    public Node getNode() { return _node; }
 
     
     public boolean contains(double pX, double pY) {
-        return pX > x && pX < x + WIDTH && pY > y && pY < y + HEIGHT;
+        return pX > _x && pX < _x + WIDTH && pY > _y && pY < _y + HEIGHT;
     }
 
 
@@ -72,13 +76,24 @@ public class Vertex implements CanvasPrimitive {
         return null;
     }
 
+    public void setDragOffset(double x, double y) {
+        double dx = x - _x;
+        double dy = y - _y;
+        _dragOffset = new Point(dx, dy);
+    }
+
+
+    public void moveTo(double x, double y) {
+        _x = x - _dragOffset.x;
+        _y = y - _dragOffset.y;
+    }
 
     public void render(Context2D ctx, CanvasPrimitive selected) {
         String colour = this.equals(selected) ? "blue" : "gray";
         ctx.beginPath();
         ctx.strokeStyle(colour);
         ctx.lineWidth(1);
-        ctx.rect(x, y, WIDTH, HEIGHT);
+        ctx.rect(_x, _y, WIDTH, HEIGHT);
         ctx.stroke();
 
         renderPorts(ctx);
@@ -97,15 +112,15 @@ public class Vertex implements CanvasPrimitive {
 
 
     private void renderLabel(Context2D ctx) {
-        double innerX = x + 10;
-        double innerY = y + 20;
+        double innerX = _x + 10;
+        double innerY = _y + 20;
 
         ctx.beginPath();
-        ctx.font("16px Arial");
+        ctx.font("14px Arial");
 //        ctx.fillStyle("black");
-        for (String word : label.split(" ")) {
+        for (String word : _label.split(" ")) {
             ctx.fillText(word, innerX, innerY, WIDTH - 20);
-            innerY+=30;
+            innerY+=16;
         }
         ctx.stroke();
     }

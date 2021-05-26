@@ -43,8 +43,8 @@ public class HtmlDataWriter implements DataWriter {
     public void write(Table table) throws IOException {
         if (_options == null) getOptions();  // fill null options with defaults
         HtmlWriteOptions options = HtmlWriteOptions.builder(
-                new Destination(new File((String) _options.get("Destination"))))
-                .escapeText((boolean ) _options.get("Escape Text"))
+                new Destination(new File(_options.get("Destination").asString())))
+                .escapeText(_options.get("Escape Text").asBoolean())
                 .build();
         table.write().usingOptions(options);
     }
@@ -53,8 +53,8 @@ public class HtmlDataWriter implements DataWriter {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.put("Escape Text", true);
-            _options.put("Destination", "out.html");
+            _options.add("Escape Text", true);
+            _options.add("Destination", "out.html");
         }
         return _options;
     }

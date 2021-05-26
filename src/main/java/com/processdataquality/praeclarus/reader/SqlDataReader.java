@@ -61,11 +61,11 @@ public class SqlDataReader implements DataReader {
 
     private Options initOptions() {
         Options options = new Options();
-        options.put("DB Type", "MySQL");
-        options.put("DB URL", "jdbc:mysql://localhost/DB");
-        options.put("User Name", "");
-        options.put("Password", "");
-        options.put("Table Name", "tablename");
+        options.add("DB Type", "MySQL");
+        options.add("DB URL", "jdbc:mysql://localhost/DB");
+        options.add("User Name", "");
+        options.add("Password", "");
+        options.add("Table Name", "tablename");
         return options;
     }
 
@@ -75,10 +75,10 @@ public class SqlDataReader implements DataReader {
         Statement statement = null;
         try {
             Class.forName(getDriver(_options.get("DB Type")));
-            String url = (String) _options.get("DB URL");
-            String user = (String) _options.get("User Name");
-            String pass = (String) _options.get("Password");
-            String tableName = (String) _options.get("Table Name");
+            String url = _options.get("DB URL").asString();
+            String user = _options.get("User Name").asString();
+            String pass = _options.get("Password").asString();
+            String tableName = _options.get("Table Name").asString();
             connection = DriverManager.getConnection(url, user, pass);
             statement = connection.createStatement();
             return statement.executeQuery("SELECT * FROM " + tableName);

@@ -42,7 +42,7 @@ public abstract class AbstractDataReader implements DataReader {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.putAll(new CommonReadOptions().toMap());
+            _options.addAll(new CommonReadOptions().toMap());
         }
         return _options;
     }

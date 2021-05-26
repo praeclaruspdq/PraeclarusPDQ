@@ -26,6 +26,13 @@ import tech.tablesaw.api.Table;
  */
 public class PatternNode extends Node {
 
+    public enum State { IDLE, DETECTED, REPAIRING, COMPLETED }
+
+    private Table detected;
+    private Table repairs;
+    private State state  = State.IDLE;
+
+
     public PatternNode(PDQPlugin plugin) {
         super(plugin);
         setAllowedInputs(2);
@@ -33,22 +40,49 @@ public class PatternNode extends Node {
     }
 
     @Override
-    public Table run() {
+    public void run() {
         ImperfectionPattern imperfectionPattern = (ImperfectionPattern) getPlugin();
-        Table master = getInput();
-        if (getInputCount() == 1) {
-            Table changes = imperfectionPattern.detect(master);
+        Table master = getInput();       
+        if (state == State.IDLE) {
+            detected = imperfectionPattern.detect(master);
             if (imperfectionPattern.canRepair()) {
-                addInput(changes);
-                setPause(true);
+                state = State.DETECTED;
             }
-            return changes;
+            else {
+                state = State.COMPLETED;
+                setOutput(master);
+            }
         }
-        else if (getInputCount() == 2) {
-            Table newMaster = imperfectionPattern.repair(master, getInput(1));
-            setPause(false);
-            return newMaster;
+        else if (state != State.COMPLETED) {
+            setOutput(imperfectionPattern.repair(master, repairs));
+            state = State.COMPLETED;
         }
-        throw new IllegalArgumentException("Incorrect number of inputs");
     }
+
+    @Override
+    public boolean hasCompleted() { return state == State.COMPLETED; }
+
+
+    @Override
+    public Table getOutput() {
+        if (state == State.DETECTED) {
+            return detected;
+        }
+        return super.getOutput();
+    }
+
+
+    @Override
+    public void reset() {
+        super.reset();
+        detected = null;
+        repairs = null;
+        state = State.IDLE;
+    }
+
+
+    public Table getDetected() { return detected; }
+
+    public void setRepairs(Table r) { repairs = r; }
+    
 }

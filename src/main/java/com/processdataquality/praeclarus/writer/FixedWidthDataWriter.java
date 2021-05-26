@@ -41,9 +41,9 @@ public class FixedWidthDataWriter implements DataWriter {
     public void write(Table table) throws IOException {
         if (_options == null) getOptions();  // fill null options with defaults
         FixedWidthWriteOptions options = FixedWidthWriteOptions.builder(
-                (String) _options.get("Destination"))
-                .header((boolean) _options.get("Header"))
-                .padding((char) _options.get("Pad char"))
+                _options.get("Destination").asString())
+                .header(_options.get("Header").asBoolean())
+                .padding(_options.get("Pad char").asChar())
                 .build();
         table.write().usingOptions(options);
     }
@@ -52,9 +52,9 @@ public class FixedWidthDataWriter implements DataWriter {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.put("Header", true);
-            _options.put("Destination", "out.fw");
-            _options.put("Pad char", ' ');
+            _options.add("Header", true);
+            _options.add("Destination", "out.fw");
+            _options.add("Pad char", ' ');
         }
         return _options;
     }

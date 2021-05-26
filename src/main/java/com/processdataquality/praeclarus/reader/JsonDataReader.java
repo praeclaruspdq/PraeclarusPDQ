@@ -19,8 +19,6 @@ package com.processdataquality.praeclarus.reader;
 import com.processdataquality.praeclarus.annotations.PluginMetaData;
 import tech.tablesaw.io.json.JsonReadOptions;
 
-import java.time.format.DateTimeFormatter;
-
 /**
  * @author Michael Adams
  * @date 29/3/21
@@ -34,15 +32,15 @@ import java.time.format.DateTimeFormatter;
 public class JsonDataReader extends AbstractDataReader {
 
     protected JsonReadOptions getReadOptions() {
-        String fileName = (String) _options.get("Source");
+        String fileName = _options.get("Source").asString();
         return JsonReadOptions.builder(fileName)
-                .missingValueIndicator((String) _options.get("Missing Value"))
-                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
-                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
-                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
-                .header((boolean) _options.get("Header"))
-                .tableName((String) _options.get("Table Name"))
-                .sample(((int) _options.get("Sample")) > 0)
+                .missingValueIndicator(_options.get("Missing Value").asString())
+//                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
+//                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
+//                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
+                .header(_options.get("Header").asBoolean())
+                .tableName(_options.get("Table Name").asString())
+                .sample(_options.get("Sample").asInt() > 0)
                 .build();
     }
 

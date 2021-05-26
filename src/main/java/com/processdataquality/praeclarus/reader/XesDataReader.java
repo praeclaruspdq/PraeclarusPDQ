@@ -53,13 +53,13 @@ public class XesDataReader implements DataReader {
     @Override
     public Options getOptions() {
         Options options = new Options();
-        options.put("Source", "");
+        options.add("Source", "");
         return options;
     }
 
     @Override
     public void setOptions(Options options) {
-        filePath = (String) options.get("Source");
+        filePath = options.get("Source").asString();
     }
 
 

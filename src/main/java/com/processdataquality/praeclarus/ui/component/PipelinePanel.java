@@ -25,16 +25,15 @@ import com.processdataquality.praeclarus.ui.canvas.Vertex;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.workspace.Workspace;
 import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.workspace.node.NodeFactory;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import java.util.List;
@@ -51,8 +50,7 @@ public class PipelinePanel extends VerticalLayout {
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
     private final RunnerButtons _runnerButtons;
-    private final ListBox<String> _pipelineList;
-    private final Canvas _canvas = new Canvas(1000, 500);
+    private final Canvas _canvas = new Canvas(1200, 400);
 
 
     public PipelinePanel(MainView parent) {
@@ -60,18 +58,19 @@ public class PipelinePanel extends VerticalLayout {
         _workspace = new Workspace();
         _workflow = new Workflow(this, _canvas.getContext());
         _canvas.addListener(_workflow);
-        _pipelineList = new ListBox<>();
-        _runnerButtons = new RunnerButtons(_workspace, _parent.getResultsPanel());
+        _runnerButtons = new RunnerButtons(_workspace, _workflow, _parent.getResultsPanel());
         _runnerButtons.addButton(createRemoveButton());
-        add(new H3("Pipeline"));
+        VerticalLayout vl = new VerticalLayout();
+        vl.add(new H3("Workflow"));
+        vl.add(_runnerButtons);
+        add(vl);
+ //       setSizeFull();
         add(createCanvasContainer());
-        add(_runnerButtons);
-        setSizeFull();
-        addAttachListener(e -> _canvas.setDimensions());
+//        addAttachListener(e -> _canvas.setDimensions());
     }
 
 
-    private Div createCanvasContainer() {
+    private VerticalLayout createCanvasContainer() {
         DropTarget<Canvas> dropTarget = DropTarget.create(_canvas);
         dropTarget.setDropEffect(DropEffect.COPY);
         dropTarget.addDropListener(event -> {
@@ -80,15 +79,22 @@ public class PipelinePanel extends VerticalLayout {
                     List<TreeItem> droppedItems = (List<TreeItem>) event.getDragData().get();
                     TreeItem item = droppedItems.get(0);     // only one is dropped
                     Node node = addPluginInstance(item);
-                    addVertex(node, _workspace.getNodeCount());
+                    _workflow.addVertex(node);
+                    _runnerButtons.enable();
                 }
             }
         });
 
-        Div div = new Div();
-        div.add(_canvas);
-        div.setSizeFull();
-        return div;
+        VerticalScrollLayout container = new VerticalScrollLayout();
+        container.add(_canvas);
+//        container.setSizeFull();
+        return container;
+    }
+
+
+    public void changedSelected(Node selected) {
+        showPluginProperties(selected);
+        _runnerButtons.enable();
     }
 
 
@@ -112,22 +118,17 @@ public class PipelinePanel extends VerticalLayout {
         }
         if (pTypeName.equals("Actions")) {
              instance = PluginService.actions().newInstance(item.getName());
-         }
+        }
 
-        Node node = _workspace.appendPlugin(instance);
+        Node node = NodeFactory.create(instance);
+        _workspace.addNode(node);
         _runnerButtons.enable();
         showPluginProperties(node);
         return node;
     }
+    
 
-
-    public void addVertex(Node node, int nodeCount) {
-        int sep = 100;
-        double x = 50 + ((sep + Vertex.WIDTH) * (nodeCount -1));
-        double y = 50;
-
-        _workflow.addVertex(new Vertex(x, y, node));
-    }
+    public Workspace getWorkspace() { return _workspace; }
 
 
     private Button createRemoveButton() {
@@ -137,13 +138,13 @@ public class PipelinePanel extends VerticalLayout {
             CanvasPrimitive selected = _workflow.getSelected();
             if (selected instanceof Vertex) {
                 Node node = ((Vertex) selected).getNode();
-                _workspace.dropNode(node);
+                _workspace.removeNode(node);
             }
             _workflow.removeSelected();
         });
     }
 
     public void onResize() {
-        _canvas.redraw();
+        _workflow.render();
     }
 }

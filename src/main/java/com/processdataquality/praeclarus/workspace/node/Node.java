@@ -29,16 +29,37 @@ import java.util.List;
  */
 public abstract class Node {
 
+    private Node _next;
+    private Node _previous;
     private List<Table> _inputs;
     private Table _output;
     private PDQPlugin _plugin;
     private int _allowedInputs = 0;
     private int _allowedOutputs = 0;
-    private boolean _pauseFlag = false;
 
     protected Node(PDQPlugin plugin) { setPlugin(plugin); }
 
-    public abstract Table run();
+    public abstract void run();
+
+
+    public Node next() {return _next; }
+
+    public void setNext(Node node) { _next = node; }
+
+    public boolean hasNext() { return !isTail(); }
+
+    public Node previous() { return _previous; }
+
+    public void setPrevious(Node node) { _previous = node; }
+
+    public boolean hasPrevious() { return !isHead(); }
+
+    public boolean isHead() { return _previous ==  null; }
+
+    public boolean isTail() { return _next == null; }
+
+    public boolean hasCompleted() { return true; }
+
 
     public void setPlugin(PDQPlugin plugin) { _plugin = plugin; }
 
@@ -77,7 +98,7 @@ public abstract class Node {
     public void clearInputs() { if (_inputs != null) _inputs.clear(); }
 
     public void clearInput(Table table) {
-        if (_inputs != null) {
+        if (_inputs != null && table != null) {
             _inputs.remove(table);
         }
     }
@@ -93,12 +114,13 @@ public abstract class Node {
 
     public List<Table> getInputs() { return _inputs; }
 
-    public int getInputCount() { return _inputs == null ? 0 : _inputs.size(); }
-
+    public void reset() { clearOutput(); }
 
     public Table getOutput() { return _output; }
 
     protected void setOutput(Table t) { _output = t; }
+
+    public boolean hasOutput() { return _output != null; }
 
     public Table clearOutput() {
         Table table = _output;
@@ -111,9 +133,4 @@ public abstract class Node {
 
     protected void setAllowedOutputs(int allowed) { _allowedOutputs = allowed; }
 
-
-    public boolean shouldPause() { return _pauseFlag; }
-
-    protected void setPause(boolean b) { _pauseFlag = b; }
-    
 }

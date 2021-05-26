@@ -23,7 +23,7 @@ package com.processdataquality.praeclarus.ui.canvas;
 public class Connector implements CanvasPrimitive {
 
     private static final double HEAD_SIZE = 8;
-    private static final double PROXIMITY_THRESHOLD = 7;
+    private static final double PROXIMITY_TOLERANCE = 3;
     public static final double WIDTH = 3;
     public static final String COLOUR = "black";
 
@@ -51,10 +51,14 @@ public class Connector implements CanvasPrimitive {
     public boolean contains(double x, double y) {
         Point ps = _source.getConnectPoint();
         Point pt = _target.getConnectPoint();
-        double dx = pt.x - ps.x;
-        double dy = pt.y - ps.y;
-        double d = Math.abs(dy*x - dx*y - ps.x*pt.y + pt.x*ps.y) / Math.sqrt(dx*dx + dy*dy);
-        return d < PROXIMITY_THRESHOLD;
+        Point pb = new Point(x, y);
+        double diff = getDistance(ps, pb) + getDistance(pb, pt) - getDistance(ps, pt);
+        return diff < PROXIMITY_TOLERANCE;
+    }
+
+
+    private double getDistance(Point a, Point b) {
+        return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
     }
 
 

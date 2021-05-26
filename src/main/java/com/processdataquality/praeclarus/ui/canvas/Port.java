@@ -28,27 +28,33 @@ public class Port implements CanvasPrimitive {
 
     private final Vertex parent;
     private final Style style;
-    private final double x;     // origin
-    private final double y;     // origin
 
-    public Port(Vertex v, double x, double y, Style style) {
+
+    public Port(Vertex v, Style style) {
         parent = v;
-        this.x = x;
-        this.y = y;
         this.style = style;
     }
 
-    public double x() { return x; }
+    public double x() {
+        double px = parent.x();
+        return style == Style.INPUT ? px : px + Vertex.WIDTH;
+    }
 
-    public double y() { return y; }
+    public double y() {
+        return parent.y() + Vertex.HEIGHT / 2 ;
+    }
 
     public Vertex getParent() { return parent; }
 
     public Style getStyle() { return style; }
 
+    public boolean isInput() { return style == Style.INPUT; }
+
+    public boolean isOutput() { return style == Style.OUTPUT; }
+
     public Point getConnectPoint() {
-        double px = style == Style.INPUT ? x - RADIUS : x + RADIUS;
-        return new Point(px, y);
+        double px = style == Style.INPUT ? x() - RADIUS : x() + RADIUS;
+        return new Point(px, y());
     }
 
 
@@ -60,7 +66,7 @@ public class Port implements CanvasPrimitive {
         ctx.beginPath();
         ctx.strokeStyle("gray");
         ctx.fillStyle("gray");
-        ctx.arc(x, y, RADIUS, startAngle, endAngle, false);
+        ctx.arc(x(), y(), RADIUS, startAngle, endAngle, false);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
@@ -68,8 +74,8 @@ public class Port implements CanvasPrimitive {
 
 
     public boolean contains(double pX, double pY) {
-        double dx = pX - x;
-        double dy = pY - y;
+        double dx = pX - x();
+        double dy = pY - y();
         return dx*dx + dy*dy < RADIUS * RADIUS;
     }
 }
