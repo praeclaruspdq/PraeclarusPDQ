@@ -26,6 +26,7 @@ import tech.tablesaw.api.Table;
 public class NodeRunner {
 
     private final Workspace _workspace;
+    private Node _lastCompletedNode;
 
 
     public NodeRunner(Workspace workspace) {
@@ -45,8 +46,11 @@ public class NodeRunner {
 
     public void step(Node node) {
         node.run();
-        if (node.hasCompleted() && node.hasNext()) {
-            node.next().addInput(node.getOutput());
+        if (node.hasCompleted()) {
+            _lastCompletedNode = node;
+            if (node.hasNext()) {
+                node.next().addInput(node.getOutput());
+            }
         }
     }
 
@@ -57,6 +61,7 @@ public class NodeRunner {
             node.next().clearInput(output);
         }
         node.reset();
+        _lastCompletedNode = node.hasPrevious() ? node.previous() : null;
     }
 
 
@@ -65,5 +70,5 @@ public class NodeRunner {
         run(_workspace.getHead(node));
     }
 
-
+    public Node getLastCompletedNode() { return _lastCompletedNode; }
 }

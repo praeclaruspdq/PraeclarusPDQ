@@ -44,6 +44,13 @@ public interface ImperfectionPattern extends PDQPlugin {
 
 
     /**
+     * Determines whether this particular plugin can detect the imperfection pattern
+     * (or only repair)
+     * @return true if this plugin can detect the imperfection pattern
+     */
+    boolean canDetect();
+
+    /**
      * Determines whether this particular plugin can repair the data
      * @return true if this plugin can repair the data
      */

@@ -27,9 +27,10 @@ import java.util.List;
  */
 public class Workspace {
 
+    private final NodeRunner _runner = new NodeRunner(this);
     private final List<Node> _heads = new ArrayList<>();
 
-    public NodeRunner newRunner() { return new NodeRunner(this); }
+    public NodeRunner getRunner() { return _runner; }
 
     public void addNode(Node node) { _heads.add(node); }
 

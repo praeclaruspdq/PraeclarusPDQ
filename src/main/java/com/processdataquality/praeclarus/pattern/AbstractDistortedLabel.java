@@ -95,6 +95,16 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
 
 
     /**
+     * By default subclasses can detect, but they can override this as required
+     * @return true (this plugin can detect an imperfection pattern)
+     */
+    @Override
+    public boolean canDetect() {
+        return true;
+    }
+
+    
+    /**
      * By default subclasses can repair, but they can override this as required
      * @return true (this plugin can repair a log)
      */
@@ -102,6 +112,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
     public boolean canRepair() {
         return true;
     }
+
 
 
     /**

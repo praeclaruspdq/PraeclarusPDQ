@@ -90,22 +90,15 @@ public class RunnerButtons extends Div {
 
     private void setState(State state) { _state = state; }
 
+    private State getState() { return _state; }
+
     private void addButtons() {
         Icon runIcon = createIcon(VaadinIcon.PLAY, "green");
         _runButton = new Button(runIcon, e -> {
             Node node = _workflow.getSelectedNode();
             if (node != null) {
                 setState(State.RUNNING);
-                try {
-                    _workspace.newRunner().run(node);
-                    _resultsPanel.addResults(node);
-                }
-                catch (IllegalArgumentException iae) {
-                    Notification.show(iae.getMessage());
-                }
-                finally {
-                    setState(State.IDLE);
-                }
+                runNode(node);
             }
         });
 
@@ -114,16 +107,7 @@ public class RunnerButtons extends Div {
             Node node = _workflow.getSelectedNode();
             if (node != null) {
                 setState(State.STEPPING);
-                try {
-                    _workspace.newRunner().step(node);
-                    _resultsPanel.addResult(node);
-                }
-                catch (IllegalArgumentException iae) {
-                     Notification.show(iae.getMessage());
-                 }
-                 finally {
-                     setState(State.IDLE);
-                 }
+                runNode(node);
             }
         });
 
@@ -133,7 +117,7 @@ public class RunnerButtons extends Div {
             if (node != null) {
                 setState(State.STEPPING);
                 _resultsPanel.removeResult(node);
-                _workspace.newRunner().back(node);
+                _workspace.getRunner().back(node);
                 setState(State.IDLE);
             }
         });
@@ -153,6 +137,31 @@ public class RunnerButtons extends Div {
         icon.setSize("24px");
         icon.setColor(colour);
         return icon;
+    }
+
+
+    private void runNode(Node node) {
+        try {
+            if (getState() == State.RUNNING) {
+                _workspace.getRunner().run(node);
+                _resultsPanel.addResults(node);
+            }
+            else if (getState() == State.STEPPING) {
+                _workspace.getRunner().step(node);
+                _resultsPanel.addResult(node);
+            }
+        }
+        catch (IllegalArgumentException iae) {
+            Notification.show(iae.getMessage());
+        }
+        finally {
+            setState(State.IDLE);
+            Node lastCompleted = _workspace.getRunner().getLastCompletedNode();
+            if (lastCompleted != null) {
+                _workflow.setSelectedNode(lastCompleted);
+            }
+        }
+
     }
 
 }

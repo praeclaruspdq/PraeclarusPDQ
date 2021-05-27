@@ -43,7 +43,7 @@ public class PatternNode extends Node {
     public void run() {
         ImperfectionPattern imperfectionPattern = (ImperfectionPattern) getPlugin();
         Table master = getInput();       
-        if (state == State.IDLE) {
+        if (state == State.IDLE && imperfectionPattern.canDetect()) {
             detected = imperfectionPattern.detect(master);
             if (imperfectionPattern.canRepair()) {
                 state = State.DETECTED;
@@ -53,7 +53,7 @@ public class PatternNode extends Node {
                 setOutput(master);
             }
         }
-        else if (state != State.COMPLETED) {
+        else if (state != State.COMPLETED && imperfectionPattern.canRepair()) {
             setOutput(imperfectionPattern.repair(master, repairs));
             state = State.COMPLETED;
         }

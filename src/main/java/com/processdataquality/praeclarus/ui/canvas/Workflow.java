@@ -110,12 +110,26 @@ public class Workflow implements CanvasEventListener {
 
     public CanvasPrimitive getSelected() { return selected; }
 
+    public void setSelected(CanvasPrimitive primitive) {
+        selected = primitive;
+        render();
+    }
 
     public Node getSelectedNode() {
         if (selected instanceof Vertex) {
             return ((Vertex) selected).getNode();
         }
         return null;
+    }
+
+
+    public void setSelectedNode(Node node) {
+        for (Vertex vertex : _vertices) {
+            if (vertex.getNode().equals(node)) {
+                setSelected(vertex);
+                break;
+            }
+        }
     }
 
 

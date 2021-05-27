@@ -96,28 +96,28 @@ public class Vertex implements CanvasPrimitive {
         ctx.rect(_x, _y, WIDTH, HEIGHT);
         ctx.stroke();
 
-        renderPorts(ctx);
-        renderLabel(ctx);
+        renderPorts(ctx, selected);
+        renderLabel(ctx, colour);
     }
 
 
-    private void renderPorts(Context2D ctx) {
+    private void renderPorts(Context2D ctx, CanvasPrimitive selected) {
         if (_inPort != null) {
-            _inPort.render(ctx, null);
+            _inPort.render(ctx, selected);
         }
         if (_outPort != null) {
-            _outPort.render(ctx, null);
+            _outPort.render(ctx, selected);
         }
     }
 
 
-    private void renderLabel(Context2D ctx) {
+    private void renderLabel(Context2D ctx, String colour) {
         double innerX = _x + 10;
         double innerY = _y + 20;
 
         ctx.beginPath();
         ctx.font("14px Arial");
-//        ctx.fillStyle("black");
+        ctx.fillStyle(colour);
         for (String word : _label.split(" ")) {
             ctx.fillText(word, innerX, innerY, WIDTH - 20);
             innerY+=16;
