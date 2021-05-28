@@ -66,12 +66,17 @@ public class Connector implements CanvasPrimitive {
         String colour = this.equals(selected) ? "blue" : COLOUR;
         Point ps = _source.getConnectPoint();
         Point pt = _target.getConnectPoint();
-
+        
+        double x1 = (pt.x - ps.x) / 2;
+        double dy = Math.abs(pt.y - ps.y);
+        double y1 = ps.y - (2 * dy);
+        double y2 = pt.y + (2 * dy);
         ctx.beginPath();
         ctx.strokeStyle(colour);
         ctx.lineWidth(WIDTH);
         ctx.moveTo(ps.x, ps.y);
         ctx.lineTo(pt.x, pt.y);
+//        ctx.bezierCurveTo(x1, y1, x1, y2, pt.x, pt.y);
         renderHead(ctx, ps, pt);
         ctx.stroke();
     }

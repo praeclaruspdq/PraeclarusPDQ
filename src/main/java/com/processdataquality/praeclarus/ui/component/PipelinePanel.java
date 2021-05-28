@@ -50,7 +50,7 @@ public class PipelinePanel extends VerticalLayout {
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
     private final RunnerButtons _runnerButtons;
-    private final Canvas _canvas = new Canvas(1200, 400);
+    private final Canvas _canvas = new Canvas(1600, 400);
 
 
     public PipelinePanel(MainView parent) {
@@ -87,7 +87,6 @@ public class PipelinePanel extends VerticalLayout {
 
         VerticalScrollLayout container = new VerticalScrollLayout();
         container.add(_canvas);
-//        container.setSizeFull();
         return container;
     }
 

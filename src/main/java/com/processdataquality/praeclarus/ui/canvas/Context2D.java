@@ -39,6 +39,10 @@ public class Context2D {
         setProperty("strokeStyle", strokeStyle);
     }
 
+    public void textBaseline(String baseline) {
+        setProperty("textBaseline", baseline);
+    }
+
     public void lineWidth(double lineWidth) {
         setProperty("lineWidth", lineWidth);
     }
@@ -51,6 +55,15 @@ public class Context2D {
             double endAngle, boolean antiClockwise) {
         callJs("arc", x, y, radius, startAngle, endAngle, antiClockwise);
     }
+
+    public void quadraticCurveTo(double x1, double y1, double x2, double y2) {
+        callJs("quadraticCurveTo", x1, y1, x2, y2);
+    }
+
+    public void bezierCurveTo(double x1, double y1, double x2, double y2, double endX, double endY) {
+        callJs("bezierCurveTo", x1, y1, x2, y2, endX, endY);
+    }
+
 
     public void beginPath() {
         callJs("beginPath");
@@ -153,4 +166,22 @@ public class Context2D {
         _canvas.getElement().callJsFunction("getContext('2d')." + methodName,
                 parameters);
     }
+
+//    public double measureText(String text) {
+//        retJs("measureText", text);
+//        return 0;
+//    }
+//
+//    protected void retJs(String methodName, Serializable... parameters) {
+//        PendingJavaScriptResult pend =
+//         _canvas.getElement().callJsFunction("return getContext('2d')." + methodName,
+//                 parameters);
+//        pend.then(Double.class, new SerializableConsumer<Double>() {
+//            @Override
+//            public void accept(Double aDouble) {
+//
+//            }
+//        });
+//     }
+
 }

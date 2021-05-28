@@ -36,6 +36,7 @@ window.init = function() {
     canvas.addEventListener("mousemove", fireMouseMove, false);
     canvas.addEventListener("mouseup", fireMouseUp, false);
     canvas.addEventListener("click", fireClick, false);
+    canvas.addEventListener("dblclick", fireDblClick, false);
 }
 
 function fireMouseDown(event) {
@@ -67,12 +68,23 @@ function fireClick(event) {
     canvas.$server.mouseclick(pos.x, pos.y);
 }
 
+function fireDblClick(event) {
+    var pos = getMousePos(event);
+    canvas.$server.mousedblclick(pos.x, pos.y);
+}
+
 function getMousePos(event) {
     var rect = canvas.getBoundingClientRect();
     return {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top
     };
+}
+
+window.textWidth = function(text) {
+    ctx = canvas.getContext('2d');
+    var metrics = ctx.measureText(text);
+    return metrics.width;
 }
 
 

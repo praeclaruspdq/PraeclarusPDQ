@@ -34,6 +34,7 @@ public abstract class Node {
     private List<Table> _inputs;
     private Table _output;
     private PDQPlugin _plugin;
+    private String name;
     private int _allowedInputs = 0;
     private int _allowedOutputs = 0;
 
@@ -69,7 +70,7 @@ public abstract class Node {
         PluginMetaData metaData = getPlugin().getClass().getAnnotation(PluginMetaData.class);
         return metaData.name();
     }
-    
+
 
     public void addInput(Table t) {
         if (_allowedInputs <= 0) {

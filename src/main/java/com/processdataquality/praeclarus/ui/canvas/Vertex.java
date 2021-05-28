@@ -26,6 +26,7 @@ public class Vertex implements CanvasPrimitive {
 
     public static final double WIDTH = 100;
     public static final double HEIGHT = 80;
+    public static final double CORNER_RADIUS = 10;
 
     private double _x;
     private double _y;
@@ -55,7 +56,7 @@ public class Vertex implements CanvasPrimitive {
 
     public void setLabel(String label) { _label = label; }
 
-    public String getName() { return _node.getName(); }
+    public String getLabel() { return _label; }
 
 
     public Node getNode() { return _node; }
@@ -90,16 +91,31 @@ public class Vertex implements CanvasPrimitive {
 
     public void render(Context2D ctx, CanvasPrimitive selected) {
         String colour = this.equals(selected) ? "blue" : "gray";
-        ctx.beginPath();
+//        ctx.beginPath();
         ctx.strokeStyle(colour);
         ctx.lineWidth(1);
-        ctx.rect(_x, _y, WIDTH, HEIGHT);
+ //       ctx.rect(_x, _y, WIDTH, HEIGHT);
+        renderVertex(ctx);
         ctx.stroke();
 
         renderPorts(ctx, selected);
         renderLabel(ctx, colour);
     }
 
+
+    private void renderVertex(Context2D ctx) {
+        ctx.beginPath();
+        ctx.moveTo(_x + CORNER_RADIUS, _y);
+        ctx.lineTo(_x + WIDTH - CORNER_RADIUS, _y);
+        ctx.quadraticCurveTo(_x + WIDTH, _y, _x + WIDTH, _y + CORNER_RADIUS);
+        ctx.lineTo(_x + WIDTH, _y + HEIGHT - CORNER_RADIUS);
+        ctx.quadraticCurveTo(_x + WIDTH, _y + HEIGHT, _x + WIDTH - CORNER_RADIUS, _y + HEIGHT);
+        ctx.lineTo(_x + CORNER_RADIUS, _y + HEIGHT);
+        ctx.quadraticCurveTo(_x, _y + HEIGHT, _x, _y + HEIGHT - CORNER_RADIUS);
+        ctx.lineTo(_x, _y + CORNER_RADIUS);
+        ctx.quadraticCurveTo(_x, _y, _x + CORNER_RADIUS, _y);
+        ctx.closePath();
+    }
 
     private void renderPorts(Context2D ctx, CanvasPrimitive selected) {
         if (_inPort != null) {
@@ -114,13 +130,30 @@ public class Vertex implements CanvasPrimitive {
     private void renderLabel(Context2D ctx, String colour) {
         double innerX = _x + 10;
         double innerY = _y + 20;
+        int fontSize = 14;
+        double lineHeight=fontSize*1.286;
+        double maxWidth = WIDTH - 20;
+        String line = "";
 
-        ctx.beginPath();
+        ctx.textBaseline("top");
         ctx.font("14px Arial");
+        ctx.beginPath();
         ctx.fillStyle(colour);
         for (String word : _label.split(" ")) {
+//            String temp = line + word + " ";
+////            double metrics = ctx.measureText(temp);
+//            double tempWidth = 90; //metrics.width;
+//            if (tempWidth > maxWidth) {
+//                ctx.fillText(line, innerX, innerY);
+//                line = word + " ";
+//                innerY += lineHeight;
+//            }
+//            else {
+//                line = temp;
+//            }
+//        }
             ctx.fillText(word, innerX, innerY, WIDTH - 20);
-            innerY+=16;
+            innerY+=lineHeight;
         }
         ctx.stroke();
     }

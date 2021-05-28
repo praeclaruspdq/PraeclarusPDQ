@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.ui.component.PipelinePanel;
+import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.vaadin.flow.component.notification.Notification;
 
@@ -103,10 +104,17 @@ public class Workflow implements CanvasEventListener {
     public void mouseClick(double x, double y) {
         selected = setSelected(x, y);
         render();
-        Node selectedNode = (selected instanceof Vertex) ? ((Vertex) selected).getNode() : null;
-        _parent.changedSelected(selectedNode);
+        _parent.changedSelected(getSelectedNode());
     }
 
+    @Override
+    public void mouseDblClick(double x, double y) {
+        mouseClick(x, y);
+        Vertex selectedVertex = getSelectedVertex();
+        if (selectedVertex != null) {
+            new VertexLabelDialog(this, selectedVertex).open();
+        }
+    }
 
     public CanvasPrimitive getSelected() { return selected; }
 
@@ -116,10 +124,13 @@ public class Workflow implements CanvasEventListener {
     }
 
     public Node getSelectedNode() {
-        if (selected instanceof Vertex) {
-            return ((Vertex) selected).getNode();
-        }
-        return null;
+        Vertex vertex = getSelectedVertex();
+        return vertex != null ? vertex.getNode() : null;
+    }
+
+
+    public Vertex getSelectedVertex() {
+        return selected instanceof Vertex ? ((Vertex) selected) : null;
     }
 
 
@@ -153,23 +164,6 @@ public class Workflow implements CanvasEventListener {
     public void addVertex(Node node) {
         Point p = getSuitableInsertPoint();
         addVertex(new Vertex(p.x, p.y, node));
-    }
-
-
-    public Vertex getVertex(String name) {
-        for (Vertex vertex : _vertices) {
-            if (vertex.getName().equals(name)) {
-                return vertex;
-            }
-        }
-        return null;
-    }
-
-
-    public Vertex removeVertex(String name) {
-        Vertex vertex = getVertex(name);
-        removeVertex(vertex);
-        return vertex;
     }
 
 

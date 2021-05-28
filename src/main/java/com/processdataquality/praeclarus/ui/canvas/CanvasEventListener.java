@@ -29,4 +29,7 @@ public interface CanvasEventListener {
     void mouseUp(double x, double y);
 
     void mouseClick(double x, double y);
+
+    void mouseDblClick(double x, double y);
+
 }

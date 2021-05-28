@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.ui.canvas;
 
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.page.PendingJavaScriptResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ import java.util.List;
  * @date 18/5/21
  */
 @Tag("canvas")
-@JsModule("./src/workflow.js")
+@JsModule("./src/canvas.js")
 public class Canvas extends Component implements HasStyle, HasSize {
 
     private final Context2D _ctx;
@@ -51,6 +50,9 @@ public class Canvas extends Component implements HasStyle, HasSize {
         _listeners.add(listener);
     }
 
+    public Context2D getContext() { return _ctx; }
+
+
     @ClientCallable
     private void mousedown(double x, double y) {
         _listeners.forEach(l -> l.mouseDown(x, y));
@@ -71,8 +73,10 @@ public class Canvas extends Component implements HasStyle, HasSize {
         _listeners.forEach(l -> l.mouseClick(x, y));
     }
 
-
-    public Context2D getContext() { return _ctx; }
+    @ClientCallable
+    private void mousedblclick(double x, double y) {
+        _listeners.forEach(l -> l.mouseDblClick(x, y));
+    }
 
 
     @Override
@@ -93,36 +97,9 @@ public class Canvas extends Component implements HasStyle, HasSize {
     }
 
 
-
     private void setCoOrdSpace(String width, String height) {
         getElement().setAttribute("width", width);
         getElement().setAttribute("height", height);
-    }
-
-
-//    private void addResizeListener() {
-//        UI.getCurrent().getPage().addBrowserWindowResizeListener(e -> redraw());
-//        this.getElement().addEventListener("resize", e -> redraw());
-//    }
-
-    public void redraw() {
-//        String width = callJsMethod("getClientWidth");
-//        String height = getElement().getAttribute("clientHeight");
-//        setCoOrdSpace(width, height);
-        setDimensions();
-//        drawNode();
-    }
-
-    public void setDimensions() {
-        getElement().executeJs("window.setDimensions()");
-    }
-
-
-    public String callJsMethod(String method) {
-        PendingJavaScriptResult result =
-                getElement().callJsFunction("return window." + method);
-        System.out.println(result);
-        return result.toString();
     }
 
 }
