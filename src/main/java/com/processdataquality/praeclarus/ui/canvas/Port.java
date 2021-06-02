@@ -59,7 +59,7 @@ public class Port implements CanvasPrimitive {
 
 
     public void render(Context2D ctx, CanvasPrimitive selected) {
-        String colour = parent.equals(selected) ? "blue" : "gray";
+        String colour = "black";
         double rotation = Math.PI / 2;
         double startAngle = (style == Style.INPUT ? 0 : Math.PI) + rotation;
         double endAngle = (style == Style.INPUT ? Math.PI  : Math.PI * 2) + rotation;

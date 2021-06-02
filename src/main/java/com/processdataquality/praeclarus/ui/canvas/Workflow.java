@@ -20,6 +20,9 @@ import com.processdataquality.praeclarus.ui.component.PipelinePanel;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.vaadin.flow.component.notification.Notification;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +43,7 @@ public class Workflow implements CanvasEventListener {
     private ActiveLine activeLine;
     private CanvasPrimitive selected;
     private State state = State.NONE;
+    private boolean _loading = false;
 
 
     public Workflow(PipelinePanel parent, Context2D context) {
@@ -102,9 +106,12 @@ public class Workflow implements CanvasEventListener {
 
     @Override
     public void mouseClick(double x, double y) {
+        CanvasPrimitive prevSelected = selected;
         selected = setSelected(x, y);
-        render();
-        _parent.changedSelected(getSelectedNode());
+        if (selected != prevSelected) {
+            render();
+            _parent.changedSelected(getSelectedNode());
+        }
     }
 
     @Override
@@ -115,6 +122,36 @@ public class Workflow implements CanvasEventListener {
             new VertexLabelDialog(this, selectedVertex).open();
         }
     }
+
+    @Override
+    public void fileLoaded(String jsonStr) {
+        WorkflowLoader loader = new WorkflowLoader(this, _parent.getWorkspace());
+        try {
+            loader.load(jsonStr);
+        }
+        catch (JSONException je) {
+            Notification.show("Failed to load file: " + je.getMessage());
+        }
+    }
+
+
+    public void clear() {
+        _vertices.clear();
+        _connectors.clear();
+        render();
+    }
+
+
+    public void setLoading(boolean b) {
+        _loading = b;
+        if (! _loading) render();
+    }
+
+
+    public boolean hasContent() {
+        return ! _vertices.isEmpty();
+    }
+
 
     public CanvasPrimitive getSelected() { return selected; }
 
@@ -137,7 +174,11 @@ public class Workflow implements CanvasEventListener {
     public void setSelectedNode(Node node) {
         for (Vertex vertex : _vertices) {
             if (vertex.getNode().equals(node)) {
+                CanvasPrimitive prevSelected = selected;
                 setSelected(vertex);
+                if (selected != prevSelected) {
+                    _parent.changedSelected(node);
+                }
                 break;
             }
         }
@@ -147,9 +188,11 @@ public class Workflow implements CanvasEventListener {
     public void removeSelected() {
         if (selected instanceof Vertex) {
             removeVertex((Vertex) selected);
+            selected = null;
         }
         else if (selected instanceof Connector) {
             removeConnector((Connector) selected);
+            selected = null;
         }
     }
 
@@ -195,6 +238,23 @@ public class Workflow implements CanvasEventListener {
         return success;
     }
 
+
+    public JSONObject asJson() throws JSONException {
+        JSONArray vertexArray = new JSONArray();
+        for (Vertex vertex : _vertices) {
+            vertexArray.put(vertex.asJson());
+        }
+        JSONArray connectorArray = new JSONArray();
+        for (Connector connector : _connectors) {
+            connectorArray.put(connector.asJson());
+        }
+        JSONObject json = new JSONObject();
+        json.put("vertices", vertexArray);
+        json.put("connectors", connectorArray);
+        return json;
+    }
+    
+
     private void removeConnectors(Vertex vertex) {
         Set<Connector> removeSet = new HashSet<>();
         for (Connector c : _connectors) {
@@ -230,6 +290,7 @@ public class Workflow implements CanvasEventListener {
 
 
     public void render() {
+        if (_loading) return;                 // don't render while loading from file
         _ctx.clear();
         for (Vertex vertex : _vertices) {
             vertex.render(_ctx, selected);

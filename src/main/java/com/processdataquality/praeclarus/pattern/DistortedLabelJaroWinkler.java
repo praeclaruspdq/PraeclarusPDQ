@@ -54,7 +54,7 @@ public class DistortedLabelJaroWinkler extends AbstractDistortedLabel {
     public Options getOptions() {
         Options options = super.getOptions();
         if (!options.containsKey("Threshold")) {
-            options.add("Threshold", 0.7);
+            options.addDefault("Threshold", 0.7);
         }
         return options;
     }

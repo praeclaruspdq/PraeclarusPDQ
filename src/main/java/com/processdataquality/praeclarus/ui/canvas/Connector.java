@@ -16,6 +16,9 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 /**
  * @author Michael Adams
  * @date 19/5/21
@@ -24,7 +27,7 @@ public class Connector implements CanvasPrimitive {
 
     private static final double HEAD_SIZE = 8;
     private static final double PROXIMITY_TOLERANCE = 3;
-    public static final double WIDTH = 3;
+    public static final double WIDTH = 2;
     public static final String COLOUR = "black";
 
 
@@ -57,26 +60,29 @@ public class Connector implements CanvasPrimitive {
     }
 
 
+    public JSONObject asJson() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("source", getSource().getID());
+        json.put("target", getTarget().getID());
+        return json;
+    }
+
+
     private double getDistance(Point a, Point b) {
         return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
     }
 
 
     public void render(Context2D ctx, CanvasPrimitive selected) {
-        String colour = this.equals(selected) ? "blue" : COLOUR;
+        double width = this.equals(selected) ? WIDTH * 2 : WIDTH;
         Point ps = _source.getConnectPoint();
         Point pt = _target.getConnectPoint();
         
-        double x1 = (pt.x - ps.x) / 2;
-        double dy = Math.abs(pt.y - ps.y);
-        double y1 = ps.y - (2 * dy);
-        double y2 = pt.y + (2 * dy);
         ctx.beginPath();
-        ctx.strokeStyle(colour);
-        ctx.lineWidth(WIDTH);
+        ctx.strokeStyle(COLOUR);
+        ctx.lineWidth(width);
         ctx.moveTo(ps.x, ps.y);
         ctx.lineTo(pt.x, pt.y);
-//        ctx.bezierCurveTo(x1, y1, x1, y2, pt.x, pt.y);
         renderHead(ctx, ps, pt);
         ctx.stroke();
     }

@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.plugin.PluginParameter;
+import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.checkbox.Checkbox;
 
 /**

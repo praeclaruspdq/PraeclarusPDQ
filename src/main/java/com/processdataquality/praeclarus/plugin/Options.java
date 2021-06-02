@@ -16,6 +16,9 @@
 
 package com.processdataquality.praeclarus.plugin;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,9 +31,14 @@ public class Options extends HashMap<String, Option> {
     private final Map<String, Option> changes = new HashMap<>();
 
 
-    public Option add(String key, Object o) {
-        return add(new Option(key, o));
-    }
+    public Options() { }
+
+    public Options(Map<String, Object> defaults) { init(defaults); }
+
+
+    public Option add(String key, Object o) { return add(new Option(key, o)); }
+    
+    public Option set(String key, Object o) { return add(new Option(key, o)); }
 
 
     public Option add(Option option) {
@@ -41,14 +49,39 @@ public class Options extends HashMap<String, Option> {
     
     public void addAll(Map<String, Object> map) {
         for (String key : map.keySet()) {
-            Option option = new Option(key, map.get(key));
-            add(option);
+            add(key, map.get(key));
         }
     }
 
 
+    public Option addDefault(String key, Object o) {
+        return add(new Option(key, o));
+    }
+
+
+    public Option addDefault(Option option) {
+        return super.put(option.key(), option);
+    }
+
+
+    public void init(Map<String, Object> map) {
+         for (String key : map.keySet()) {
+             addDefault(key, map.get(key));
+         }
+     }
+     
+
     public Map<String, Option> getChanges() {
         return changes;
+    }
+
+
+    public JSONObject getChangesAsJson() throws JSONException {
+        JSONObject json = new JSONObject();
+        for (String key : changes.keySet()) {
+             json.put(key, changes.get(key).get());
+        }
+        return json;
     }
     
 

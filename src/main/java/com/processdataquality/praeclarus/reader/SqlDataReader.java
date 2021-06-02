@@ -53,19 +53,18 @@ public class SqlDataReader implements DataReader {
         return _options;
     }
 
-    @Override
-    public void setOptions(Options options) {
+    private void setOptions(Options options) {
         _options = options;
     }
 
 
     private Options initOptions() {
         Options options = new Options();
-        options.add("DB Type", "MySQL");
-        options.add("DB URL", "jdbc:mysql://localhost/DB");
-        options.add("User Name", "");
-        options.add("Password", "");
-        options.add("Table Name", "tablename");
+        options.addDefault("DB Type", "MySQL");
+        options.addDefault("DB URL", "jdbc:mysql://localhost/DB");
+        options.addDefault("User Name", "");
+        options.addDefault("Password", "");
+        options.addDefault("Table Name", "tablename");
         return options;
     }
 

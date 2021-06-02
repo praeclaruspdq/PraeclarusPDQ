@@ -14,12 +14,10 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.plugin;
+package com.processdataquality.praeclarus.ui.parameter;
 
-import com.processdataquality.praeclarus.ui.parameter.editor.BooleanEditor;
-import com.processdataquality.praeclarus.ui.parameter.editor.IntEditor;
-import com.processdataquality.praeclarus.ui.parameter.editor.NumberEditor;
-import com.processdataquality.praeclarus.ui.parameter.editor.StringEditor;
+import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.ui.parameter.editor.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
@@ -64,9 +62,9 @@ public class PluginParameter {
         if (_value instanceof Boolean) {
             return new BooleanEditor(plugin, this);
         }
-//        if (_name.equals("Source")) {
-//            return new FileEditor(plugin, this);
-//        }
+        if (_name.equals("Source")) {
+            return new FileEditor(plugin, this);
+        }
 //        else if (_value instanceof Character) {
 //            _value = value.charAt(0);
 //        }

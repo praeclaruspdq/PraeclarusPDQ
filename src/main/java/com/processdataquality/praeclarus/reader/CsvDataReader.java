@@ -31,20 +31,22 @@ import tech.tablesaw.io.csv.CsvReadOptions;
         version = "1.0",
         synopsis = "Loads a log file consisting of lines of comma separated values."
 )
-public class CsvDataReader extends AbstractDataReader {
+public class CsvDataReader extends AbstractFileDataReader {
 
     @Override
     public Options getOptions() {
         Options options = super.getOptions();
         if (! options.containsKey("Separator")) {
-            options.add("Separator", ',');
+            options.addDefault("Separator", ',');
         }
         return options;
     }
 
 
     protected CsvReadOptions getReadOptions() {
-        String fileName = _options.get("Source").asString();
+        String fileName = getFilePath() != null ? getFilePath() :
+                _options.get("Source").asString();
+        
         return CsvReadOptions.builder(fileName)
                 .separator(_options.get("Separator").asChar())
                 .missingValueIndicator(_options.get("Missing Value").asString())

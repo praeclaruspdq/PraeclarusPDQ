@@ -30,6 +30,39 @@ window.setDimensions = function() {
     canvas.height = canvas.clientHeight;
 }
 
+window.loadFile = async function() {
+    const opts = {
+      types: [{
+          description: 'Praeclarus Workflows',
+          accept: { 'application/json': ['.pwf', '.json']}
+        }],
+      excludeAcceptAllOption: true,
+      multiple: false
+    };
+
+    let fileHandle;
+    [fileHandle] = await window.showOpenFilePicker(opts);
+    const file = await fileHandle.getFile();
+    const contents = await file.text();
+    canvas.$server.fileloaded(contents);
+}
+
+
+window.saveFile = async function(contents) {
+    const opts = {
+      types: [{
+          description: 'Praeclarus Workflows',
+          accept: { 'application/json': ['.pwf', '.json']}
+        }],
+    };
+    
+    const fileHandle = await window.showSaveFilePicker(opts);
+    const writable = await fileHandle.createWritable();
+    await writable.write(contents);
+    await writable.close();
+}
+
+
 window.init = function() {
     canvas = document.getElementById("workflowCanvas");
     canvas.addEventListener("mousedown", fireMouseDown, false);

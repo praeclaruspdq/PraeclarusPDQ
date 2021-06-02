@@ -61,8 +61,7 @@ public class InnerJoin implements Action {
     }
 
 
-    @Override
-    public void setOptions(Options options) {
+    private void setOptions(Options options) {
         this.options.putAll(options);
     }
 }

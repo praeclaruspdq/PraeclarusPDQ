@@ -34,7 +34,9 @@ import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 
 import java.util.List;
 
@@ -43,7 +45,7 @@ import java.util.List;
  * @date 30/4/21
  */
 @CssImport("./styles/pdq-styles.css")
-@JsModule("./src/test.js")
+@JsModule("./src/fs.js")
 public class PipelinePanel extends VerticalLayout {
 
     private final Workspace _workspace;               // backend
@@ -58,18 +60,24 @@ public class PipelinePanel extends VerticalLayout {
         _workspace = new Workspace();
         _workflow = new Workflow(this, _canvas.getContext());
         _canvas.addListener(_workflow);
-        _runnerButtons = new RunnerButtons(_workspace, _workflow, _parent.getResultsPanel());
-        _runnerButtons.addButton(createRemoveButton());
+        _runnerButtons = initRunnerButtons();
         VerticalLayout vl = new VerticalLayout();
         vl.add(new H3("Workflow"));
         vl.add(_runnerButtons);
         add(vl);
- //       setSizeFull();
         add(createCanvasContainer());
-//        addAttachListener(e -> _canvas.setDimensions());
     }
 
 
+    private RunnerButtons initRunnerButtons() {
+        RunnerButtons buttons = new RunnerButtons(_workspace, _workflow, _parent.getResultsPanel());
+        buttons.addButton(createRemoveButton());
+        buttons.addButton(createLoadButton());
+        buttons.addButton(createSaveButton());
+        return buttons;
+    }
+
+    
     private VerticalLayout createCanvasContainer() {
         DropTarget<Canvas> dropTarget = DropTarget.create(_canvas);
         dropTarget.setDropEffect(DropEffect.COPY);
@@ -104,7 +112,7 @@ public class PipelinePanel extends VerticalLayout {
 
 
     private Node addPluginInstance(TreeItem item) {
-        String pTypeName = item.getRoot().getName();
+        String pTypeName = item.getRoot().getLabel();
         PDQPlugin instance = null;
         if (pTypeName.equals("Readers")) {
             instance = PluginService.readers().newInstance(item.getName());
@@ -121,7 +129,6 @@ public class PipelinePanel extends VerticalLayout {
 
         Node node = NodeFactory.create(instance);
         _workspace.addNode(node);
-        _runnerButtons.enable();
         showPluginProperties(node);
         return node;
     }
@@ -142,6 +149,29 @@ public class PipelinePanel extends VerticalLayout {
             _workflow.removeSelected();
         });
     }
+
+
+    private Button createLoadButton() {
+        Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
+        icon.setSize("24px");
+        return new Button(icon, e -> _canvas.loadFromFile());
+    }
+
+
+    private Button createSaveButton() {
+        Icon icon = VaadinIcon.DOWNLOAD_ALT.create();
+        icon.setSize("24px");
+        return new Button(icon, e -> {
+            try {
+                 String jsonStr = _workflow.asJson().toString(3);
+                _canvas.saveToFile(jsonStr);
+             }
+             catch (JSONException je) {
+                 Notification.show("Failed to save file: " + je.getMessage());
+             }
+        });
+    }
+
 
     public void onResize() {
         _workflow.render();

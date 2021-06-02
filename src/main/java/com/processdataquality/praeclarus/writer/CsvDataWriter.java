@@ -53,16 +53,15 @@ public class CsvDataWriter implements DataWriter {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.add("Header", true);
-            _options.add("Destination", "out.csv");
-            _options.add("Separator", ',');
-            _options.add("Quote", '\"');
+            _options.addDefault("Header", true);
+            _options.addDefault("Destination", "out.csv");
+            _options.addDefault("Separator", ',');
+            _options.addDefault("Quote", '\"');
         }
         return _options;
     }
 
-    @Override
-    public void setOptions(Options options) {
+    private void setOptions(Options options) {
         _options = options;
     }
 

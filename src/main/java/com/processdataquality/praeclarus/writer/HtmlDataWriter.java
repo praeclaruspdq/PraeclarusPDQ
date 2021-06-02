@@ -53,14 +53,13 @@ public class HtmlDataWriter implements DataWriter {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.add("Escape Text", true);
-            _options.add("Destination", "out.html");
+            _options.addDefault("Escape Text", true);
+            _options.addDefault("Destination", "out.html");
         }
         return _options;
     }
 
-    @Override
-    public void setOptions(Options options) {
+    private void setOptions(Options options) {
         _options = options;
     }
 

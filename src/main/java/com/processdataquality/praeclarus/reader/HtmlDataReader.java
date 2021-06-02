@@ -30,20 +30,22 @@ import tech.tablesaw.io.html.HtmlReadOptions;
         version = "1.0",
         synopsis = "Loads a log file formatted as HTML."
 )
-public class HtmlDataReader extends AbstractDataReader {
+public class HtmlDataReader extends AbstractFileDataReader {
     
     @Override
     public Options getOptions() {
         Options options = super.getOptions();
         if (! options.containsKey("Table Index")) {
-            options.add("Table Index", 0);
+            options.addDefault("Table Index", 0);
         }
         return options;
     }
 
 
     protected HtmlReadOptions getReadOptions() {
-        String urlStr = _options.get("Source").asString();
+        String urlStr = getFilePath() != null ? getFilePath() :
+                _options.get("Source").asString();
+
         return HtmlReadOptions.builder(urlStr)
                 .missingValueIndicator(_options.get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))

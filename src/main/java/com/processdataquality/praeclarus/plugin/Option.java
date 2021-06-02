@@ -23,7 +23,7 @@ package com.processdataquality.praeclarus.plugin;
 public class Option {
 
     private final String _key;
-    private Object _value;
+    private final Object _value;
     private boolean _mandatory;
     private String _mandatoryMessage;
 
@@ -78,6 +78,14 @@ public class Option {
 
     public char asChar() {
         if (! (_value instanceof Character)) {
+
+            // if it's a string of length 1, let's treat it as a char
+            if (_value instanceof String) {
+                String value = (String) _value;
+                if (value.length() == 1) {
+                    return value.charAt(0);
+                }
+            }
             throw new IllegalArgumentException("Value is missing or not a char type");
         }
         return (char) _value;

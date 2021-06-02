@@ -18,7 +18,7 @@ package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.plugin.PluginParameter;
+import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Label;
@@ -56,7 +56,9 @@ public abstract class AbstractEditor extends HorizontalLayout {
     protected void updateProperties(PluginParameter parameter) {
         Options options = _plugin.getOptions();
         options.add(parameter.getName(), parameter.getValue());
-        _plugin.setOptions(options);
     }
+
+
+    protected PDQPlugin getPlugin() { return _plugin; }
 
 }

@@ -17,6 +17,10 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.workspace.node.Node;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Michael Adams
@@ -27,7 +31,11 @@ public class Vertex implements CanvasPrimitive {
     public static final double WIDTH = 100;
     public static final double HEIGHT = 80;
     public static final double CORNER_RADIUS = 10;
+    public static final double LINE_WIDTH = 1;
 
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
+
+    private final int _id;
     private double _x;
     private double _y;
     private String _label;
@@ -36,11 +44,17 @@ public class Vertex implements CanvasPrimitive {
     private Port _outPort;
     private Point _dragOffset;
 
+
     public Vertex(double x, double y, Node node) {
+        this(x, y, node, ID_GENERATOR.incrementAndGet());
+    }
+    
+    public Vertex(double x, double y, Node node, int id) {
         _x = x;
         _y = y;
-        this._label = node.getName();
-        this._node = node;
+        _id = id;
+        _label = node.getName();
+        _node = node;
         if (node.allowsInput()) {
             _inPort = new Port(this, Port.Style.INPUT);
         }
@@ -53,6 +67,9 @@ public class Vertex implements CanvasPrimitive {
     public double x() { return _x; }
 
     public double y() { return  _y; }
+
+    public int getID() { return _id; }
+    
 
     public void setLabel(String label) { _label = label; }
 
@@ -77,6 +94,23 @@ public class Vertex implements CanvasPrimitive {
         return null;
     }
 
+
+    public Port getInputPort() { return _inPort; }
+
+    public Port getOutputPort() { return _outPort; }
+
+
+    public JSONObject asJson() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("id", _id);
+        json.put("x", _x);
+        json.put("y", _y);
+        json.put("label", _label);
+        json.put("plugin", _node.getPlugin().getClass().getName());
+        json.put("options", _node.getPlugin().getOptions().getChangesAsJson());
+        return json;
+    }
+
     public void setDragOffset(double x, double y) {
         double dx = x - _x;
         double dy = y - _y;
@@ -91,11 +125,14 @@ public class Vertex implements CanvasPrimitive {
 
     public void render(Context2D ctx, CanvasPrimitive selected) {
         String colour = this.equals(selected) ? "blue" : "gray";
-//        ctx.beginPath();
-        ctx.strokeStyle(colour);
-        ctx.lineWidth(1);
- //       ctx.rect(_x, _y, WIDTH, HEIGHT);
+        ctx.strokeStyle("black");
+        ctx.lineWidth(this.equals(selected) ? LINE_WIDTH * 3 : LINE_WIDTH);
+        ctx.beginPath();
         renderVertex(ctx);
+        if (this.equals(selected)) {
+            ctx.fillStyle("#D0D0D0");
+            ctx.fill();
+        }
         ctx.stroke();
 
         renderPorts(ctx, selected);
@@ -104,7 +141,6 @@ public class Vertex implements CanvasPrimitive {
 
 
     private void renderVertex(Context2D ctx) {
-        ctx.beginPath();
         ctx.moveTo(_x + CORNER_RADIUS, _y);
         ctx.lineTo(_x + WIDTH - CORNER_RADIUS, _y);
         ctx.quadraticCurveTo(_x + WIDTH, _y, _x + WIDTH, _y + CORNER_RADIUS);

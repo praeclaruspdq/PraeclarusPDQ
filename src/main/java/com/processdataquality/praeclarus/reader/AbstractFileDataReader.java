@@ -26,9 +26,10 @@ import java.io.IOException;
  * @author Michael Adams
  * @date 29/4/21
  */
-public abstract class AbstractDataReader implements DataReader {
+public abstract class AbstractFileDataReader implements FileDataReader {
 
     protected Options _options;
+    protected String _path;
     
     protected abstract ReadOptions getReadOptions();
 
@@ -41,16 +42,19 @@ public abstract class AbstractDataReader implements DataReader {
     @Override
     public Options getOptions() {
         if (_options == null) {
-            _options = new Options();
-            _options.addAll(new CommonReadOptions().toMap());
+            _options = new Options(new CommonReadOptions().toMap());
         }
         return _options;
     }
 
 
     @Override
-    public void setOptions(Options options) {
-        _options = options;
+    public void setFilePath(String path) {
+        _path = path;
     }
 
+    @Override
+    public String getFilePath() {
+        return _path;
+    }
 }

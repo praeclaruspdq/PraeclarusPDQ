@@ -14,17 +14,12 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.plugin;
-
-/**
- * @author Michael Adams
- * @date 6/4/21
- */
-public interface PDQPlugin {
-    
-    /**
-     * @return A map of configuration parameters for the plugin.
-     */
-    Options getOptions();
-
+window.getFile = async function(elemID) {
+    let fileHandle;
+    [fileHandle] = await window.showOpenFilePicker();
+    const file = await fileHandle.getFile();
+    const contents = await file.text();
+    document.getElementById(elemID).$server.setfile(file.name, contents);
 }
+
+

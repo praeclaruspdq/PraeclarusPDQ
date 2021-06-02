@@ -18,21 +18,19 @@ package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.workspace.node.PatternNode;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import tech.tablesaw.api.ColumnType;
-import tech.tablesaw.api.Row;
-import tech.tablesaw.api.Table;
+import tech.tablesaw.api.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -61,13 +59,22 @@ public class ResultsPanel extends VerticalLayout {
         add(layout);
         pages.setSizeFull();
         setSizeFull();
+        tabs.setVisible(false);
     }
 
     public void addResult(Node node) {
         Tab tab = new Tab(node.getName());
-        Div page = new Div(createGrid(node.getOutput()));
+        Grid<Row> grid = createGrid(node);
+        Div page = new Div(grid);
+        if (node instanceof PatternNode) {
+            grid.setSelectionMode(Grid.SelectionMode.MULTI);
+            FooterRow footer = grid.appendFooterRow();
+            footer.getCells().get(0).setComponent(
+                    new Button("Repair Selected", e -> repair(node, grid)));
+        }
         tabsToPages.put(tab, page);
         tabs.add(tab);
+        tabs.setVisible(true);
         pages.add(page);
     }
 
@@ -91,6 +98,7 @@ public class ResultsPanel extends VerticalLayout {
                  break;
              }
         }
+        tabs.setVisible(! tabsToPages.isEmpty());
     }
 
 
@@ -101,7 +109,8 @@ public class ResultsPanel extends VerticalLayout {
     }
 
 
-    private Grid<Row> createGrid(Table table) {
+    private Grid<Row> createGrid(Node node) {
+        Table table = node.getOutput();
         Grid<Row> grid = new Grid<>();
         for (String name : table.columnNames()) {
             ColumnType colType = table.column(name).type();
@@ -146,6 +155,19 @@ public class ResultsPanel extends VerticalLayout {
         }
         grid.setItems(rows);
         return grid;
+    }
+
+
+    private void repair(Node node, Grid<Row> grid) {
+        Table repairs = Table.create("Repairs").addColumns(
+                        StringColumn.create("Incorrect"),
+                        StringColumn.create("Correct"));
+        for (Row row : grid.asMultiSelect().getSelectedItems()) {
+            repairs.column(0).appendCell(row.getString("Label2"));
+            repairs.column(1).appendCell(row.getString("Label1"));
+        }
+        ((PatternNode) node).setRepairs(repairs);
+        _parent.getPipelinePanel().getWorkspace().getRunner().resume(node);
     }
 
 }

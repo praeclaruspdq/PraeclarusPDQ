@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
+import com.processdataquality.praeclarus.workspace.NodeRunner;
 import com.processdataquality.praeclarus.workspace.Workspace;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.vaadin.flow.component.button.Button;
@@ -31,13 +32,13 @@ import com.vaadin.flow.component.notification.Notification;
  */
 public class RunnerButtons extends Div {
 
-    private enum State { RUNNING, STEPPING, IDLE }
-
     private final Workspace _workspace;
     private final Workflow _workflow;
     private final ResultsPanel _resultsPanel;
 
-    private State _state;
+    private NodeRunner.State _state;
+    
+    private Button _saveButton;
     private Button _runButton;
     private Button _stepButton;
     private Button _backButton;
@@ -49,12 +50,13 @@ public class RunnerButtons extends Div {
         _workflow = workflow;
         _resultsPanel = resultsPanel;
         addButtons();
-        _state = State.IDLE;
+        _state = NodeRunner.State.IDLE;
         enable();
     }
 
 
     public void enable() {
+//        _saveButton.setEnabled(_workflow.hasContent());
         switch (_state) {
             case RUNNING:
             case STEPPING: {
@@ -88,16 +90,16 @@ public class RunnerButtons extends Div {
         add(b);
     }
 
-    private void setState(State state) { _state = state; }
+    private void setState(NodeRunner.State state) { _state = state; }
 
-    private State getState() { return _state; }
+    private NodeRunner.State getState() { return _state; }
 
     private void addButtons() {
         Icon runIcon = createIcon(VaadinIcon.PLAY, "green");
         _runButton = new Button(runIcon, e -> {
             Node node = _workflow.getSelectedNode();
             if (node != null) {
-                setState(State.RUNNING);
+                setState(NodeRunner.State.RUNNING);
                 runNode(node);
             }
         });
@@ -106,7 +108,7 @@ public class RunnerButtons extends Div {
         _stepButton = new Button(stepIcon, e -> {
             Node node = _workflow.getSelectedNode();
             if (node != null) {
-                setState(State.STEPPING);
+                setState(NodeRunner.State.STEPPING);
                 runNode(node);
             }
         });
@@ -115,17 +117,17 @@ public class RunnerButtons extends Div {
         _backButton = new Button(backIcon, e -> {
             Node node = _workflow.getSelectedNode();
             if (node != null) {
-                setState(State.STEPPING);
+                setState(NodeRunner.State.STEPPING);
                 _resultsPanel.removeResult(node);
                 _workspace.getRunner().back(node);
-                setState(State.IDLE);
+                setState(NodeRunner.State.IDLE);
             }
         });
 
         Icon stopIcon = createIcon(VaadinIcon.CLOSE_CIRCLE_O,"red");
         _stopButton = new Button(stopIcon, e -> {
             _workspace.reset();
-            setState(State.IDLE);
+            setState(NodeRunner.State.IDLE);
         });
         
         add(_runButton, _stepButton, _backButton, _stopButton);
@@ -142,11 +144,11 @@ public class RunnerButtons extends Div {
 
     private void runNode(Node node) {
         try {
-            if (getState() == State.RUNNING) {
+            if (getState() == NodeRunner.State.RUNNING) {
                 _workspace.getRunner().run(node);
                 _resultsPanel.addResults(node);
             }
-            else if (getState() == State.STEPPING) {
+            else if (getState() == NodeRunner.State.STEPPING) {
                 _workspace.getRunner().step(node);
                 _resultsPanel.addResult(node);
             }
@@ -155,7 +157,7 @@ public class RunnerButtons extends Div {
             Notification.show(iae.getMessage());
         }
         finally {
-            setState(State.IDLE);
+            setState(NodeRunner.State.IDLE);
             Node lastCompleted = _workspace.getRunner().getLastCompletedNode();
             if (lastCompleted != null) {
                 _workflow.setSelectedNode(lastCompleted);

@@ -123,8 +123,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
     public Options getOptions() {
         if (options == null) {
             options = new Options();
-            options.add("Column Name", "");
-            options.add("Repair", false);
+            options.addDefault("Column Name", "");
         }
         return options;
     }
@@ -134,7 +133,6 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
      * Sets the options for this plugin, overwriting existing values
      * @param options a map of configuration keys and values
      */
-    @Override
     public void setOptions(Options options) {
         this.options = options;
     }

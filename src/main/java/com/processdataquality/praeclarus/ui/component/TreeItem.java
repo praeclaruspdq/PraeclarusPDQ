@@ -18,18 +18,30 @@ package com.processdataquality.praeclarus.ui.component;
 
 public class TreeItem {
 
-    private final String label;
-    private final TreeItem parent;
+    private final String _label;
+    private final String _fqClassName;
+    private final TreeItem _parent;
 
-    
-    public TreeItem(String label, TreeItem parent) {
-        this.label = label;
-        this.parent = parent;
+
+    public TreeItem(String label) {
+        this(label, null, null);
     }
+
+    public TreeItem(String label, TreeItem parent, String fqClassName) {
+        _label = label;
+        _parent = parent;
+        _fqClassName = fqClassName;
+    }
+
+
+    public String getLabel() { return _label; }
 
     public TreeItem getParent() {
-        return parent;
+        return _parent;
     }
+
+    public String getName() { return _fqClassName; }
+
 
     public TreeItem getRoot() {
         TreeItem parent = getParent();
@@ -39,5 +51,4 @@ public class TreeItem {
         return parent;
     }
 
-    public String getName() { return label; }
 }

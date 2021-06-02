@@ -30,6 +30,12 @@ public class Workspace {
     private final NodeRunner _runner = new NodeRunner(this);
     private final List<Node> _heads = new ArrayList<>();
 
+
+    public void clear() {
+        _heads.clear();
+        _runner.reset();
+    }
+
     public NodeRunner getRunner() { return _runner; }
 
     public void addNode(Node node) { _heads.add(node); }

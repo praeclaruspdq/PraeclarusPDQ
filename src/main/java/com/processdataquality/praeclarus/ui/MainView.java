@@ -59,6 +59,8 @@ public class MainView extends VerticalLayout {
 
     public ResultsPanel getResultsPanel() { return _resultsPanel; }
 
+    public PipelinePanel getPipelinePanel() { return _pipelinePanel; }
+
 
     private SplitLayout leftPanel() {
         SplitLayout leftLayout = new SplitLayout();

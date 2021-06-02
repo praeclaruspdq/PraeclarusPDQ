@@ -32,4 +32,6 @@ public interface CanvasEventListener {
 
     void mouseDblClick(double x, double y);
 
+    void fileLoaded(String content);
+
 }

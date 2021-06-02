@@ -25,8 +25,11 @@ import tech.tablesaw.api.Table;
  */
 public class NodeRunner {
 
+    public enum State { RUNNING, STEPPING, IDLE }
+
     private final Workspace _workspace;
     private Node _lastCompletedNode;
+    private State _state = State.IDLE;
 
 
     public NodeRunner(Workspace workspace) {
@@ -34,6 +37,7 @@ public class NodeRunner {
     }
 
     public void run(Node node) {
+        _state = State.RUNNING;
         while (node != null) {
             step(node);
             if (! node.hasCompleted()) {
@@ -45,13 +49,28 @@ public class NodeRunner {
 
 
     public void step(Node node) {
+        _state = State.STEPPING;
         node.run();
         if (node.hasCompleted()) {
             _lastCompletedNode = node;
             if (node.hasNext()) {
                 node.next().addInput(node.getOutput());
             }
+            else {
+                _state = State.IDLE;
+            }
         }
+    }
+
+
+    public void resume(Node node) {
+        if (_state == State.RUNNING) {
+            run(node);
+        }
+        else if (_state == State.STEPPING) {
+            step(node);
+        }
+        // else error
     }
 
 
@@ -70,5 +89,13 @@ public class NodeRunner {
         run(_workspace.getHead(node));
     }
 
+
+    public void reset() {
+        _lastCompletedNode = null;
+        _state = State.IDLE;
+    }
+
+
     public Node getLastCompletedNode() { return _lastCompletedNode; }
+
 }

@@ -24,6 +24,7 @@ import tech.tablesaw.api.DateTimeColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.columns.Column;
+import tech.tablesaw.io.ReadOptions;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +42,8 @@ import java.util.*;
         version = "1.0",
         synopsis = "Loads a log file stored in XES format."
 )
-public class XesDataReader implements DataReader {
+public class XesDataReader extends AbstractFileDataReader {
 
-    private String filePath;
 
     @Override
     public Table read() throws IOException {
@@ -53,19 +53,19 @@ public class XesDataReader implements DataReader {
     @Override
     public Options getOptions() {
         Options options = new Options();
-        options.add("Source", "");
+        options.addDefault("Source", "");
         return options;
     }
 
     @Override
-    public void setOptions(Options options) {
-        filePath = options.get("Source").asString();
+    protected ReadOptions getReadOptions() {             // N/A
+        return null;
     }
 
 
     private List<XLog> parseInput() throws IOException {
         try {
-            return new XesXmlParser().parse(new File(filePath));
+            return new XesXmlParser().parse(new File(getFilePath()));
         }
         catch (Exception e) {
             throw new IOException("Failed to load XES file", e);
@@ -119,7 +119,7 @@ public class XesDataReader implements DataReader {
 
     public static void main(String[] args) {
         XesDataReader reader = new XesDataReader();
-        reader.filePath = "/Users/adamsmj/Downloads/Tutorial120.3.xes";
+        reader.setFilePath("/Users/adamsmj/Downloads/Tutorial120.3.xes");
         try {
             Table t = reader.read();
             System.out.println(t.structure());

@@ -78,6 +78,10 @@ public class Canvas extends Component implements HasStyle, HasSize {
         _listeners.forEach(l -> l.mouseDblClick(x, y));
     }
 
+    @ClientCallable
+    private void fileloaded(String jsonContent) {
+        _listeners.forEach(l -> l.fileLoaded(jsonContent));
+    }
 
     @Override
     public void setWidth(String width) {
@@ -94,6 +98,16 @@ public class Canvas extends Component implements HasStyle, HasSize {
     @Override
     public void setSizeFull() {
         HasSize.super.setSizeFull();
+    }
+
+
+    public void loadFromFile() {
+        UI.getCurrent().getPage().executeJs("loadFile()");
+    }
+
+
+    public void saveToFile(String jsonStr) {
+        UI.getCurrent().getPage().executeJs("saveFile($0)", jsonStr);
     }
 
 

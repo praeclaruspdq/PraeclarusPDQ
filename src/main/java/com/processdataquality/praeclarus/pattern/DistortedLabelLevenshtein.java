@@ -54,7 +54,7 @@ public class DistortedLabelLevenshtein extends AbstractDistortedLabel {
     public Options getOptions() {
         Options options = super.getOptions();
         if (!options.containsKey("Threshold")) {
-            options.add("Threshold", 2);
+            options.addDefault("Threshold", 2);
         }
         return options;
     }

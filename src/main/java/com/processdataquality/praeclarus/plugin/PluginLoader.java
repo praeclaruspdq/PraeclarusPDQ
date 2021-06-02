@@ -16,7 +16,6 @@
 
 package com.processdataquality.praeclarus.plugin;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
 import com.processdataquality.praeclarus.writer.DataWriter;
 
 import java.io.File;
@@ -91,8 +90,7 @@ public class PluginLoader extends URLClassLoader {
     protected <T> Map<String, Class<T>> loadAsMap(Class<T> mask) throws IOException {
         Map<String, Class<T>> map = new HashMap<>();
         for (Class<T> clazz : load(mask)) {
-            PluginMetaData pmd = clazz.getAnnotation(PluginMetaData.class);
-            map.put(pmd.name(), clazz);
+            map.put(clazz.getName(), clazz);
         }
         return map;
     }

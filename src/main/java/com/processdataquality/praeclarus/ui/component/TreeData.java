@@ -18,6 +18,7 @@ package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.annotations.PluginMetaData;
 import com.processdataquality.praeclarus.pattern.PatternGroup;
+import com.processdataquality.praeclarus.plugin.PluginFactory;
 import com.processdataquality.praeclarus.plugin.PluginService;
 
 import java.util.*;
@@ -53,43 +54,66 @@ public class TreeData {
 
     private List<TreeItem> createItemList() {
         List<TreeItem> list = new ArrayList<>();
-        TreeItem readers = new TreeItem("Readers", null);
-        TreeItem writers = new TreeItem("Writers", null);
-        TreeItem patterns = new TreeItem("Patterns", null);
-        TreeItem actions = new TreeItem("Actions", null);
+
+        // create headers
+        TreeItem readers = new TreeItem("Readers");
+        TreeItem writers = new TreeItem("Writers");
+        TreeItem patterns = new TreeItem("Patterns");
+        TreeItem actions = new TreeItem("Actions");
         list.add(readers);
         list.add(writers);
         list.add(patterns);
         list.add(actions);
 
-
-        for (String name : PluginService.readers().getPluginNames()) {
-            list.add(new TreeItem(name, readers));
-        }
-
-        for (String name : PluginService.writers().getPluginNames()) {
-            list.add(new TreeItem(name, writers));
-        }
-
-        for (String name : PluginService.actions().getPluginNames()) {
-             list.add(new TreeItem(name, actions));
-         }
-
-
-        Map<PatternGroup, TreeItem> patternMap = new HashMap<>();
-        for (String name : PluginService.patterns().getPluginNames()) {
-            PluginMetaData metadata = PluginService.patterns().getMetaData(name);
-            PatternGroup group = metadata != null ? metadata.group() : PatternGroup.UNGROUPED;
-            TreeItem groupItem = patternMap.get(group);
-            if (groupItem == null) {
-                groupItem = new TreeItem(group.getName(), patterns);
-                patternMap.put(group, groupItem);
-                list.add(groupItem);
-            }
-            list.add(new TreeItem(name, groupItem));
-        }
+        // create menu items
+        list.addAll(createItems(PluginService.readers(), readers));
+        list.addAll(createItems(PluginService.writers(), writers));
+        list.addAll(createItems(PluginService.actions(), actions));
+        list.addAll(createPatternItems(PluginService.patterns(), patterns));
 
         return list;
     }
+
     
+    private List<TreeItem> createItems(PluginFactory<?> factory, TreeItem parent) {
+        List<TreeItem> items = new ArrayList<>();
+        for (String name : factory.getPluginNames()) {
+            PluginMetaData metaData = factory.getMetaData(name);
+            String label = metaData != null ? metaData.name() :
+                    name.substring(name.lastIndexOf('.'));
+            items.add(new TreeItem(label, parent, name));
+        }
+        return sort(items);
+    }
+
+
+    private List<TreeItem> createPatternItems(PluginFactory<?> factory, TreeItem patterns) {
+        List<TreeItem> items = new ArrayList<>();
+        Map<PatternGroup, TreeItem> patternMap = new HashMap<>();
+        for (String name : factory.getPluginNames()) {
+            PluginMetaData metaData = factory.getMetaData(name);
+
+            // get or add sub-header for pattern group
+            PatternGroup group = metaData != null ? metaData.group() : PatternGroup.UNGROUPED;
+            TreeItem groupItem = patternMap.get(group);
+            if (groupItem == null) {
+                groupItem = new TreeItem(group.getName(), patterns, null);
+                patternMap.put(group, groupItem);
+                items.add(groupItem);
+            }
+            
+            String label = metaData != null ? metaData.name() :
+                                name.substring(name.lastIndexOf('.'));
+            items.add(new TreeItem(label, groupItem, name));
+        }
+
+        return sort(items);
+    }
+
+
+    private List<TreeItem> sort(List<TreeItem> items) {
+        items.sort(Comparator.comparing(TreeItem::getLabel));
+        return items;
+    }
+
 }

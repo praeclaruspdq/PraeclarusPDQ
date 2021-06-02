@@ -34,7 +34,6 @@ public abstract class Node {
     private List<Table> _inputs;
     private Table _output;
     private PDQPlugin _plugin;
-    private String name;
     private int _allowedInputs = 0;
     private int _allowedOutputs = 0;
 
@@ -49,15 +48,18 @@ public abstract class Node {
 
     public boolean hasNext() { return !isTail(); }
 
+
     public Node previous() { return _previous; }
 
     public void setPrevious(Node node) { _previous = node; }
 
     public boolean hasPrevious() { return !isHead(); }
 
+
     public boolean isHead() { return _previous ==  null; }
 
     public boolean isTail() { return _next == null; }
+
 
     public boolean hasCompleted() { return true; }
 

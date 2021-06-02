@@ -30,21 +30,23 @@ import tech.tablesaw.io.fixed.FixedWidthReadOptions;
         version = "1.0",
         synopsis = "Loads a log file formatted as a fixed-width set of fields."
 )
-public class FixedWidthDataReader extends AbstractDataReader {
+public class FixedWidthDataReader extends AbstractFileDataReader {
 
     @Override
     public Options getOptions() {
         Options options = super.getOptions();
         if (! options.containsKey("Ends on New Line")) {
-            options.add("Separator", ",");
-            options.add("Ends on New Line", true);
+            options.addDefault("Separator", ",");
+            options.addDefault("Ends on New Line", true);
         }
         return options;
     }
 
     
     protected FixedWidthReadOptions getReadOptions() {
-        String fileName = _options.get("Source").asString();
+        String fileName = getFilePath() != null ? getFilePath() :
+                _options.get("Source").asString();
+
         return FixedWidthReadOptions.builder(fileName)
                 .missingValueIndicator(_options.get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))

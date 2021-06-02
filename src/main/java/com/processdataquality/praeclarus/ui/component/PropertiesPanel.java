@@ -19,7 +19,7 @@ package com.processdataquality.praeclarus.ui.component;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.plugin.PluginParameter;
+import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 

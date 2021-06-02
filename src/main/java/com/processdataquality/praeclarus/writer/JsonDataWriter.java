@@ -53,14 +53,13 @@ public class JsonDataWriter implements DataWriter {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.add("Header", true);
-            _options.add("Destination", "out.json");
+            _options.addDefault("Header", true);
+            _options.addDefault("Destination", "out.json");
         }
         return _options;
     }
 
-    @Override
-    public void setOptions(Options options) {
+    private void setOptions(Options options) {
         _options = options;
     }
 

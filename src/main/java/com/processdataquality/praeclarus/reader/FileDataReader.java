@@ -14,17 +14,16 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.plugin;
+package com.processdataquality.praeclarus.reader;
 
 /**
  * @author Michael Adams
- * @date 6/4/21
+ * @date 2/6/21
  */
-public interface PDQPlugin {
-    
-    /**
-     * @return A map of configuration parameters for the plugin.
-     */
-    Options getOptions();
+public interface FileDataReader extends DataReader {
+
+    void setFilePath(String path);
+
+    String getFilePath();
 
 }
