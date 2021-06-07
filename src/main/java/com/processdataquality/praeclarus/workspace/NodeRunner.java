@@ -56,7 +56,7 @@ public class NodeRunner {
             if (node.hasNext()) {
                 node.next().addInput(node.getOutput());
             }
-            else {
+            else if (node.hasCompleted()) {
                 _state = State.IDLE;
             }
         }

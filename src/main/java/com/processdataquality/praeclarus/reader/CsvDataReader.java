@@ -46,18 +46,36 @@ public class CsvDataReader extends AbstractFileDataReader {
     protected CsvReadOptions getReadOptions() {
         String fileName = getFilePath() != null ? getFilePath() :
                 _options.get("Source").asString();
-        
-        return CsvReadOptions.builder(fileName)
-                .separator(_options.get("Separator").asChar())
-                .missingValueIndicator(_options.get("Missing Value").asString())
-//                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
-//                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
-//                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
-                .header(_options.get("Header").asBoolean())
-                .tableName(_options.get("Table Name").asString())
-//                .sampleSize((int) _options.get("Sample"))
-//                .sample(((int) _options.get("Sample")) > 0)
-                .build();
+
+        CsvReadOptions.Builder builder = CsvReadOptions.builder(fileName);
+        for (String key : _options.getChanges().keySet()) {
+            if (key.equals("Separator")) {
+                builder.separator(_options.get("Separator").asChar());
+            }
+            if (key.equals("Missing Value")) {
+                builder.missingValueIndicator(_options.get("Missing Value").asString());
+            }
+            if (key.equals("Header")) {
+                builder.header(_options.get("Header").asBoolean());
+            }
+            if (key.equals("Table Name")) {
+                builder.tableName(_options.get("Table Name").asString());
+            }
+        }
+        return builder.build();
     }
+        
+//        return CsvReadOptions.builder(fileName)
+//                .separator(_options.get("Separator").asChar())
+//                .missingValueIndicator(_options.get("Missing Value").asString())
+////                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
+////                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
+////                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
+//                .header(_options.get("Header").asBoolean())
+//                .tableName(_options.get("Table Name").asString())
+////                .sampleSize((int) _options.get("Sample"))
+////                .sample(((int) _options.get("Sample")) > 0)
+//                .build();
+//    }
 
 }

@@ -114,6 +114,13 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
     }
 
 
+    @Override
+    public int getMaxInputs() { return 1; }
+
+    @Override
+    public int getMaxOutputs() { return 1; }
+
+
 
     /**
      * Gets or creates a set of options for the plugin

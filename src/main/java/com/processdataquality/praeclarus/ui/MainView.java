@@ -20,12 +20,8 @@ import com.processdataquality.praeclarus.ui.component.PipelinePanel;
 import com.processdataquality.praeclarus.ui.component.PluginsPanel;
 import com.processdataquality.praeclarus.ui.component.PropertiesPanel;
 import com.processdataquality.praeclarus.ui.component.ResultsPanel;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasComponents;
-import com.vaadin.flow.component.HtmlComponent;
-import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.router.Route;
@@ -46,7 +42,7 @@ public class MainView extends VerticalLayout {
     public MainView() {
         _resultsPanel = new ResultsPanel(this);
         _pipelinePanel = new PipelinePanel(this);
-        add(new H2("Praeclarus PDQ"));
+        add(getTitleImage());
         SplitLayout masterLayout = new SplitLayout();
         masterLayout.addToPrimary(leftPanel());
         masterLayout.addToSecondary(centrePanel());
@@ -85,11 +81,10 @@ public class MainView extends VerticalLayout {
     }
 
 
-    private void showOutput(String text, Component content,
-            HasComponents outputContainer) {
-        HtmlComponent p = new HtmlComponent(Tag.P);
-        p.getElement().setText(text);
-        outputContainer.add(p);
-        outputContainer.add(content);
+    private Image getTitleImage() {
+        Image image = new Image("icons/praeclarus.png", "Praeclarus");
+        image.setHeight("48px");
+        return image;
     }
+
 }

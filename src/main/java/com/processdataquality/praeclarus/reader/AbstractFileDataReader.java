@@ -31,6 +31,7 @@ public abstract class AbstractFileDataReader implements FileDataReader {
     protected Options _options;
     protected String _path;
     
+    
     protected abstract ReadOptions getReadOptions();
 
     @Override
@@ -45,6 +46,17 @@ public abstract class AbstractFileDataReader implements FileDataReader {
             _options = new Options(new CommonReadOptions().toMap());
         }
         return _options;
+    }
+
+
+    @Override
+    public int getMaxInputs() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxOutputs() {
+        return 1;
     }
 
 

@@ -106,12 +106,9 @@ public class Workflow implements CanvasEventListener {
 
     @Override
     public void mouseClick(double x, double y) {
-        CanvasPrimitive prevSelected = selected;
         selected = setSelected(x, y);
-        if (selected != prevSelected) {
-            render();
-            _parent.changedSelected(getSelectedNode());
-        }
+        _parent.changedSelected(getSelectedNode());
+        render();
     }
 
     @Override

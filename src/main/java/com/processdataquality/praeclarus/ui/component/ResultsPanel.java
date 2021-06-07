@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.PatternNode;
@@ -28,9 +29,15 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import tech.tablesaw.api.*;
+import tech.tablesaw.api.ColumnType;
+import tech.tablesaw.api.Row;
+import tech.tablesaw.api.StringColumn;
+import tech.tablesaw.api.Table;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -79,6 +86,12 @@ public class ResultsPanel extends VerticalLayout {
     }
 
 
+    private boolean isPatternDetectionResult(Node node) {
+        return (node instanceof PatternNode) && !node.hasCompleted() &&
+                ((ImperfectionPattern) node.getPlugin()).canRepair();
+    }
+
+
     public void addResults(Node node) {
         addResult(node);
         while (node.hasNext()) {
@@ -104,6 +117,7 @@ public class ResultsPanel extends VerticalLayout {
 
     public void clear() {
         tabs.removeAll();
+        tabs.setVisible(false);
         pages.removeAll();
         tabsToPages.clear();
     }

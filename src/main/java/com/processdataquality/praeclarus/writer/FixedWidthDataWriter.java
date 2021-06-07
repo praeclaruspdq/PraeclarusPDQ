@@ -59,8 +59,13 @@ public class FixedWidthDataWriter implements DataWriter {
         return _options;
     }
 
-    private void setOptions(Options options) {
-        _options = options;
+    @Override
+    public int getMaxInputs() {
+        return 1;
     }
 
+    @Override
+    public int getMaxOutputs() {
+        return 0;
+    }
 }

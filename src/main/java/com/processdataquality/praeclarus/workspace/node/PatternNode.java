@@ -35,8 +35,6 @@ public class PatternNode extends Node {
 
     public PatternNode(PDQPlugin plugin) {
         super(plugin);
-        setAllowedInputs(2);
-        setAllowedOutputs(1);
     }
 
     @Override
@@ -54,7 +52,7 @@ public class PatternNode extends Node {
             }
         }
         else if (state != State.COMPLETED && imperfectionPattern.canRepair()) {
-            setOutput(imperfectionPattern.repair(master, repairs));
+            setOutput(imperfectionPattern.repair(master.copy(), repairs));
             state = State.COMPLETED;
         }
     }

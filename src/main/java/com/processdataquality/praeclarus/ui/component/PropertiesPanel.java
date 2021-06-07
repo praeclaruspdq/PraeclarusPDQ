@@ -27,7 +27,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  * @author Michael Adams
  * @date 16/4/21
  */
-
 public class PropertiesPanel extends VerticalLayout {
 
     private PDQPlugin _plugin;
@@ -45,6 +44,7 @@ public class PropertiesPanel extends VerticalLayout {
         if (plugin != null) {
             _form = createForm();
             add(_form);
+            _form.setSpacing(false);
             _form.setSizeFull();
         }
     }

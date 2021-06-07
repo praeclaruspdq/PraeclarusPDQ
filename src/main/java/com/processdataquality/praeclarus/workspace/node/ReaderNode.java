@@ -29,9 +29,8 @@ public class ReaderNode extends Node {
 
     public ReaderNode(PDQPlugin plugin) { 
         super(plugin);
-        setAllowedInputs(0);
-        setAllowedOutputs(1);
     }
+
 
     @Override
     public void run() {

@@ -33,15 +33,8 @@ public class StringEditor extends AbstractEditor {
 
 
     protected TextField createField(PluginParameter param) {
-        TextField tf = new TextField();
+        TextField tf = initTextField(param);
         tf.setWidth("75%");
-        String value = param.getStringValue();
-        if (value == null || value.equals("null")) value = "";
-        tf.setValue(value);
-        tf.addValueChangeListener(e -> {
-            param.setStringValue(e.getValue());
-           updateProperties(param);
-        });
         return tf;
     }
 

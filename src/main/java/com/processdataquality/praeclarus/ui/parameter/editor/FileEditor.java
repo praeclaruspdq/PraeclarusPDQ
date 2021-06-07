@@ -22,8 +22,12 @@ import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.processdataquality.praeclarus.util.FileUtil;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.io.File;
@@ -37,19 +41,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 @JsModule("./src/fs.js")
 public class FileEditor extends AbstractEditor {
 
+    public enum TYPE { Open, Save}
+
     private static final AtomicInteger ID_SUFFIX = new AtomicInteger();
 
-    private TextField field;
+    private TextField _field;
+    private final TYPE _type;
 
 
-    public FileEditor(PDQPlugin plugin, PluginParameter param) {
+    public FileEditor(PDQPlugin plugin, PluginParameter param, TYPE type) {
         super(plugin, param);
+        _type = type;
         setId("filepropertyeditor" + ID_SUFFIX.getAndIncrement());
     }
 
     @ClientCallable
     private void setfile(String fileName, String content) {
-        field.setValue(fileName);
+        _field.setValue(fileName);
         File temp = FileUtil.stringToTempFile(content);
         if (temp != null && getPlugin() instanceof FileDataReader) {
             ((FileDataReader) getPlugin()).setFilePath(temp.getPath());
@@ -57,23 +65,23 @@ public class FileEditor extends AbstractEditor {
     }
 
 
-    protected TextField createField(PluginParameter param) {
-        field = new TextField();
-        field.setWidth("75%");
-        String value = param.getStringValue();
-        if (value == null || value.equals("null")) value = "";
-        field.setValue(value);
+    protected HorizontalLayout createField(PluginParameter param) {
+        _field = initTextField(param);
 
-        field.addValueChangeListener(e -> {
-            param.setStringValue(e.getValue());
-           updateProperties(param);
-        });
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.add(_field, createButton());
+        layout.setFlexGrow(1f, _field);
+        layout.setWidth("75%");
+        return layout;
+    }
 
-        field.getElement().addEventListener("click", e -> {
-            UI.getCurrent().getPage().executeJs("getFile($0)", this.getId().get());
-        });
 
-        return field;
+    private Button createButton() {
+        Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
+        icon.setSize("24px");
+        return new Button(icon, e ->
+                UI.getCurrent().getPage().executeJs("getFile($0)",
+                        this.getId().get()));
     }
 
     

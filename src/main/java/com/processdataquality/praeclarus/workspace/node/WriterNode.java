@@ -29,8 +29,6 @@ public class WriterNode extends Node {
 
     public WriterNode(PDQPlugin plugin) {
         super(plugin);
-        setAllowedInputs(1);
-        setAllowedOutputs(0);
     }
 
     @Override

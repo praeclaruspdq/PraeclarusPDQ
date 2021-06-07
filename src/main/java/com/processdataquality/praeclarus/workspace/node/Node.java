@@ -34,8 +34,6 @@ public abstract class Node {
     private List<Table> _inputs;
     private Table _output;
     private PDQPlugin _plugin;
-    private int _allowedInputs = 0;
-    private int _allowedOutputs = 0;
 
     protected Node(PDQPlugin plugin) { setPlugin(plugin); }
 
@@ -75,28 +73,29 @@ public abstract class Node {
 
 
     public void addInput(Table t) {
-        if (_allowedInputs <= 0) {
+        int allowedInputs = getPlugin().getMaxInputs();
+        if (allowedInputs <= 0) {
             throw new IllegalArgumentException("This node does not accept inputs");
         }
         if (_inputs == null) _inputs = new ArrayList<>();
-        if (_inputs.size() == _allowedInputs) {
+        if (_inputs.size() == allowedInputs) {
             throw new IllegalArgumentException("Maximum number of inputs already met");
         }
         _inputs.add(t) ;
     }
 
 
-    public void addInputList(List<Table> list) {
-        if (list.size() > _allowedInputs) {
+    public void setInputList(List<Table> list) {
+        if (list.size() > getPlugin().getMaxInputs()) {
             throw new IllegalArgumentException("Number of inputs exceeds threshold");
         }
         _inputs = list;
     }
 
 
-    public boolean allowsInput() { return _allowedInputs > 0; }
+    public boolean allowsInput() { return getPlugin().getMaxInputs() > 0; }
 
-    public boolean allowsOutput() { return _allowedOutputs > 0; }
+    public boolean allowsOutput() { return getPlugin().getMaxOutputs() > 0; }
 
     public void clearInputs() { if (_inputs != null) _inputs.clear(); }
 
@@ -131,9 +130,5 @@ public abstract class Node {
         return table;
     }
 
-
-    protected void setAllowedInputs(int allowed) { _allowedInputs = allowed; }
-
-    protected void setAllowedOutputs(int allowed) { _allowedOutputs = allowed; }
 
 }

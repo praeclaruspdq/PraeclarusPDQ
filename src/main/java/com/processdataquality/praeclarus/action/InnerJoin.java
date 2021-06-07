@@ -36,9 +36,7 @@ public class InnerJoin implements Action {
 
     private final Options options = new Options();
 
-    public InnerJoin() {
-
-    }
+    public InnerJoin() { }
 
     @Override
     public Table run(List<Table> inputList) {
@@ -61,7 +59,12 @@ public class InnerJoin implements Action {
     }
 
 
-    private void setOptions(Options options) {
-        this.options.putAll(options);
+    @Override
+    public int getMaxInputs() {
+        return 2;
     }
-}
+
+    @Override
+    public int getMaxOutputs() {
+        return 1;
+    }}

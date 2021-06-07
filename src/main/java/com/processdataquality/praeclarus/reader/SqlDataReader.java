@@ -53,8 +53,15 @@ public class SqlDataReader implements DataReader {
         return _options;
     }
 
-    private void setOptions(Options options) {
-        _options = options;
+    
+    @Override
+    public int getMaxInputs() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxOutputs() {
+        return 1;
     }
 
 

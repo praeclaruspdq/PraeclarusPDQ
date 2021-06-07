@@ -27,8 +27,6 @@ public class ActionNode extends Node {
 
     public ActionNode(PDQPlugin plugin) {
         super(plugin);
-        setAllowedInputs(Integer.MAX_VALUE);
-        setAllowedOutputs(1);
     }
 
     @Override

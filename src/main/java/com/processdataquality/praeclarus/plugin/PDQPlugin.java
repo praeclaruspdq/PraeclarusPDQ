@@ -27,4 +27,18 @@ public interface PDQPlugin {
      */
     Options getOptions();
 
+
+    /**
+     * @return true if this plugin can accept another plugin as input (i.e. the
+     * threshold of allowable inputs for this plugin has not yet been reached)
+     */
+    int getMaxInputs();
+
+
+    /**
+     * @return true if this plugin can accept another plugin as output (i.e. the
+     * threshold of allowable outputs for this plugin has not yet been reached)
+     */
+    int getMaxOutputs();
+
 }

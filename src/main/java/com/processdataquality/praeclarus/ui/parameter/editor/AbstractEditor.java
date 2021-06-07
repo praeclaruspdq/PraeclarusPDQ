@@ -20,15 +20,14 @@ import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * @author Michael Adams
  * @date 5/5/21
  */
-@CssImport("./styles/pdq-styles.css")
 public abstract class AbstractEditor extends HorizontalLayout {
 
     private final PDQPlugin _plugin;
@@ -40,6 +39,7 @@ public abstract class AbstractEditor extends HorizontalLayout {
         add(createLabel(param), createField(param));
         setWidth("100%");
         setMargin(false);
+        getElement().getStyle().set("margin-top", "5px");
     }
 
 
@@ -49,7 +49,22 @@ public abstract class AbstractEditor extends HorizontalLayout {
     private Label createLabel(PluginParameter param) {
         Label l = new Label(param.getName());
         l.setWidth("25%");
+        l.getElement().getStyle().set("font-size", "14px");
         return l;
+    }
+
+
+    protected TextField initTextField(PluginParameter parameter) {
+        TextField field = new TextField();
+        String value = parameter.getStringValue();
+        if (value == null || value.equals("null")) value = "";
+        field.setValue(value);
+
+        field.addValueChangeListener(e -> {
+            parameter.setStringValue(e.getValue());
+           updateProperties(parameter);
+        });
+        return field;
     }
 
     

@@ -22,4 +22,18 @@ window.getFile = async function(elemID) {
     document.getElementById(elemID).$server.setfile(file.name, contents);
 }
 
+window.saveFile = async function(elemID, desc, extn, contents) {
+    const opts = {
+      types: [{
+          description: desc,
+          accept: {'text/plain': [extn]},
+      }],
+    };
+
+    const fileHandle = await window.showSaveFilePicker(opts);
+    const writable = await fileHandle.createWritable();
+    await writable.write(contents);
+    await writable.close();
+}
+
 

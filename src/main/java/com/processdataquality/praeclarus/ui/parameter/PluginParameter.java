@@ -63,8 +63,13 @@ public class PluginParameter {
             return new BooleanEditor(plugin, this);
         }
         if (_name.equals("Source")) {
-            return new FileEditor(plugin, this);
+            return new FileEditor(plugin, this, FileEditor.TYPE.Open);
         }
+        if (_name.equals("Destination")) {
+            return new FileEditor(plugin, this, FileEditor.TYPE.Save);
+        }
+
+        
 //        else if (_value instanceof Character) {
 //            _value = value.charAt(0);
 //        }
@@ -76,8 +81,8 @@ public class PluginParameter {
         }
 
         return new StringEditor(plugin, this);
-
     }
+
 
     private void convertAndSet(String value) {
         if (_value instanceof Boolean) {

@@ -24,26 +24,3 @@ canvas {
     background-color:#F0F0F0;
 }
 
-#file-input {
-  display: none;
-}
-
-.v-upload-file {
-    display: none;
-}
-
-:host(.hide-file-upload-bar) [part="file-list"]::before {
-    display : none;
-}
-
-:host(.my-special-classname) [part="input-field"]::after {
-    border-style: none;
-    border-width: 0px;
-    border-color: white;
-}
-
-/*.v-loading-indicator,*/
-/*.v-loading-indicator-delay,*/
-/*.v-loading-indicator-wait {*/
-/*	background: none;*/
-/*}*/
