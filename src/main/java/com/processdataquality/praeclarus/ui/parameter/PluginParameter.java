@@ -63,10 +63,10 @@ public class PluginParameter {
             return new BooleanEditor(plugin, this);
         }
         if (_name.equals("Source")) {
-            return new FileEditor(plugin, this, FileEditor.TYPE.Open);
+            return new FileOpenEditor(plugin, this);
         }
         if (_name.equals("Destination")) {
-            return new FileEditor(plugin, this, FileEditor.TYPE.Save);
+            return new FileSaveEditor(plugin, this);
         }
 
         

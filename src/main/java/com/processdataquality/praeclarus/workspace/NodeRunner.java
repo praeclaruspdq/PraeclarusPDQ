@@ -44,19 +44,22 @@ public class NodeRunner {
                 break;
             }
             node = node.next();
+            if (node == null) _state = State.IDLE;
         }
     }
 
 
     public void step(Node node) {
-        _state = State.STEPPING;
+        if (_state == State.IDLE) {
+            _state = State.STEPPING;
+        }
         node.run();
         if (node.hasCompleted()) {
             _lastCompletedNode = node;
             if (node.hasNext()) {
                 node.next().addInput(node.getOutput());
             }
-            else if (node.hasCompleted()) {
+            if (_state == State.STEPPING) {
                 _state = State.IDLE;
             }
         }
@@ -74,7 +77,7 @@ public class NodeRunner {
     }
 
 
-    public void back(Node node) {
+    public void stepBack(Node node) {
         Table output = node.getOutput();
         if (output != null && node.hasNext()) {
             node.next().clearInput(output);

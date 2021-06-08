@@ -44,9 +44,7 @@ public class CsvDataReader extends AbstractFileDataReader {
 
 
     protected CsvReadOptions getReadOptions() {
-        String fileName = getFilePath() != null ? getFilePath() :
-                _options.get("Source").asString();
-
+        String fileName = getSource(_options.get("Source").asString());
         CsvReadOptions.Builder builder = CsvReadOptions.builder(fileName);
         for (String key : _options.getChanges().keySet()) {
             if (key.equals("Separator")) {

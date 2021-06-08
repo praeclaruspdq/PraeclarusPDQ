@@ -26,6 +26,7 @@ import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.workspace.Workspace;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeFactory;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -64,6 +65,7 @@ public class PipelinePanel extends VerticalLayout {
         VerticalLayout vl = new VerticalLayout();
         vl.add(new H3("Workflow"));
         vl.add(_runnerButtons);
+        removeTopMargin(vl);
         add(vl);
         add(createCanvasContainer());
     }
@@ -95,6 +97,7 @@ public class PipelinePanel extends VerticalLayout {
 
         VerticalScrollLayout container = new VerticalScrollLayout();
         container.add(_canvas);
+        removeTopMargin(container);
         return container;
     }
 
@@ -175,5 +178,9 @@ public class PipelinePanel extends VerticalLayout {
 
     public void onResize() {
         _workflow.render();
+    }
+
+    private void removeTopMargin(Component c) {
+        c.getElement().getStyle().set("margin-top", "0");
     }
 }

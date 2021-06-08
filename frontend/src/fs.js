@@ -14,6 +14,9 @@
  * governing permissions and limitations under the License.
  */
 
+var writeHandle;
+var readFile;
+
 window.getFile = async function(elemID) {
     let fileHandle;
     [fileHandle] = await window.showOpenFilePicker();
@@ -22,16 +25,48 @@ window.getFile = async function(elemID) {
     document.getElementById(elemID).$server.setfile(file.name, contents);
 }
 
-window.saveFile = async function(elemID, desc, extn, contents) {
-    const opts = {
-      types: [{
-          description: desc,
-          accept: {'text/plain': [extn]},
-      }],
-    };
 
-    const fileHandle = await window.showSaveFilePicker(opts);
-    const writable = await fileHandle.createWritable();
+window.pickOpenFile = async function(elemID, desc, extn) {
+    const opts = {
+         types: [{
+             description: desc,
+             accept: {'text/plain': [extn]},
+         }],
+     };
+
+    let fileHandle;
+    [fileHandle] = await window.showOpenFilePicker(opts);
+    readFile = await fileHandle.getFile();
+    document.getElementById(elemID).$server.setFileName(readFile.name);
+}
+
+
+window.readFile = async function(elemID) {
+    const contents = await readFile.text();
+    document.getElementById(elemID).$server.setfile(contents);
+}
+
+
+window.pickSaveFile = async function(elemID, optsStr) {
+    // const opts = {
+    //     types: [{
+    //         description: desc,
+    //         accept: {mtype: [extn]},
+    //     }],
+    // };
+
+    const opts = JSON.parse(optsStr);
+
+    writeHandle = await window.showSaveFilePicker(opts);
+    if (writeHandle) {
+        const file = await writeHandle.getFile();
+        document.getElementById(elemID).$server.setFileName(file.name);
+    }
+}
+
+
+window.writeFile = async function(contents) {
+    const writable = await writeHandle.createWritable();
     await writable.write(contents);
     await writable.close();
 }

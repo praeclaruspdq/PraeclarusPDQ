@@ -58,7 +58,7 @@ public abstract class Node {
 
     public boolean isTail() { return _next == null; }
 
-
+    // to be overridden as required
     public boolean hasCompleted() { return true; }
 
 
@@ -66,6 +66,7 @@ public abstract class Node {
 
     public PDQPlugin getPlugin() { return _plugin; }
 
+    
     public String getName() {
         PluginMetaData metaData = getPlugin().getClass().getAnnotation(PluginMetaData.class);
         return metaData.name();
@@ -100,7 +101,7 @@ public abstract class Node {
     public void clearInputs() { if (_inputs != null) _inputs.clear(); }
 
     public void clearInput(Table table) {
-        if (_inputs != null && table != null) {
+        if (! (_inputs == null || table == null)) {
             _inputs.remove(table);
         }
     }
@@ -108,13 +109,17 @@ public abstract class Node {
     public Table getInput() { return getInput(0); }
 
     public Table getInput(int index) {
-        if (_inputs == null || _inputs.size() <= index) {
+        if (_inputs == null || _inputs.size() == index) {
             throw new IllegalArgumentException("Inputs list is empty");
+        }
+        if (_inputs.size() < index + 1) {
+            throw new IllegalArgumentException("Index is out of bounds");
         }
         return _inputs.get(index);
     }
 
     public List<Table> getInputs() { return _inputs; }
+
 
     public void reset() { clearOutput(); }
 

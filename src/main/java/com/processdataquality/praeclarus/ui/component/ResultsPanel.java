@@ -16,7 +16,6 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.PatternNode;
@@ -46,13 +45,14 @@ import java.util.Map;
 public class ResultsPanel extends VerticalLayout {
 
     Tabs tabs = new Tabs();
-    Div pages = new Div();
+    VerticalScrollLayout pages = new VerticalScrollLayout();
     Map<Tab, Component> tabsToPages = new HashMap<>();
 
     private final MainView _parent;
 
     public ResultsPanel(MainView parent) {
         _parent = parent;
+        setId("ResultsPanel");
         add(new H3("Results"));
 
         tabs.addSelectedChangeListener(event -> {
@@ -61,34 +61,48 @@ public class ResultsPanel extends VerticalLayout {
             selectedPage.setVisible(true);
         });
 
-        VerticalScrollLayout layout = new VerticalScrollLayout();
-        layout.add(tabs, pages);
-        add(layout);
+        add(tabs, pages);
+        removeTopMargin(pages);
+        removeTopMargin(tabs);
         pages.setSizeFull();
+        setFlexGrow(1f, pages);
+
         setSizeFull();
         tabs.setVisible(false);
     }
 
     public void addResult(Node node) {
         Tab tab = new Tab(node.getName());
+        tab.setId("tab");
         Grid<Row> grid = createGrid(node);
-        Div page = new Div(grid);
+        VerticalScrollLayout page = new VerticalScrollLayout(grid);
         if (node instanceof PatternNode) {
-            grid.setSelectionMode(Grid.SelectionMode.MULTI);
-            FooterRow footer = grid.appendFooterRow();
-            footer.getCells().get(0).setComponent(
-                    new Button("Repair Selected", e -> repair(node, grid)));
+            handlePatternResult(node, grid, tab);
         }
+        removeTopMargin(page);
+        removeTopMargin(grid);
         tabsToPages.put(tab, page);
         tabs.add(tab);
-        tabs.setVisible(true);
         pages.add(page);
+        tabs.setSelectedTab(tab);
+        tabs.setVisible(true);
     }
 
 
-    private boolean isPatternDetectionResult(Node node) {
-        return (node instanceof PatternNode) && !node.hasCompleted() &&
-                ((ImperfectionPattern) node.getPlugin()).canRepair();
+    private void handlePatternResult(Node node, Grid<Row> grid, Tab tab) {
+        if (!node.hasCompleted()) {
+            tab.setLabel(node.getName() + " - Detected");
+            grid.setSelectionMode(Grid.SelectionMode.MULTI);
+            FooterRow footer = grid.appendFooterRow();
+            footer.getCells().get(0).setComponent(
+                    new Button("Repair Selected", e -> {
+                        repair(node, grid);
+                        e.getSource().setEnabled(false);   // only allow one repair
+                    }));
+        }
+        else {
+            tab.setLabel(node.getName() + " - Repaired");
+        }
     }
 
 
@@ -182,6 +196,12 @@ public class ResultsPanel extends VerticalLayout {
         }
         ((PatternNode) node).setRepairs(repairs);
         _parent.getPipelinePanel().getWorkspace().getRunner().resume(node);
+        addResult(node);
+    }
+
+
+    private void removeTopMargin(Component c) {
+        c.getElement().getStyle().set("margin-top", "0");
     }
 
 }

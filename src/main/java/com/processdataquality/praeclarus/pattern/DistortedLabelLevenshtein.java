@@ -27,7 +27,7 @@ import tech.tablesaw.api.Table;
  * @date 11/5/21
  */
 @PluginMetaData(
-        name = "Levenshtein Distance",
+        name = "Levenshtein",
         author = "Michael Adams",
         version = "1.0",
         synopsis = "Calculates activity label similarity using Levenshtein Distance",

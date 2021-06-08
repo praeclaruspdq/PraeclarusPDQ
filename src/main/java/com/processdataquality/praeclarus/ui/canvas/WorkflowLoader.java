@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.reader.FileDataReader;
 import com.processdataquality.praeclarus.workspace.Workspace;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeFactory;
@@ -66,6 +67,10 @@ public class WorkflowLoader {
             PDQPlugin plugin = newPluginInstance(json.getString("plugin"));
             if (plugin != null) {
                 addOptions(plugin, json.getJSONObject("options"));
+                String localPath = json.optString("localPath", null);
+                if (localPath != null) {
+                    ((FileDataReader) plugin).setFilePath(localPath);
+                }
                 Node node = NodeFactory.create(plugin);
                 _workspace.addNode(node);
                 Vertex vertex = new Vertex(x, y, node, id);

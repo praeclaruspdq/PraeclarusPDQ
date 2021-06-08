@@ -20,6 +20,7 @@ import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.ReadOptions;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -68,5 +69,16 @@ public abstract class AbstractFileDataReader implements FileDataReader {
     @Override
     public String getFilePath() {
         return _path;
+    }
+
+
+    protected String getSource(String def) {
+        if (_path != null) {
+            File f = new File(_path);
+            if (f.exists()) {
+                return _path;
+            }
+        }
+        return def;
     }
 }

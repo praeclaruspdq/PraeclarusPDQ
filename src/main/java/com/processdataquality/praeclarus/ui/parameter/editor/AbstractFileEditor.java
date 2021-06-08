@@ -21,12 +21,9 @@ import com.processdataquality.praeclarus.reader.FileDataReader;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.processdataquality.praeclarus.util.FileUtil;
 import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -39,19 +36,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @CssImport("./styles/pdq-styles.css")
 @JsModule("./src/fs.js")
-public class FileEditor extends AbstractEditor {
-
-    public enum TYPE { Open, Save}
+public abstract class AbstractFileEditor extends AbstractEditor {
 
     private static final AtomicInteger ID_SUFFIX = new AtomicInteger();
-
     private TextField _field;
-    private final TYPE _type;
 
-
-    public FileEditor(PDQPlugin plugin, PluginParameter param, TYPE type) {
+    public AbstractFileEditor(PDQPlugin plugin, PluginParameter param) {
         super(plugin, param);
-        _type = type;
         setId("filepropertyeditor" + ID_SUFFIX.getAndIncrement());
     }
 
@@ -63,6 +54,12 @@ public class FileEditor extends AbstractEditor {
             ((FileDataReader) getPlugin()).setFilePath(temp.getPath());
         }
     }
+
+    @ClientCallable
+    private void setFileName(String fileName) {
+        _field.setValue(fileName);
+    }
+
 
 
     protected HorizontalLayout createField(PluginParameter param) {
@@ -76,13 +73,6 @@ public class FileEditor extends AbstractEditor {
     }
 
 
-    private Button createButton() {
-        Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
-        icon.setSize("24px");
-        return new Button(icon, e ->
-                UI.getCurrent().getPage().executeJs("getFile($0)",
-                        this.getId().get()));
-    }
+    protected abstract Button createButton() ;
 
-    
 }

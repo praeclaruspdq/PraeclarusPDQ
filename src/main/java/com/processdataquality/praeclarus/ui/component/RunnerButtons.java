@@ -38,7 +38,6 @@ public class RunnerButtons extends Div {
 
     private NodeRunner.State _state;
     
-    private Button _saveButton;
     private Button _runButton;
     private Button _stepButton;
     private Button _backButton;
@@ -51,6 +50,7 @@ public class RunnerButtons extends Div {
         _resultsPanel = resultsPanel;
         addButtons();
         _state = NodeRunner.State.IDLE;
+        getElement().getStyle().set("top-margin", "0");
         enable();
     }
 
@@ -119,7 +119,7 @@ public class RunnerButtons extends Div {
             if (node != null) {
                 setState(NodeRunner.State.STEPPING);
                 _resultsPanel.removeResult(node);
-                _workspace.getRunner().back(node);
+                _workspace.getRunner().stepBack(node);
                 setState(NodeRunner.State.IDLE);
             }
         });
