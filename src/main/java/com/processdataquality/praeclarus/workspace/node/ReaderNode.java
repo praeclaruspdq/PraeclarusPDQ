@@ -40,5 +40,6 @@ public class ReaderNode extends Node {
         catch (IOException ioException) {
             ioException.printStackTrace();
         }
+        setCompleted(true);
     }
 }

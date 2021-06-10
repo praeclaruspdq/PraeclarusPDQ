@@ -30,7 +30,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "plugin")
 public class PluginConfig {
 
-      private List<String> pathList;
+    private List<String> pathList;
 
     public List<String> getPathList() {
         return pathList;

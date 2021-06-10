@@ -17,11 +17,11 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.PluginMetaData;
-import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvWriteOptions;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * @author Michael Adams
@@ -31,44 +31,51 @@ import java.io.IOException;
         name = "CSV Writer",
         author = "Michael Adams",
         version = "1.0",
-        synopsis = "Writes the log output to a CSV file."
+        synopsis = "Writes the log output to a CSV file.",
+        fileDescriptors = "CSV Files;text/csv;.csv"
 )
-public class CsvDataWriter implements DataWriter {
+public class CsvDataWriter extends AbstractDataWriter {
 
-    private Options _options;
+    public CsvDataWriter() {
+        initOptions();
+    }
+
 
     @Override
     public void write(Table table) throws IOException {
-        if (_options == null) getOptions();  // fill null options with defaults
-        CsvWriteOptions options = CsvWriteOptions.builder(
-                _options.get("Destination").asString())
-                .header(_options.get("Header").asBoolean())
-                .separator(_options.get("Separator").asChar())
-                .quoteChar(_options.get("Quote").asChar())
-                .build();
-        table.write().usingOptions(options);
+        table.write().usingOptions(getWriteOptions());
     }
 
-    @Override
-    public Options getOptions() {
-        if (_options == null) {
-            _options = new Options();
-            _options.addDefault("Header", true);
-            _options.addDefault("Destination", "out.csv");
-            _options.addDefault("Separator", ',');
-            _options.addDefault("Quote", '\"');
+
+    private void initOptions() {
+        _options.addDefault("Header", true);
+        _options.addDefault("Destination", "");
+        _options.addDefault("Separator", ',');
+        _options.addDefault("Quote", '\"');
+    }
+
+
+    private CsvWriteOptions.Builder createBuilder() throws IOException {
+        OutputStream stream = getOutputStream();
+        return stream != null ? CsvWriteOptions.builder(stream) :
+                CsvWriteOptions.builder(_options.get("Destination").asString());
+    }
+
+    
+    private CsvWriteOptions getWriteOptions() throws IOException {
+        CsvWriteOptions.Builder builder = createBuilder();
+        for (String key : _options.getChanges().keySet()) {
+            if (key.equals("Header")) {
+                builder.header(_options.get("Header").asBoolean());
+            }
+            if (key.equals("Separator")) {
+                builder.separator(_options.get("Separator").asChar());
+            }
+            if (key.equals("Quote")) {
+                builder.quoteChar(_options.get("Quote").asChar());
+            }
         }
-        return _options;
+        return builder.build();
     }
 
-
-    @Override
-    public int getMaxInputs() {
-        return 1;
-    }
-
-    @Override
-    public int getMaxOutputs() {
-        return 0;
-    }
 }

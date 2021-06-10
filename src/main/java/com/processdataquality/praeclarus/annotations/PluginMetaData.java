@@ -32,5 +32,6 @@ public @interface PluginMetaData {
     String synopsis();
     String description() default "";
     String version() default "0.1";
+    String fileDescriptors() default "";
     PatternGroup group() default PatternGroup.UNGROUPED;
 }

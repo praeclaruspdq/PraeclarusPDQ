@@ -14,8 +14,10 @@
  * governing permissions and limitations under the License.
  */
 
-var writeHandle;
-var readFile;
+import { get, set } from "./index.js";
+
+//var writeHandle;
+//var readFile;
 
 window.getFile = async function(elemID) {
     let fileHandle;
@@ -26,14 +28,8 @@ window.getFile = async function(elemID) {
 }
 
 
-window.pickOpenFile = async function(elemID, desc, extn) {
-    const opts = {
-         types: [{
-             description: desc,
-             accept: {'text/plain': [extn]},
-         }],
-     };
-
+window.pickOpenFile = async function(elemID, optsStr) {
+    const opts = JSON.parse(optsStr);
     let fileHandle;
     [fileHandle] = await window.showOpenFilePicker(opts);
     readFile = await fileHandle.getFile();
@@ -48,27 +44,67 @@ window.readFile = async function(elemID) {
 
 
 window.pickSaveFile = async function(elemID, optsStr) {
-    // const opts = {
-    //     types: [{
-    //         description: desc,
-    //         accept: {mtype: [extn]},
-    //     }],
-    // };
+    try {
+        if ('showSaveFilePicker' in window) {
+            const opts = JSON.parse(optsStr);
+            const writeHandle = await window.showSaveFilePicker(opts);
 
-    const opts = JSON.parse(optsStr);
-
-    writeHandle = await window.showSaveFilePicker(opts);
-    if (writeHandle) {
-        const file = await writeHandle.getFile();
-        document.getElementById(elemID).$server.setFileName(file.name);
+            if (writeHandle) {
+                await set("writeHandle", writeHandle);
+                const file = await writeHandle.getFile();
+                document.getElementById(elemID).$server.setSaveFileName(file.name);
+            }
+            return;
+        }
+        const opts = {
+            type: 'save-file',
+            accepts: [{
+              description: 'Text file',
+              extensions: ['txt'],
+              mimeTypes: ['text/plain'],
+            }],
+          };
+        const writeHandle = await window.chooseFileSystemEntries(opts);
+        alert(writeHandle);
+    }
+    catch (error) {
+        alert(error.message);
     }
 }
 
 
 window.writeFile = async function(contents) {
-    const writable = await writeHandle.createWritable();
-    await writable.write(contents);
-    await writable.close();
+    try {
+        const writeHandle = await get("writeHandle");
+        if (writeHandle && await verifyPermission(writeHandle, true)) {
+            const writable = await writeHandle.createWritable();
+            await writable.write(contents);
+            await writable.close();
+        }
+    }
+    catch (error) {
+        alert(error.message);
+    }
+}
+
+// from: https://web.dev/file-system-access/
+async function verifyPermission(fileHandle, withWrite) {
+  const opts = {};
+  if (withWrite) {
+    opts.writable = true;
+    // For Chrome 86 and later...
+    opts.mode = 'readwrite';
+  }
+  // Check if we already have permission, if so, return true.
+  if (await fileHandle.queryPermission(opts) === 'granted') {
+    return true;
+  }
+  // Request permission to the file, if the user grants permission, return true.
+  if (await fileHandle.requestPermission(opts) === 'granted') {
+    return true;
+  }
+  // The user did nt grant permission, return false.
+  return false;
 }
 
 

@@ -29,7 +29,8 @@ import tech.tablesaw.io.csv.CsvReadOptions;
         name = "CSV Reader",
         author = "Michael Adams",
         version = "1.0",
-        synopsis = "Loads a log file consisting of lines of comma separated values."
+        synopsis = "Loads a log file consisting of lines of comma separated values.",
+        fileDescriptors = "CSV Files;text/plain;.csv"
 )
 public class CsvDataReader extends AbstractFileDataReader {
 
@@ -44,8 +45,7 @@ public class CsvDataReader extends AbstractFileDataReader {
 
 
     protected CsvReadOptions getReadOptions() {
-        String fileName = getSource(_options.get("Source").asString());
-        CsvReadOptions.Builder builder = CsvReadOptions.builder(fileName);
+        CsvReadOptions.Builder builder = createBuilder();
         for (String key : _options.getChanges().keySet()) {
             if (key.equals("Separator")) {
                 builder.separator(_options.get("Separator").asChar());
@@ -76,4 +76,9 @@ public class CsvDataReader extends AbstractFileDataReader {
 //                .build();
 //    }
 
+    private CsvReadOptions.Builder createBuilder() {
+        String fileName = getSource(_options.get("Source").asString());
+        return CsvReadOptions.builder(fileName);
+    }
+    
 }

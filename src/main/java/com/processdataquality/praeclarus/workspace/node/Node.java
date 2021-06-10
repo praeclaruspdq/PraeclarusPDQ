@@ -34,6 +34,7 @@ public abstract class Node {
     private List<Table> _inputs;
     private Table _output;
     private PDQPlugin _plugin;
+    private boolean _completed = false;
 
     protected Node(PDQPlugin plugin) { setPlugin(plugin); }
 
@@ -59,7 +60,9 @@ public abstract class Node {
     public boolean isTail() { return _next == null; }
 
     // to be overridden as required
-    public boolean hasCompleted() { return true; }
+    public boolean hasCompleted() { return _completed; }
+
+    protected void setCompleted(boolean b) { _completed = b; }
 
 
     public void setPlugin(PDQPlugin plugin) { _plugin = plugin; }
@@ -121,7 +124,10 @@ public abstract class Node {
     public List<Table> getInputs() { return _inputs; }
 
 
-    public void reset() { clearOutput(); }
+    public void reset() {
+        clearOutput();
+        _completed = false;
+    }
 
     public Table getOutput() { return _output; }
 

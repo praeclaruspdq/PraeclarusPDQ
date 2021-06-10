@@ -17,7 +17,11 @@
 package com.processdataquality.praeclarus.workspace;
 
 import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
 import tech.tablesaw.api.Table;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -30,11 +34,22 @@ public class NodeRunner {
     private final Workspace _workspace;
     private Node _lastCompletedNode;
     private State _state = State.IDLE;
+    private final Set<NodeRunnerListener> _listeners = new HashSet<>();
 
 
     public NodeRunner(Workspace workspace) {
         _workspace = workspace;
     }
+
+
+    public void addListener(NodeRunnerListener listener) {
+        _listeners.add(listener);
+    }
+
+    public boolean removeListener(NodeRunnerListener listener) {
+        return _listeners.remove(listener);
+    }
+
 
     public void run(Node node) {
         _state = State.RUNNING;
@@ -53,9 +68,10 @@ public class NodeRunner {
         if (_state == State.IDLE) {
             _state = State.STEPPING;
         }
+        announceNodeStarted(node);
         node.run();
         if (node.hasCompleted()) {
-            _lastCompletedNode = node;
+            setLastCompletedNode(node);
             if (node.hasNext()) {
                 node.next().addInput(node.getOutput());
             }
@@ -83,7 +99,7 @@ public class NodeRunner {
             node.next().clearInput(output);
         }
         node.reset();
-        _lastCompletedNode = node.hasPrevious() ? node.previous() : null;
+        setLastCompletedNode(node.hasPrevious() ? node.previous() : null);
     }
 
 
@@ -94,11 +110,30 @@ public class NodeRunner {
 
 
     public void reset() {
-        _lastCompletedNode = null;
+        setLastCompletedNode(null);
         _state = State.IDLE;
     }
 
 
     public Node getLastCompletedNode() { return _lastCompletedNode; }
+
+    public State getState() { return _state; }
+
+
+    private void setLastCompletedNode(Node node) {
+        _lastCompletedNode = node;
+        if (node != null) {
+            announceNodeCompletion(node);
+        }
+    }
+
+    private void announceNodeCompletion(Node node) {
+        _listeners.forEach(l -> l.nodeCompleted(node));
+    }
+
+    private void announceNodeStarted(Node node) {
+        _listeners.forEach(l -> l.nodeStarted(node));
+    }
+
 
 }

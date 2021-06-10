@@ -19,6 +19,7 @@ package com.processdataquality.praeclarus.ui.canvas;
 import com.processdataquality.praeclarus.ui.component.PipelinePanel;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
 import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
 import com.vaadin.flow.component.notification.Notification;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -31,7 +32,7 @@ import java.util.Set;
  * @author Michael Adams
  * @date 19/5/21
  */
-public class Workflow implements CanvasEventListener {
+public class Workflow implements CanvasEventListener, NodeRunnerListener {
 
     private enum State { VERTEX_DRAG, ARC_DRAW, NONE }
 
@@ -49,6 +50,7 @@ public class Workflow implements CanvasEventListener {
     public Workflow(PipelinePanel parent, Context2D context) {
         _parent = parent;
         _ctx = context;
+        _parent.getWorkspace().getRunner().addListener(this);
     }
 
     @Override
@@ -132,6 +134,22 @@ public class Workflow implements CanvasEventListener {
     }
 
 
+    @Override
+    public void nodeStarted(Node node) {
+        setSelectedNode(node);
+        getSelectedVertex().setRunState(VertexStateIndicator.State.RUNNING);
+        render();
+    }
+
+
+    @Override
+    public void nodeCompleted(Node node) {
+        setSelectedNode(node);
+        getSelectedVertex().setRunState(VertexStateIndicator.State.COMPLETED);
+        render();
+     }
+
+
     public void clear() {
         _vertices.clear();
         _connectors.clear();
@@ -171,18 +189,15 @@ public class Workflow implements CanvasEventListener {
     public void setSelectedNode(Node node) {
         for (Vertex vertex : _vertices) {
             if (vertex.getNode().equals(node)) {
-                CanvasPrimitive prevSelected = selected;
                 setSelected(vertex);
-                if (selected != prevSelected) {
-                    _parent.changedSelected(node);
-                }
+                _parent.changedSelected(node);
                 break;
             }
         }
     }
 
 
-    public void removeSelected() {
+     public void removeSelected() {
         if (selected instanceof Vertex) {
             removeVertex((Vertex) selected);
             selected = null;

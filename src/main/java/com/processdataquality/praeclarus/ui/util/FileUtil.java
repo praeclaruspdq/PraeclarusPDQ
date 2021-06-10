@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.util;
+package com.processdataquality.praeclarus.ui.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
 

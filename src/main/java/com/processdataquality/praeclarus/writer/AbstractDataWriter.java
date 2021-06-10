@@ -14,72 +14,53 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.reader;
+package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
-import tech.tablesaw.io.ReadOptions;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author Michael Adams
- * @date 29/4/21
+ * @date 9/6/21
  */
-public abstract class AbstractFileDataReader implements FileDataReader {
+public abstract class AbstractDataWriter implements DataWriter {
 
-    protected Options _options;
-    protected String _path;
-    protected InputStream _stream;
-    
-    protected abstract ReadOptions getReadOptions();
+    protected final Options _options = new Options();
+    protected OutputStream _stream;
+
+    protected AbstractDataWriter() { }
+
 
     @Override
-    public Table read() throws IOException {
-        return Table.read().usingOptions(getReadOptions());
-    }
+    public abstract void write(Table table) throws IOException;
 
 
     @Override
     public Options getOptions() {
-        if (_options == null) {
-            _options = new Options(new CommonReadOptions().toMap());
-        }
         return _options;
     }
 
-
     @Override
     public int getMaxInputs() {
-        return 0;
+        return 1;
     }
 
     @Override
     public int getMaxOutputs() {
-        return 1;
-    }
-
-
-    @Override
-    public void setFilePath(String path) {
-        _path = path;
+        return 0;
     }
 
     @Override
-    public String getFilePath() {
-        return _path;
+    public OutputStream getOutputStream() {
+        return _stream;
     }
 
-
-    protected String getSource(String def) {
-        if (_path != null) {
-            File f = new File(_path);
-            if (f.exists()) {
-                return _path;
-            }
-        }
-        return def;
+    @Override
+    public void setOutputStream(OutputStream stream) {
+        _stream = stream;
     }
+
 }

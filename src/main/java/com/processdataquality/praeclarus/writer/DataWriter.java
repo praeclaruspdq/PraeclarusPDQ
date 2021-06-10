@@ -20,6 +20,7 @@ import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import tech.tablesaw.api.Table;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * @author Michael Adams
@@ -32,5 +33,9 @@ public interface DataWriter extends PDQPlugin {
      * @throws IOException if anything goes wrong
      */
     void write(Table table) throws IOException;
+
+    OutputStream getOutputStream();
+
+    void setOutputStream(OutputStream stream);
 
 }

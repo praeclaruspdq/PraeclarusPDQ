@@ -37,11 +37,13 @@ public class Vertex implements CanvasPrimitive {
 
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
+    private final VertexStateIndicator _indicator = new VertexStateIndicator();
     private final int _id;
+    private final Node _node;
+
     private double _x;
     private double _y;
     private String _label;
-    private final Node _node;
     private Port _inPort;
     private Port _outPort;
     private Point _dragOffset;
@@ -50,7 +52,8 @@ public class Vertex implements CanvasPrimitive {
     public Vertex(double x, double y, Node node) {
         this(x, y, node, ID_GENERATOR.incrementAndGet());
     }
-    
+
+
     public Vertex(double x, double y, Node node, int id) {
         _x = x;
         _y = y;
@@ -102,6 +105,11 @@ public class Vertex implements CanvasPrimitive {
     public Port getOutputPort() { return _outPort; }
 
 
+    public void setRunState(VertexStateIndicator.State state) {
+        _indicator.setState(state);
+    }
+
+
     public JSONObject asJson() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("id", _id);
@@ -133,6 +141,7 @@ public class Vertex implements CanvasPrimitive {
         _y = y - _dragOffset.y;
     }
 
+    
     public void render(Context2D ctx, CanvasPrimitive selected) {
         String colour = this.equals(selected) ? "blue" : "gray";
         ctx.strokeStyle("black");
@@ -144,6 +153,7 @@ public class Vertex implements CanvasPrimitive {
             ctx.fill();
         }
         ctx.stroke();
+        _indicator.render(x(), y(), ctx);
 
         renderPorts(ctx, selected);
         renderLabel(ctx, colour);
@@ -162,6 +172,7 @@ public class Vertex implements CanvasPrimitive {
         ctx.quadraticCurveTo(_x, _y, _x + CORNER_RADIUS, _y);
         ctx.closePath();
     }
+
 
     private void renderPorts(Context2D ctx, CanvasPrimitive selected) {
         if (_inPort != null) {

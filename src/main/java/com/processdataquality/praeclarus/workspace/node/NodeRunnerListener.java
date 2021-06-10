@@ -16,30 +16,13 @@
 
 package com.processdataquality.praeclarus.workspace.node;
 
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.writer.DataWriter;
-
-import java.io.IOException;
-
 /**
  * @author Michael Adams
- * @date 12/5/21
+ * @date 9/6/21
  */
-public class WriterNode extends Node {
+public interface NodeRunnerListener {
 
-    public WriterNode(PDQPlugin plugin) {
-        super(plugin);
-    }
+    void nodeStarted(Node node);
 
-    @Override
-    public void run() {
-        try {
-            ((DataWriter) getPlugin()).write(getInput());
-        }
-        catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-        setCompleted(true);
-    }
-    
+    void nodeCompleted(Node node);
 }

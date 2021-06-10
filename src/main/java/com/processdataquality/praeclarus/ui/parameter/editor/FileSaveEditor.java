@@ -18,9 +18,7 @@ package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
 /**
@@ -35,19 +33,7 @@ public class FileSaveEditor extends AbstractFileEditor {
 
     @Override
     protected Button createButton() {
-        Icon icon = VaadinIcon.DOWNLOAD_ALT.create();
-        icon.setSize("24px");
-        return new Button(icon, e ->
-                UI.getCurrent().getPage().executeJs("pickSaveFile($0, $1)",
-                        this.getId().get(),
-                        getOpts("CSV Files", "text/plain", ".csv")));
-
+        return createButton(VaadinIcon.DOWNLOAD_ALT, "pickSaveFile");
     }
 
-
-    private String getOpts(String desc, String mime, String extn) {
-        return String.format("{\"types\": [{ \"description\": \"%s\", " +
-                        "\"accept\": {\"%s\": [\"%s\"]}}]}",
-        desc, mime, extn);
-    }
 }

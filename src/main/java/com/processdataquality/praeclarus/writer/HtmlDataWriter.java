@@ -35,7 +35,7 @@ import java.io.IOException;
         version = "1.0",
         synopsis = "Writes the log output to a HTML formatted file."
 )
-public class HtmlDataWriter implements DataWriter {
+public class HtmlDataWriter extends AbstractDataWriter {
 
     private Options _options;
 

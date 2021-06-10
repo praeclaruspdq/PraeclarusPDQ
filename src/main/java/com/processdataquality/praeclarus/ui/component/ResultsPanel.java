@@ -17,14 +17,18 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.ui.MainView;
+import com.processdataquality.praeclarus.ui.util.NodeWriter;
+import com.processdataquality.praeclarus.workspace.NodeRunner;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.PatternNode;
+import com.processdataquality.praeclarus.workspace.node.WriterNode;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -72,6 +76,10 @@ public class ResultsPanel extends VerticalLayout {
     }
 
     public void addResult(Node node) {
+        if (node instanceof WriterNode) {        // special treatment for writers
+            new NodeWriter().write(node);
+            return;
+        }
         Tab tab = new Tab(node.getName());
         tab.setId("tab");
         Grid<Row> grid = createGrid(node);
@@ -93,12 +101,21 @@ public class ResultsPanel extends VerticalLayout {
         if (!node.hasCompleted()) {
             tab.setLabel(node.getName() + " - Detected");
             grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+            Button btnRepair = new Button("Repair Selected");
+            Button btnDont = new Button("Don't Repair");
+            btnRepair.addClickListener(e -> {
+                repair(node, grid);
+                btnRepair.setEnabled(false);   // only allow one repair
+                btnDont.setEnabled(false);
+            });
+            btnDont.addClickListener(e -> {
+                repair(node, grid);
+                btnRepair.setEnabled(false);   // only allow one repair
+                btnDont.setEnabled(false);
+            });
             FooterRow footer = grid.appendFooterRow();
-            footer.getCells().get(0).setComponent(
-                    new Button("Repair Selected", e -> {
-                        repair(node, grid);
-                        e.getSource().setEnabled(false);   // only allow one repair
-                    }));
+            footer.getCells().get(0).setComponent(new HorizontalLayout(btnDont, btnRepair));
         }
         else {
             tab.setLabel(node.getName() + " - Repaired");
@@ -108,7 +125,7 @@ public class ResultsPanel extends VerticalLayout {
 
     public void addResults(Node node) {
         addResult(node);
-        while (node.hasNext()) {
+        while (node.hasCompleted() && node.hasNext()) {
             node = node.next();
             addResult(node);
         }
@@ -195,8 +212,16 @@ public class ResultsPanel extends VerticalLayout {
             repairs.column(1).appendCell(row.getString("Label1"));
         }
         ((PatternNode) node).setRepairs(repairs);
-        _parent.getPipelinePanel().getWorkspace().getRunner().resume(node);
-        addResult(node);
+
+        NodeRunner runner = _parent.getPipelinePanel().getWorkspace().getRunner();
+        NodeRunner.State runnerStateWhenResumed = runner.getState();
+        runner.resume(node);
+        if (runnerStateWhenResumed == NodeRunner.State.STEPPING) {
+            addResult(node);
+        }
+        else {
+            addResults(node);
+        }
     }
 
 

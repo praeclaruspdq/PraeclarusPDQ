@@ -35,7 +35,7 @@ import java.io.IOException;
         version = "1.0",
         synopsis = "Writes the log output to a JSON formatted file."
 )
-public class JsonDataWriter implements DataWriter {
+public class JsonDataWriter extends AbstractDataWriter {
 
     private Options _options;
 

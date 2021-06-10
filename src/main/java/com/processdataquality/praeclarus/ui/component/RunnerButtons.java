@@ -56,7 +56,6 @@ public class RunnerButtons extends Div {
 
 
     public void enable() {
-//        _saveButton.setEnabled(_workflow.hasContent());
         switch (_state) {
             case RUNNING:
             case STEPPING: {

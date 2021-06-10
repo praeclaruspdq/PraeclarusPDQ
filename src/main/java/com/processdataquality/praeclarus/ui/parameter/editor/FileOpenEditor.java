@@ -40,10 +40,14 @@ public class FileOpenEditor extends AbstractFileEditor {
         Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
         icon.setSize("24px");
         return new Button(icon, e ->
-                UI.getCurrent().getPage().executeJs("pickOpenFile($0, $1, $2)",
-                        this.getId().get(), "CSV Files", "csv"));
+                        UI.getCurrent().getPage().executeJs("getFile($0)", this.getId().get()));
+//                UI.getCurrent().getPage().executeJs(scriptName + "($0, $1)",
+//                        this.getId().get(), getOpts()));
+//
+//
+//
+//        return createButton(VaadinIcon.FOLDER_OPEN_O, "pickOpenFile");
 
-        //        UI.getCurrent().getPage().executeJs("getFile($0)", this.getId().get()));
 
     }
 }

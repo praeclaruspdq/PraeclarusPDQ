@@ -33,7 +33,7 @@ import java.io.IOException;
         version = "1.0",
         synopsis = "Writes the log output to a Fixed Width Format file."
 )
-public class FixedWidthDataWriter implements DataWriter {
+public class FixedWidthDataWriter extends AbstractDataWriter {
 
     private Options _options;
 

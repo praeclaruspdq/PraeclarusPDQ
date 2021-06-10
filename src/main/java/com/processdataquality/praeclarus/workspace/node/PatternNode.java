@@ -30,7 +30,7 @@ public class PatternNode extends Node {
 
     private Table detected;
     private Table repairs;
-    private State state  = State.IDLE;
+    private State state = State.IDLE;
 
 
     public PatternNode(PDQPlugin plugin) {
@@ -52,7 +52,9 @@ public class PatternNode extends Node {
             }
         }
         else if (state != State.COMPLETED && imperfectionPattern.canRepair()) {
-            setOutput(imperfectionPattern.repair(master.copy(), repairs));
+             if (repairs != null) {
+                 setOutput(imperfectionPattern.repair(master.copy(), repairs));
+             }
             state = State.COMPLETED;
         }
     }

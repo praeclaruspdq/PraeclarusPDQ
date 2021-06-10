@@ -32,5 +32,6 @@ public class ActionNode extends Node {
     @Override
     public void run() {
         setOutput(((Action) getPlugin()).run(getInputs()));
+        setCompleted(true);
     }
 }
