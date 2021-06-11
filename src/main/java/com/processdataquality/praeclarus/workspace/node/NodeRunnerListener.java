@@ -24,5 +24,9 @@ public interface NodeRunnerListener {
 
     void nodeStarted(Node node);
 
+    void nodePaused(Node node);
+
     void nodeCompleted(Node node);
+
+    void nodeRollback(Node node);
 }

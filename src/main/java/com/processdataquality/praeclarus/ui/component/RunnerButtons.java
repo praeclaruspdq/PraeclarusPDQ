@@ -34,7 +34,6 @@ public class RunnerButtons extends Div {
 
     private final Workspace _workspace;
     private final Workflow _workflow;
-    private final ResultsPanel _resultsPanel;
 
     private NodeRunner.State _state;
     
@@ -44,10 +43,9 @@ public class RunnerButtons extends Div {
     private Button _stopButton;
 
 
-    public RunnerButtons(Workspace workspace, Workflow workflow, ResultsPanel resultsPanel) {
+    public RunnerButtons(Workspace workspace, Workflow workflow) {
         _workspace = workspace;
         _workflow = workflow;
-        _resultsPanel = resultsPanel;
         addButtons();
         _state = NodeRunner.State.IDLE;
         getElement().getStyle().set("top-margin", "0");
@@ -117,7 +115,6 @@ public class RunnerButtons extends Div {
             Node node = _workflow.getSelectedNode();
             if (node != null) {
                 setState(NodeRunner.State.STEPPING);
-                _resultsPanel.removeResult(node);
                 _workspace.getRunner().stepBack(node);
                 setState(NodeRunner.State.IDLE);
             }
@@ -145,11 +142,9 @@ public class RunnerButtons extends Div {
         try {
             if (getState() == NodeRunner.State.RUNNING) {
                 _workspace.getRunner().run(node);
-                _resultsPanel.addResults(node);
             }
             else if (getState() == NodeRunner.State.STEPPING) {
                 _workspace.getRunner().step(node);
-                _resultsPanel.addResult(node);
             }
         }
         catch (IllegalArgumentException iae) {
@@ -157,10 +152,10 @@ public class RunnerButtons extends Div {
         }
         finally {
             setState(NodeRunner.State.IDLE);
-            Node lastCompleted = _workspace.getRunner().getLastCompletedNode();
-            if (lastCompleted != null) {
-                _workflow.setSelectedNode(lastCompleted);
-            }
+//            Node lastCompleted = _workspace.getRunner().getLastCompletedNode();
+//            if (lastCompleted != null) {
+//                _workflow.setSelectedNode(lastCompleted);
+//            }
         }
 
     }

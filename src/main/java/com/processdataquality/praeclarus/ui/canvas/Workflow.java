@@ -136,19 +136,24 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
 
     @Override
     public void nodeStarted(Node node) {
-        setSelectedNode(node);
-        getSelectedVertex().setRunState(VertexStateIndicator.State.RUNNING);
-        render();
+        changeStateIndicator(node, VertexStateIndicator.State.RUNNING);
     }
 
 
     @Override
     public void nodeCompleted(Node node) {
-        setSelectedNode(node);
-        getSelectedVertex().setRunState(VertexStateIndicator.State.COMPLETED);
-        render();
-     }
+        changeStateIndicator(node, VertexStateIndicator.State.COMPLETED);
+    }
 
+
+    @Override
+    public void nodeRollback(Node node) {
+        changeStateIndicator(node, VertexStateIndicator.State.DORMANT);
+    }
+
+
+    @Override
+    public void nodePaused(Node node) { }
 
     public void clear() {
         _vertices.clear();
@@ -325,6 +330,13 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
             }
         }
         return null;
+    }
+
+
+    private void changeStateIndicator(Node node, VertexStateIndicator.State state) {
+        setSelectedNode(node);
+        getSelectedVertex().setRunState(state);
+        render();
     }
 
 

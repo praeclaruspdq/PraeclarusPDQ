@@ -14,34 +14,35 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.workspace.node;
+package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.writer.DataWriter;
+import com.processdataquality.praeclarus.workspace.node.Node;
+import com.vaadin.flow.component.tabs.Tab;
 import tech.tablesaw.api.Table;
-
-import java.io.IOException;
 
 /**
  * @author Michael Adams
- * @date 12/5/21
+ * @date 11/6/21
  */
-public class WriterNode extends Node {
+public class ResultTab extends Tab {
 
-    public WriterNode(PDQPlugin plugin) {
-        super(plugin);
+    private final Node _node;
+    private final Table _table;
+
+
+    public ResultTab(Node node) {
+        super(node.getName());
+        _node = node;
+        _table = _node.getOutput();
     }
 
-    @Override
-    public void run() {
-        try {
-            Table input = getInputs().get(0);     // a writer node has only one input
-            ((DataWriter) getPlugin()).write(input);
-        }
-        catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-        setCompleted(true);
+    public Node getNode() { return _node; }
+
+    public boolean nodeEquals(Node node) { return _node == node; }
+
+
+    public boolean resultEquals(Node node) {
+        return nodeEquals(node) && node.getOutput().equals(_table);
     }
-    
+
 }

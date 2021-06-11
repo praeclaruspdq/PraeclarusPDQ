@@ -20,6 +20,7 @@ import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.ui.util.NodeWriter;
 import com.processdataquality.praeclarus.workspace.NodeRunner;
 import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
 import com.processdataquality.praeclarus.workspace.node.PatternNode;
 import com.processdataquality.praeclarus.workspace.node.WriterNode;
 import com.vaadin.flow.component.Component;
@@ -37,16 +38,13 @@ import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michael Adams
  * @date 30/4/21
  */
-public class ResultsPanel extends VerticalLayout {
+public class ResultsPanel extends VerticalLayout implements NodeRunnerListener {
 
     Tabs tabs = new Tabs();
     VerticalScrollLayout pages = new VerticalScrollLayout();
@@ -73,28 +71,64 @@ public class ResultsPanel extends VerticalLayout {
 
         setSizeFull();
         tabs.setVisible(false);
+
+        getNodeRunner().addListener(this);
     }
+
+    @Override
+    public void nodeStarted(Node node) { }
+
+    @Override
+    public void nodePaused(Node node) { addResult(node); }
+
+    @Override
+    public void nodeCompleted(Node node) { addResult(node); }
+
+    @Override
+    public void nodeRollback(Node node) { removeResult(node); }
+
 
     public void addResult(Node node) {
         if (node instanceof WriterNode) {        // special treatment for writers
             new NodeWriter().write(node);
             return;
         }
-        Tab tab = new Tab(node.getName());
-        tab.setId("tab");
+        
         Grid<Row> grid = createGrid(node);
-        VerticalScrollLayout page = new VerticalScrollLayout(grid);
+        removeTopMargin(grid);
+
+        VerticalScrollLayout page;
+        Tab tab = getTab(node);
+        if (tab != null) {
+            page = (VerticalScrollLayout) tabsToPages.get(tab);
+            page.removeAll();
+        }
+        else {
+            tab = new ResultTab(node);
+            page = new VerticalScrollLayout(grid);
+            removeTopMargin(page);
+            tabs.add(tab);
+            pages.add(page);
+        }
+
         if (node instanceof PatternNode) {
             handlePatternResult(node, grid, tab);
         }
-        removeTopMargin(page);
-        removeTopMargin(grid);
+
         tabsToPages.put(tab, page);
-        tabs.add(tab);
-        pages.add(page);
         tabs.setSelectedTab(tab);
         tabs.setVisible(true);
     }
+
+
+    private Tab getTab(Node node) {
+        for (ResultTab tab : getTabs(node)) {
+            if (tab.resultEquals(node)) {
+                return tab;
+            }
+        }
+        return null;
+     }
 
 
     private void handlePatternResult(Node node, Grid<Row> grid, Tab tab) {
@@ -105,14 +139,14 @@ public class ResultsPanel extends VerticalLayout {
             Button btnRepair = new Button("Repair Selected");
             Button btnDont = new Button("Don't Repair");
             btnRepair.addClickListener(e -> {
-                repair(node, grid);
                 btnRepair.setEnabled(false);   // only allow one repair
                 btnDont.setEnabled(false);
+                repair(node, grid);
             });
             btnDont.addClickListener(e -> {
-                repair(node, grid);
                 btnRepair.setEnabled(false);   // only allow one repair
                 btnDont.setEnabled(false);
+                getNodeRunner().resume(node);
             });
             FooterRow footer = grid.appendFooterRow();
             footer.getCells().get(0).setComponent(new HorizontalLayout(btnDont, btnRepair));
@@ -123,24 +157,11 @@ public class ResultsPanel extends VerticalLayout {
     }
 
 
-    public void addResults(Node node) {
-        addResult(node);
-        while (node.hasCompleted() && node.hasNext()) {
-            node = node.next();
-            addResult(node);
-        }
-    }
-
     public void removeResult(Node node) {
-        String title = node.getName();
-        for (int i = 0; i < tabs.getComponentCount(); i++) {
-             Tab tab = ((Tab) tabs.getComponentAt(i));
-             if (tab.getLabel().equals(title)) {
-                 Div div = (Div) tabsToPages.remove(tab);
-                 tabs.remove(tab);
-                 pages.remove(div);
-                 break;
-             }
+        for (ResultTab tab : getTabs(node)) {
+            Div div = (Div) tabsToPages.remove(tab);
+            tabs.remove(tab);
+            pages.remove(div);
         }
         tabs.setVisible(! tabsToPages.isEmpty());
     }
@@ -213,20 +234,30 @@ public class ResultsPanel extends VerticalLayout {
         }
         ((PatternNode) node).setRepairs(repairs);
 
-        NodeRunner runner = _parent.getPipelinePanel().getWorkspace().getRunner();
-        NodeRunner.State runnerStateWhenResumed = runner.getState();
+        NodeRunner runner = getNodeRunner();
         runner.resume(node);
-        if (runnerStateWhenResumed == NodeRunner.State.STEPPING) {
-            addResult(node);
-        }
-        else {
-            addResults(node);
-        }
     }
 
 
     private void removeTopMargin(Component c) {
         c.getElement().getStyle().set("margin-top", "0");
+    }
+
+
+    private NodeRunner getNodeRunner() {
+        return _parent.getPipelinePanel().getWorkspace().getRunner();
+    }
+
+
+    private Set<ResultTab> getTabs(Node node) {
+        Set<ResultTab> tabSet = new HashSet<>();
+        for (int i=0; i < tabs.getComponentCount(); i++) {
+             ResultTab tab = (ResultTab) tabs.getComponentAt(i);
+             if (tab.nodeEquals(node)) {
+                tabSet.add(tab);
+             }
+         }
+         return tabSet;
     }
 
 }

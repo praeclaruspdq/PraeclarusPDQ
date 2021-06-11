@@ -34,14 +34,15 @@ import com.vaadin.flow.router.Route;
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public class MainView extends VerticalLayout {
 
-    private final PropertiesPanel _propsPanel = new PropertiesPanel();
+    private final PropertiesPanel _propsPanel;
     private final PipelinePanel _pipelinePanel;
     private final ResultsPanel _resultsPanel;
 
 
     public MainView() {
-        _resultsPanel = new ResultsPanel(this);
+        _propsPanel = new PropertiesPanel();
         _pipelinePanel = new PipelinePanel(this);
+        _resultsPanel = new ResultsPanel(this);
         add(getTitleImage());
         SplitLayout masterLayout = new SplitLayout();
         masterLayout.addToPrimary(leftPanel());

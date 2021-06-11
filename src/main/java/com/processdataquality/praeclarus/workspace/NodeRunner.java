@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.workspace;
 
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
-import tech.tablesaw.api.Table;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,19 +28,14 @@ import java.util.Set;
  */
 public class NodeRunner {
 
-    public enum State { RUNNING, STEPPING, IDLE }
+    public enum State { RUNNING, STEPPING, ABORTED, IDLE }
 
-    private final Workspace _workspace;
     private Node _lastCompletedNode;
     private State _state = State.IDLE;
     private final Set<NodeRunnerListener> _listeners = new HashSet<>();
 
-
-    public NodeRunner(Workspace workspace) {
-        _workspace = workspace;
-    }
-
-
+    public NodeRunner() { }
+    
     public void addListener(NodeRunnerListener listener) {
         _listeners.add(listener);
     }
@@ -52,33 +46,52 @@ public class NodeRunner {
 
 
     public void run(Node node) {
+        if (_state == State.ABORTED) {
+            reset();
+            return;
+        }
         _state = State.RUNNING;
-        while (node != null) {
-            step(node);
-            if (! node.hasCompleted()) {
-                break;
+        node = step(node);
+        if (node.hasCompleted()) {
+            if (node.hasNext()) {
+                node.next().forEach(this::run);
             }
-            node = node.next();
-            if (node == null) _state = State.IDLE;
+            else {
+                _state = State.IDLE;
+            }
+        }
+        else {
+            announceNodePaused(node);
         }
     }
 
 
-    public void step(Node node) {
+    /**
+     * Runs the specified node, and any unrun nodes preceding it
+     * @param node the node to run
+     * @return the node passed in, or a previous unrun pattern node that is incomplete
+     */
+    public Node step(Node node) {
         if (_state == State.IDLE) {
             _state = State.STEPPING;
+        }
+
+        // need all previous nodes to have run before this one can
+        for (Node previous : node.previous()) {
+            if (!previous.hasOutput()) {
+                step(previous);
+                if (!previous.hasCompleted()) return previous;   // 2-part pattern node
+            }
         }
         announceNodeStarted(node);
         node.run();
         if (node.hasCompleted()) {
             setLastCompletedNode(node);
-            if (node.hasNext()) {
-                node.next().addInput(node.getOutput());
-            }
             if (_state == State.STEPPING) {
                 _state = State.IDLE;
             }
         }
+        return node;
     }
 
 
@@ -94,26 +107,20 @@ public class NodeRunner {
 
 
     public void stepBack(Node node) {
-        Table output = node.getOutput();
-        if (output != null && node.hasNext()) {
-            node.next().clearInput(output);
-        }
         node.reset();
-        setLastCompletedNode(node.hasPrevious() ? node.previous() : null);
+        _lastCompletedNode = node.isHead() ? null : node.previous().iterator().next();
+        announceNodeRollback(node);
     }
 
-
-    public void restart(Node node) {
-        _workspace.reset();
-        run(_workspace.getHead(node));
-    }
-
-
+    
     public void reset() {
         setLastCompletedNode(null);
         _state = State.IDLE;
     }
 
+    public void abort() {
+        _state = State.ABORTED;
+    }
 
     public Node getLastCompletedNode() { return _lastCompletedNode; }
 
@@ -135,5 +142,12 @@ public class NodeRunner {
         _listeners.forEach(l -> l.nodeStarted(node));
     }
 
+    private void announceNodePaused(Node node) {
+         _listeners.forEach(l -> l.nodePaused(node));
+    }
+
+    private void announceNodeRollback(Node node) {
+         _listeners.forEach(l -> l.nodeRollback(node));
+    }
 
 }

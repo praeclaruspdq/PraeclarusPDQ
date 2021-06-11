@@ -40,7 +40,7 @@ public class PatternNode extends Node {
     @Override
     public void run() {
         ImperfectionPattern imperfectionPattern = (ImperfectionPattern) getPlugin();
-        Table master = getInput();       
+        Table master = getInputs().get(0);         // only one input
         if (state == State.IDLE && imperfectionPattern.canDetect()) {
             detected = imperfectionPattern.detect(master);
             if (imperfectionPattern.canRepair()) {
@@ -80,6 +80,7 @@ public class PatternNode extends Node {
         state = State.IDLE;
     }
 
+    public State getState() { return state; }
 
     public Table getDetected() { return detected; }
 

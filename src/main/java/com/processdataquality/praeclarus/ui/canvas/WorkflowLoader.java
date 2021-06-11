@@ -28,6 +28,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -127,8 +128,10 @@ public class WorkflowLoader {
     private void selectHeadVertex(Map<Integer, Vertex> vertices) {
         if (! vertices.isEmpty()) {
             Vertex anyVertex = vertices.values().iterator().next();       // get any vertex
-            Node head = _workspace.getHead(anyVertex.getNode());
-            _workflow.setSelectedNode(head);
+            Set<Node> heads = _workspace.getHeads(anyVertex.getNode());
+            if (! heads.isEmpty()) {
+                _workflow.setSelectedNode(heads.iterator().next());       // set any head
+            }
         }
     }
 

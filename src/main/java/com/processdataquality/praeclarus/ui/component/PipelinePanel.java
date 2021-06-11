@@ -72,7 +72,7 @@ public class PipelinePanel extends VerticalLayout {
 
 
     private RunnerButtons initRunnerButtons() {
-        RunnerButtons buttons = new RunnerButtons(_workspace, _workflow, _parent.getResultsPanel());
+        RunnerButtons buttons = new RunnerButtons(_workspace, _workflow);
         buttons.addButton(createRemoveButton());
         buttons.addButton(createLoadButton());
         buttons.addButton(createSaveButton());

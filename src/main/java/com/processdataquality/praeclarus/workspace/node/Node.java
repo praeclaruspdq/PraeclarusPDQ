@@ -21,7 +21,9 @@ import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import tech.tablesaw.api.Table;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -29,43 +31,52 @@ import java.util.List;
  */
 public abstract class Node {
 
-    private Node _next;
-    private Node _previous;
+    private final Set<Node> _next;
+    private final Set<Node> _previous;
     private List<Table> _inputs;
     private Table _output;
-    private PDQPlugin _plugin;
+    private final PDQPlugin _plugin;
     private boolean _completed = false;
 
-    protected Node(PDQPlugin plugin) { setPlugin(plugin); }
 
+    protected Node(PDQPlugin plugin) {
+        _plugin = plugin;
+        _next = new HashSet<>();
+        _previous = new HashSet<>();
+    }
+
+    
     public abstract void run();
 
 
-    public Node next() {return _next; }
+    public Set<Node> next() {return _next; }
 
-    public void setNext(Node node) { _next = node; }
+    public void addNext(Node node) { _next.add(node); }
+
+    public boolean removeNext(Node node) { return _next.remove(node); }
 
     public boolean hasNext() { return !isTail(); }
 
 
-    public Node previous() { return _previous; }
+    public Set<Node> previous() { return _previous; }
 
-    public void setPrevious(Node node) { _previous = node; }
+    public void addPrevious(Node node) { _previous.add(node); }
 
+    public boolean removePrevious(Node node) { return _previous.remove(node); }
+    
     public boolean hasPrevious() { return !isHead(); }
 
 
-    public boolean isHead() { return _previous ==  null; }
+    public boolean isHead() { return _previous.isEmpty(); }
 
-    public boolean isTail() { return _next == null; }
+    public boolean isTail() { return _next.isEmpty(); }
+
 
     // to be overridden as required
     public boolean hasCompleted() { return _completed; }
 
     protected void setCompleted(boolean b) { _completed = b; }
 
-
-    public void setPlugin(PDQPlugin plugin) { _plugin = plugin; }
 
     public PDQPlugin getPlugin() { return _plugin; }
 
@@ -76,53 +87,56 @@ public abstract class Node {
     }
 
 
-    public void addInput(Table t) {
-        int allowedInputs = getPlugin().getMaxInputs();
-        if (allowedInputs <= 0) {
-            throw new IllegalArgumentException("This node does not accept inputs");
-        }
-        if (_inputs == null) _inputs = new ArrayList<>();
-        if (_inputs.size() == allowedInputs) {
-            throw new IllegalArgumentException("Maximum number of inputs already met");
-        }
-        _inputs.add(t) ;
+    public boolean allowsInput() {
+        return getPlugin().getMaxInputs() > _previous.size();
     }
 
 
-    public void setInputList(List<Table> list) {
-        if (list.size() > getPlugin().getMaxInputs()) {
-            throw new IllegalArgumentException("Number of inputs exceeds threshold");
-        }
-        _inputs = list;
+    public boolean allowsOutput() {
+        return getPlugin().getMaxOutputs() > _next.size();
     }
 
 
-    public boolean allowsInput() { return getPlugin().getMaxInputs() > 0; }
-
-    public boolean allowsOutput() { return getPlugin().getMaxOutputs() > 0; }
-
-    public void clearInputs() { if (_inputs != null) _inputs.clear(); }
-
-    public void clearInput(Table table) {
-        if (! (_inputs == null || table == null)) {
-            _inputs.remove(table);
-        }
+//    public void addInput(Table t) {
+//        int allowedInputs = getPlugin().getMaxInputs();
+//        if (allowedInputs <= 0) {
+//            throw new IllegalArgumentException("This node does not accept inputs");
+//        }
+//        if (_inputs == null) _inputs = new ArrayList<>();
+//        if (_inputs.size() == allowedInputs) {
+//            throw new IllegalArgumentException("Maximum number of inputs already met");
+//        }
+//        _inputs.add(t) ;
+//    }
+//
+//
+//    public void clearInputs() { if (_inputs != null) _inputs.clear(); }
+//
+//    public void clearInput(Table table) {
+//        if (! (_inputs == null || table == null)) {
+//            _inputs.remove(table);
+//        }
+//    }
+//
+//    public Table getInput() { return getInput(0); }
+//
+//    public Table getInput(int index) {
+//        if (_inputs == null || _inputs.size() == index) {
+//            throw new IllegalArgumentException("Inputs list is empty");
+//        }
+//        if (_inputs.size() < index + 1) {
+//            throw new IllegalArgumentException("Index is out of bounds");
+//        }
+//        return _inputs.get(index);
+//    }
+//
+    public List<Table> getInputs() {
+        List<Table> inputs = new ArrayList<>();
+        _previous.forEach(node -> {
+            if (node.getOutput() != null) inputs.add(node.getOutput());
+        });
+        return inputs;
     }
-
-    public Table getInput() { return getInput(0); }
-
-    public Table getInput(int index) {
-        if (_inputs == null || _inputs.size() == index) {
-            throw new IllegalArgumentException("Inputs list is empty");
-        }
-        if (_inputs.size() < index + 1) {
-            throw new IllegalArgumentException("Index is out of bounds");
-        }
-        return _inputs.get(index);
-    }
-
-    public List<Table> getInputs() { return _inputs; }
-
 
     public void reset() {
         clearOutput();

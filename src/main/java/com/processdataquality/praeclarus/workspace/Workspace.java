@@ -19,7 +19,9 @@ package com.processdataquality.praeclarus.workspace;
 import com.processdataquality.praeclarus.workspace.node.Node;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael Adams
@@ -27,7 +29,7 @@ import java.util.List;
  */
 public class Workspace {
 
-    private final NodeRunner _runner = new NodeRunner(this);
+    private final NodeRunner _runner = new NodeRunner();
     private final List<Node> _heads = new ArrayList<>();
 
 
@@ -41,65 +43,50 @@ public class Workspace {
     public void addNode(Node node) { _heads.add(node); }
 
     public void removeNode(Node node) {
-        Node previous = node.previous();
-        if (previous != null) {
-            disconnect(previous, node);
-        }
-        Node next = node.next();
-        if (next != null) {
-            disconnect(node, next);
-        }
+        node.previous().forEach(previous -> disconnect(previous, node));
+        node.next().forEach(next -> disconnect(node, next));
     }
 
 
     public void connect(Node source, Node target) {
-        source.setNext(target);
-        target.setPrevious(source);
+        source.addNext(target);
+        target.addPrevious(source);
         _heads.remove(target);
-        if (source.hasOutput()) {
-            target.addInput(source.getOutput());
-        }
     }
 
 
     public void disconnect(Node source, Node target) {
-        source.setNext(null);
-        target.setPrevious(null);
+        source.removeNext(target);
+        target.removePrevious(source);
         _heads.add(target);
-        target.clearInput(source.getOutput());
     }
 
 
-    public void reset() {
-        for (Node head : _heads) {
-            clearInputsInPath(head);
+    public void reset() { _runner.abort(); }
+
+
+    public Set<Node> getHeads(Node node) {
+        Set<Node> heads = new HashSet<>();
+        for (Node previous : node.previous()) {
+            if (previous.isHead()) {
+                heads.add(previous);
+            }
+            else heads.addAll(getHeads(previous));
         }
+        if (heads.isEmpty()) heads.add(node);
+        return heads;
     }
 
-
-    private void clearInputsInPath(Node node) {
-        node.clearInputs();
-        if (node.hasNext()) clearInputsInPath(node.next());
-    }
-
-    
-    public List<String> getNodeNamesInPath(Node nodeInPath) {
-        return getNodeNamesInPath(new ArrayList<>(), getHead(nodeInPath));
-    }
-
-    private List<String> getNodeNamesInPath(List<String> names, Node node) {
-        names.add(node.getName());
-        if (node.hasNext()) getNodeNamesInPath(names, node.next());
-        return names;
-    }
-
-
-    public Node getHead(Node node) {
-        return node.isHead() ? node : getHead(node.previous());
-    }
-
-    public Node getTail(Node node) {
-        return node.isTail() ? node : getTail(node.next());
-    }
+    public Set<Node> getTails(Node node) {
+        Set<Node> tails = new HashSet<>();
+        for (Node next : node.next()) {
+            if (next.isTail()) {
+                tails.add(next);
+            }
+            else tails.addAll(getTails(next));
+        }
+        if (tails.isEmpty()) tails.add(node);
+        return tails;
+   }
 
 }
