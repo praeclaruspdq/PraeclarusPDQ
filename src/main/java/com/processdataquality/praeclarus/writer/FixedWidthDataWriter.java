@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.writer;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.fixed.FixedWidthWriteOptions;
@@ -27,7 +27,7 @@ import java.io.IOException;
  * @author Michael Adams
  * @date 12/4/21
  */
-@PluginMetaData(
+@Plugin(
         name = "Fixed Width Writer",
         author = "Michael Adams",
         version = "1.0",

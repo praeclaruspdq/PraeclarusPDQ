@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.reader.FileDataReader;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
@@ -98,7 +98,7 @@ public abstract class AbstractFileEditor extends AbstractEditor {
 
 
     protected String getOpts() {
-        PluginMetaData metaData = getPlugin().getClass().getAnnotation(PluginMetaData.class);
+        Plugin metaData = getPlugin().getClass().getAnnotation(Plugin.class);
         if (metaData != null) {
             String descriptors = metaData.fileDescriptors();
             if (! descriptors.isEmpty()) {

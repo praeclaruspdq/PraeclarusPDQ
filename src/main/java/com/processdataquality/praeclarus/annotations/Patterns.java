@@ -14,29 +14,16 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.config;
+package com.processdataquality.praeclarus.annotations;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * @author Michael Adams
- * @date 14/4/21
+ * @date 14/6/21
  */
-
-@Configuration
-@ConfigurationProperties(prefix = "plugin")
-public class PluginConfig {
-
-    private List<String> paths;
-
-    public List<String> getPaths() {
-        return paths;
-    }
-
-    public void setPaths(List<String> paths) {
-        this.paths = paths;
-    }
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Patterns {
+    Pattern[] value();
 }

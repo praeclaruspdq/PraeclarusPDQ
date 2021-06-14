@@ -16,7 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Pattern;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.pattern.PatternGroup;
 import com.processdataquality.praeclarus.plugin.PluginFactory;
 import com.processdataquality.praeclarus.plugin.PluginService;
@@ -78,7 +79,7 @@ public class TreeData {
     private List<TreeItem> createItems(PluginFactory<?> factory, TreeItem parent) {
         List<TreeItem> items = new ArrayList<>();
         for (String name : factory.getPluginNames()) {
-            PluginMetaData metaData = factory.getMetaData(name);
+            Plugin metaData = factory.getPluginAnnotation(name);
             String label = metaData != null ? metaData.name() :
                     name.substring(name.lastIndexOf('.'));
             items.add(new TreeItem(label, parent, name));
@@ -91,20 +92,22 @@ public class TreeData {
         List<TreeItem> items = new ArrayList<>();
         Map<PatternGroup, TreeItem> patternMap = new HashMap<>();
         for (String name : factory.getPluginNames()) {
-            PluginMetaData metaData = factory.getMetaData(name);
+            Plugin pluginMetaData = factory.getPluginAnnotation(name);
+            for (Pattern pattern : factory.getPatternAnnotations(name)) {
 
-            // get or add sub-header for pattern group
-            PatternGroup group = metaData != null ? metaData.group() : PatternGroup.UNGROUPED;
-            TreeItem groupItem = patternMap.get(group);
-            if (groupItem == null) {
-                groupItem = new TreeItem(group.getName(), patterns, null);
-                patternMap.put(group, groupItem);
-                items.add(groupItem);
+                // get or add sub-header for pattern group
+                PatternGroup group = pattern != null ? pattern.group() : PatternGroup.UNGROUPED;
+                TreeItem groupItem = patternMap.get(group);
+                if (groupItem == null) {
+                    groupItem = new TreeItem(group.getName(), patterns, null);
+                    patternMap.put(group, groupItem);
+                    items.add(groupItem);
+                }
+
+                String label = pluginMetaData != null ? pluginMetaData.name() :
+                        name.substring(name.lastIndexOf('.'));
+                items.add(new TreeItem(label, groupItem, name));
             }
-            
-            String label = metaData != null ? metaData.name() :
-                                name.substring(name.lastIndexOf('.'));
-            items.add(new TreeItem(label, groupItem, name));
         }
 
         return sort(items);

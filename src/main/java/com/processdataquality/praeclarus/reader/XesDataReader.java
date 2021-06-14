@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.reader;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import org.deckfour.xes.in.XesXmlParser;
 import org.deckfour.xes.model.*;
@@ -36,7 +36,7 @@ import java.util.*;
  * @author Michael Adams
  * @date 31/3/21
  */
-@PluginMetaData(
+@Plugin(
         name = "XES Reader",
         author = "Michael Adams",
         version = "1.0",

@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.reader;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.io.fixed.FixedWidthReadOptions;
 
@@ -24,7 +24,7 @@ import tech.tablesaw.io.fixed.FixedWidthReadOptions;
  * @author Michael Adams
  * @date 30/3/21
  */
-@PluginMetaData(
+@Plugin(
         name = "Fixed Width Reader",
         author = "Michael Adams",
         version = "1.0",

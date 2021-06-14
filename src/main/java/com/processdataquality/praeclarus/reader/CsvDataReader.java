@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.reader;
 
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
@@ -25,7 +25,7 @@ import tech.tablesaw.io.csv.CsvReadOptions;
  * @author Michael Adams
  * @date 29/3/21
  */
-@PluginMetaData(
+@Plugin(
         name = "CSV Reader",
         author = "Michael Adams",
         version = "1.0",

@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.workspace.node;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import tech.tablesaw.api.Table;
 
@@ -82,7 +82,7 @@ public abstract class Node {
 
     
     public String getName() {
-        PluginMetaData metaData = getPlugin().getClass().getAnnotation(PluginMetaData.class);
+        Plugin metaData = getPlugin().getClass().getAnnotation(Plugin.class);
         return metaData.name();
     }
 

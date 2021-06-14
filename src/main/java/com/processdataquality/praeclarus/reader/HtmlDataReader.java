@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.reader;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.io.html.HtmlReadOptions;
 
@@ -24,7 +24,7 @@ import tech.tablesaw.io.html.HtmlReadOptions;
  * @author Michael Adams
  * @date 30/3/21
  */
-@PluginMetaData(
+@Plugin(
         name = "HTML Reader",
         author = "Michael Adams",
         version = "1.0",

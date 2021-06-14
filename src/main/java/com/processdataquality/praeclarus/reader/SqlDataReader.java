@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.reader;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.jdbc.SqlResultSetReader;
@@ -28,7 +28,7 @@ import java.sql.*;
  * @author Michael Adams
  * @date 30/3/21
  */
-@PluginMetaData(
+@Plugin(
         name = "Database Table Reader",
         author = "Michael Adams",
         version = "1.0",

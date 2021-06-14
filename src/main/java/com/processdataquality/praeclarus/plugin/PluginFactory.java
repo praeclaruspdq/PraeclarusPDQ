@@ -17,15 +17,13 @@
 package com.processdataquality.praeclarus.plugin;
 
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Pattern;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.config.PluginConfig;
 import com.processdataquality.praeclarus.writer.DataWriter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -45,10 +43,10 @@ public class PluginFactory<T> {
     }
 
 
-    public List<PluginMetaData> getMetaDataList() {
-        List<PluginMetaData> list = new ArrayList<>();
+    public List<Plugin> getMetaDataList() {
+        List<Plugin> list = new ArrayList<>();
         for (Class<?> clazz : _classMap.values()) {
-            PluginMetaData metaData = clazz.getAnnotation(PluginMetaData.class);
+            Plugin metaData = clazz.getAnnotation(Plugin.class);
             if (metaData != null) {
                 list.add(metaData);
             }
@@ -57,10 +55,21 @@ public class PluginFactory<T> {
     }
 
 
-    public PluginMetaData getMetaData(String className) {
+    public Plugin getPluginAnnotation(String className) {
         Class<?> clazz = _classMap.get(className);
         if (clazz != null) {
-            return clazz.getAnnotation(PluginMetaData.class);
+            return clazz.getAnnotation(Plugin.class);
+        }
+        return null;
+    }
+
+
+    public List<Pattern> getPatternAnnotations(String className) {
+        Class<?> clazz = _classMap.get(className);
+        if (clazz != null) {
+            Pattern[] annotations = clazz.getAnnotationsByType(Pattern.class);
+            return annotations.length > 0 ? Arrays.asList(annotations) :
+                    Collections.emptyList();
         }
         return null;
     }
@@ -84,7 +93,7 @@ public class PluginFactory<T> {
 
     private Map<String, Class<T>> buildMap(Class<T> type) {
         try {
-            PluginLoader loader = new PluginLoader(new PluginConfig().getPathList());
+            PluginLoader loader = new PluginLoader(new PluginConfig().getPaths());
             return loader.loadAsMap(type);
         }
         catch (IOException e) {

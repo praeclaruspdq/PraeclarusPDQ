@@ -102,20 +102,21 @@ public class ResultsPanel extends VerticalLayout implements NodeRunnerListener {
         if (tab != null) {
             page = (VerticalScrollLayout) tabsToPages.get(tab);
             page.removeAll();
+            page.add(grid);
         }
         else {
             tab = new ResultTab(node);
             page = new VerticalScrollLayout(grid);
             removeTopMargin(page);
-            tabs.add(tab);
+            tabsToPages.put(tab, page);
             pages.add(page);
+            tabs.add(tab);
         }
 
         if (node instanceof PatternNode) {
             handlePatternResult(node, grid, tab);
         }
-
-        tabsToPages.put(tab, page);
+        
         tabs.setSelectedTab(tab);
         tabs.setVisible(true);
     }

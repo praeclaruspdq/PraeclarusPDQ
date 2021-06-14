@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.writer;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvWriteOptions;
 
@@ -27,7 +27,7 @@ import java.io.OutputStream;
  * @author Michael Adams
  * @date 31/3/21
  */
-@PluginMetaData(
+@Plugin(
         name = "CSV Writer",
         author = "Michael Adams",
         version = "1.0",

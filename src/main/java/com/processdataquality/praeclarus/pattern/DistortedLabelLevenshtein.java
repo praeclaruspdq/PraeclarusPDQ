@@ -16,7 +16,8 @@
 
 package com.processdataquality.praeclarus.pattern;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Pattern;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import tech.tablesaw.api.StringColumn;
@@ -26,13 +27,13 @@ import tech.tablesaw.api.Table;
  * @author Michael Adams
  * @date 11/5/21
  */
-@PluginMetaData(
+@Plugin(
         name = "Levenshtein",
         author = "Michael Adams",
         version = "1.0",
-        synopsis = "Calculates activity label similarity using Levenshtein Distance",
-        group = PatternGroup.DISTORTED_LABEL
+        synopsis = "Calculates activity label similarity using Levenshtein Distance"
 )
+@Pattern(group = PatternGroup.DISTORTED_LABEL)
 public class DistortedLabelLevenshtein extends AbstractDistortedLabel {
 
     private final LevenshteinDistance levenshtein =

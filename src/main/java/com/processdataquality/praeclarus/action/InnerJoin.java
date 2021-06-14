@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.action;
 
-import com.processdataquality.praeclarus.annotations.PluginMetaData;
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
 
@@ -26,7 +26,7 @@ import java.util.List;
  * @author Michael Adams
  * @date 21/5/21
  */
-@PluginMetaData(
+@Plugin(
         name = "Inner Join",
         author = "Michael Adams",
         version = "1.0",
