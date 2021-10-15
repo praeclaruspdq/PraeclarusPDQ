@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.ui.MainView;
-import com.processdataquality.praeclarus.ui.util.NodeWriter;
+import com.processdataquality.praeclarus.ui.task.WriterTask;
 import com.processdataquality.praeclarus.workspace.NodeRunner;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
@@ -90,7 +90,7 @@ public class ResultsPanel extends VerticalLayout implements NodeRunnerListener {
 
     public void addResult(Node node) {
         if (node instanceof WriterNode) {        // special treatment for writers
-            new NodeWriter().write(node);
+            new WriterTask().run(node);
             return;
         }
         

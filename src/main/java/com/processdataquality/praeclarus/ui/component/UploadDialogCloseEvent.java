@@ -14,14 +14,23 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.canvas;
+package com.processdataquality.praeclarus.ui.component;
+
+import java.io.InputStream;
 
 /**
- * Implementers of this interface are elements that can be rendered on the canvas
  * @author Michael Adams
- * @date 21/5/21
+ * @date 15/10/21
  */
-public interface CanvasPrimitive {
+public class UploadDialogCloseEvent {
 
-    void render(Context2D ctx, CanvasPrimitive selected);
+    public boolean successful;
+    public InputStream inputStream;
+    public String fileName;
+
+    public UploadDialogCloseEvent(boolean b, InputStream is, String fn) {
+        successful = b;
+        inputStream = is;
+        fileName = fn;
+    }
 }

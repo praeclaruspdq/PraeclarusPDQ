@@ -30,62 +30,109 @@ import java.util.Set;
 public class Workspace {
 
     private final NodeRunner _runner = new NodeRunner();
+
+    // a List of Nodes that do not have any predecessors. A workspace may contain any
+    // number of head nodes, each representing the start of a workflow (chain of nodes)
     private final List<Node> _heads = new ArrayList<>();
 
 
+    /**
+     * Remove all nodes from the workspace
+     */
     public void clear() {
         _heads.clear();
         _runner.reset();
     }
 
+
+    /**
+     * @return the runner for this workspace
+     */
     public NodeRunner getRunner() { return _runner; }
 
+
+    /**
+     * Adds a disconnected node to the workspace
+     * @param node the node to add
+     */
     public void addNode(Node node) { _heads.add(node); }
 
+
+    /**
+     * Removes a node from the workspace, disconnecting it from all predecessor
+     * and successor nodes
+     * @param node the node to remove
+     */
     public void removeNode(Node node) {
         node.previous().forEach(previous -> disconnect(previous, node));
         node.next().forEach(next -> disconnect(node, next));
     }
 
 
+    /**
+     * Connects two nodes
+     * @param source the source node of the directed connection
+     * @param target the target node of the directed connection
+     */
     public void connect(Node source, Node target) {
         source.addNext(target);
         target.addPrevious(source);
-        _heads.remove(target);
+        _heads.remove(target);       // if the target node was a head, it's not now
     }
 
 
+    /**
+     * Disconnects two nodes
+     * @param source the source node of the directed connection
+     * @param target the target node of the directed connection
+     */
     public void disconnect(Node source, Node target) {
         source.removeNext(target);
         target.removePrevious(source);
-        _heads.add(target);
+        if (target.isHead()) {             // if no more nodes in target's pre-set
+            _heads.add(target);
+        }
     }
 
 
+    /**
+     * Stops the runner if it is currently running
+     */
     public void reset() { _runner.abort(); }
 
 
+    /**
+     * Gets each head node on each branch that eventually target a node
+     * @param node the node to get the heads for
+     * @return the Set of head nodes that lead to the node passed
+     */
     public Set<Node> getHeads(Node node) {
         Set<Node> heads = new HashSet<>();
         for (Node previous : node.previous()) {
             if (previous.isHead()) {
                 heads.add(previous);
             }
-            else heads.addAll(getHeads(previous));
+            else heads.addAll(getHeads(previous)); // check all pre-set nodes recursively
         }
-        if (heads.isEmpty()) heads.add(node);
+        if (heads.isEmpty()) heads.add(node);              // the node passed is a head
         return heads;
     }
 
+
+    /**
+     * Gets each tail node on each branch that is an eventual target of a node
+     * @param node the node to get the tails for
+     * @return the Set of tail nodes that lead from the node passed
+     */
     public Set<Node> getTails(Node node) {
         Set<Node> tails = new HashSet<>();
         for (Node next : node.next()) {
             if (next.isTail()) {
                 tails.add(next);
             }
-            else tails.addAll(getTails(next));
+            else tails.addAll(getTails(next));  // check all post-set nodes recursively
         }
-        if (tails.isEmpty()) tails.add(node);
+        if (tails.isEmpty()) tails.add(node);     // the node passed is a tail
         return tails;
    }
 

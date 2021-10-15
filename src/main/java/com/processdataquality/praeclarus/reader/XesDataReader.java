@@ -30,7 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -42,7 +44,7 @@ import java.util.*;
         version = "1.0",
         synopsis = "Loads a log file stored in XES format."
 )
-public class XesDataReader extends AbstractFileDataReader {
+public class XesDataReader extends AbstractDataReader {
 
 
     @Override
@@ -63,14 +65,16 @@ public class XesDataReader extends AbstractFileDataReader {
     }
 
 
+
     private List<XLog> parseInput() throws IOException {
         try {
-            return new XesXmlParser().parse(new File(getFilePath()));
+            return new XesXmlParser().parse(getSourceAsInputStream());
         }
         catch (Exception e) {
             throw new IOException("Failed to load XES file", e);
         }
     }
+
 
     private Table createTable(List<XLog> logList) {
         List<Column<?>> columns = new ArrayList<>();
@@ -119,7 +123,7 @@ public class XesDataReader extends AbstractFileDataReader {
 
     public static void main(String[] args) {
         XesDataReader reader = new XesDataReader();
-        reader.setFilePath("/Users/adamsmj/Downloads/Tutorial120.3.xes");
+        reader.setSource(new File("/Users/adamsmj/Downloads/Tutorial120.3.xes"));
         try {
             Table t = reader.read();
             System.out.println(t.structure());
@@ -130,4 +134,5 @@ public class XesDataReader extends AbstractFileDataReader {
             e.printStackTrace();
         }
     }
+
 }

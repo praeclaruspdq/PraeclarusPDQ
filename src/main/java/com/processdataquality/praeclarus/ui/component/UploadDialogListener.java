@@ -14,16 +14,13 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.reader;
+package com.processdataquality.praeclarus.ui.component;
 
 /**
  * @author Michael Adams
- * @date 2/6/21
+ * @date 15/10/21
  */
-public interface FileDataReader extends DataReader {
+public interface UploadDialogListener {
 
-    void setFilePath(String path);
-
-    String getFilePath();
-
+    void dialogClosed(UploadDialogCloseEvent event);
 }

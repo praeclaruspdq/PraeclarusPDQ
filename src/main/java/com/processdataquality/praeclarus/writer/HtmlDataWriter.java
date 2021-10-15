@@ -17,12 +17,9 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.plugin.Options;
-import tech.tablesaw.api.Table;
-import tech.tablesaw.io.Destination;
+import tech.tablesaw.io.WriteOptions;
 import tech.tablesaw.io.html.HtmlWriteOptions;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -37,35 +34,26 @@ import java.io.IOException;
 )
 public class HtmlDataWriter extends AbstractDataWriter {
 
-    private Options _options;
-
-    @Override
-    public void write(Table table) throws IOException {
-        if (_options == null) getOptions();  // fill null options with defaults
-        HtmlWriteOptions options = HtmlWriteOptions.builder(
-                new Destination(new File(_options.get("Destination").asString())))
-                .escapeText(_options.get("Escape Text").asBoolean())
-                .build();
-        table.write().usingOptions(options);
+    public HtmlDataWriter() {
+        initOptions();
     }
 
+    public void initOptions() {
+        _options.addDefault("Escape Text", true);
+        _options.addDefault("Destination", "out.html");
+    }
+
+
     @Override
-    public Options getOptions() {
-        if (_options == null) {
-            _options = new Options();
-            _options.addDefault("Escape Text", true);
-            _options.addDefault("Destination", "out.html");
+    protected WriteOptions getWriteOptions() throws IOException {
+        HtmlWriteOptions.Builder builder = HtmlWriteOptions.builder(getDestination());
+        for (String key : _options.getChanges().keySet()) {
+            if (key.equals("Escape Text")) {
+                builder.escapeText(_options.get("Escape Text").asBoolean());
+            }
         }
-        return _options;
+        return builder.build();
     }
 
-    @Override
-    public int getMaxInputs() {
-        return 1;
-    }
-
-    @Override
-    public int getMaxOutputs() {
-        return 0;
-    }
+    
 }

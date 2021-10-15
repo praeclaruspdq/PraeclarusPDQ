@@ -17,6 +17,8 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 /**
+ * A connection point for a Vertex on the canvas
+ * 
  * @author Michael Adams
  * @date 19/5/21
  */
@@ -24,10 +26,10 @@ public class Port implements CanvasPrimitive {
 
     public enum Style {INPUT, OUTPUT}
 
-    public static final double RADIUS = 6;
+    public static final double RADIUS = 6;                         // rendered size
 
-    private final Vertex parent;
-    private final Style style;
+    private final Vertex parent;                                   // this port's owner
+    private final Style style;                                     // input or output
 
 
     public Port(Vertex v, Style style) {
@@ -35,29 +37,69 @@ public class Port implements CanvasPrimitive {
         this.style = style;
     }
 
+
+    /**
+     * @return the x-coord of this port's origin
+     */
     public double x() {
         double px = parent.x();
         return style == Style.INPUT ? px : px + Vertex.WIDTH;
     }
 
+
+    /**
+      * @return the y-coord of this port's origin
+     */
     public double y() {
         return parent.y() + Vertex.HEIGHT / 2 ;
     }
 
+
+    /**
+     * @return the Vertex that 'owns' this port
+     */
     public Vertex getParent() { return parent; }
 
-    public Style getStyle() { return style; }
 
+    /**
+     * @return true is this port is an input port
+     */
     public boolean isInput() { return style == Style.INPUT; }
 
+
+    /**
+     * @return true is this port is an output port
+     */
     public boolean isOutput() { return style == Style.OUTPUT; }
 
+
+    /**
+     * @return the point where a connector (arc) may attach to this port
+     */
     public Point getConnectPoint() {
         double px = style == Style.INPUT ? x() - RADIUS : x() + RADIUS;
         return new Point(px, y());
     }
 
 
+    /**
+     * Checks whether a point is within the area of this port
+     * @param pX x-coord
+     * @param pY y-coord
+     * @return true if point is within this port
+     */
+    public boolean contains(double pX, double pY) {
+        double dx = pX - x();
+        double dy = pY - y();
+        return dx*dx + dy*dy < RADIUS * RADIUS;
+    }
+
+
+    /**
+     * Renders this port on the canvas (as a filled semi-circle)
+     * @param ctx the graphics context
+     * @param selected the currently selected object on the canvas
+     */
     public void render(Context2D ctx, CanvasPrimitive selected) {
         String colour = "black";
         double rotation = Math.PI / 2;
@@ -73,10 +115,4 @@ public class Port implements CanvasPrimitive {
         ctx.stroke();
     }
 
-
-    public boolean contains(double pX, double pY) {
-        double dx = pX - x();
-        double dy = pY - y();
-        return dx*dx + dy*dy < RADIUS * RADIUS;
-    }
 }

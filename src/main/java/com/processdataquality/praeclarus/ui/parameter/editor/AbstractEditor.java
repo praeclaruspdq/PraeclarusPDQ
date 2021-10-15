@@ -25,24 +25,30 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
 /**
+ * An abstract class defining a single entry field for a property. Sub-classes define
+ * what type of field to create.
+ *
  * @author Michael Adams
  * @date 5/5/21
  */
 public abstract class AbstractEditor extends HorizontalLayout {
 
-    private final PDQPlugin _plugin;
+    private final PDQPlugin _plugin;         // the plugin this field is a property for
+    private final PluginParameter _param;
 
 
+    // adds the label and field as a single component
     public AbstractEditor(PDQPlugin plugin, PluginParameter param) {
         super();
         _plugin = plugin;
+        _param = param;
         add(createLabel(param), createField(param));
         setWidth("100%");
         setMargin(false);
         getElement().getStyle().set("margin-top", "5px");
     }
 
-
+    // to be implemented by sub-classes
     protected abstract Component createField(PluginParameter param);
 
 
@@ -75,5 +81,7 @@ public abstract class AbstractEditor extends HorizontalLayout {
 
 
     protected PDQPlugin getPlugin() { return _plugin; }
+
+    protected PluginParameter getParam() { return _param; }
 
 }

@@ -93,20 +93,16 @@ public class TreeData {
         Map<PatternGroup, TreeItem> patternMap = new HashMap<>();
         for (String name : factory.getPluginNames()) {
             Plugin pluginMetaData = factory.getPluginAnnotation(name);
-            for (Pattern pattern : factory.getPatternAnnotations(name)) {
-
-                // get or add sub-header for pattern group
-                PatternGroup group = pattern != null ? pattern.group() : PatternGroup.UNGROUPED;
-                TreeItem groupItem = patternMap.get(group);
-                if (groupItem == null) {
-                    groupItem = new TreeItem(group.getName(), patterns, null);
-                    patternMap.put(group, groupItem);
-                    items.add(groupItem);
+            List<Pattern> patternList = factory.getPatternAnnotations(name);
+            if (patternList.isEmpty()) {
+                TreeItem groupItem = getGroupItem(PatternGroup.UNGROUPED, patterns, items, patternMap);
+                items.add(newPatternItem(pluginMetaData, name, groupItem));
+            }
+            else {
+                for (Pattern pattern : patternList) {
+                    TreeItem groupItem = getGroupItem(pattern.group(), patterns, items, patternMap);
+                    items.add(newPatternItem(pluginMetaData, name, groupItem));
                 }
-
-                String label = pluginMetaData != null ? pluginMetaData.name() :
-                        name.substring(name.lastIndexOf('.'));
-                items.add(new TreeItem(label, groupItem, name));
             }
         }
 
@@ -117,6 +113,26 @@ public class TreeData {
     private List<TreeItem> sort(List<TreeItem> items) {
         items.sort(Comparator.comparing(TreeItem::getLabel));
         return items;
+    }
+
+
+    // get or add sub-header for pattern group
+    private TreeItem getGroupItem(PatternGroup group, TreeItem patterns, List<TreeItem> items,
+                   Map<PatternGroup, TreeItem> patternMap) {
+        TreeItem groupItem = patternMap.get(group);
+        if (groupItem == null) {
+            groupItem = new TreeItem(group.getName(), patterns, null);
+            patternMap.put(group, groupItem);
+            items.add(groupItem);
+        }
+        return groupItem;
+    }
+
+
+    private TreeItem newPatternItem(Plugin metaData, String name, TreeItem groupItem) {
+        String label = metaData != null ? metaData.name() :
+                name.substring(name.lastIndexOf('.'));
+       return new TreeItem(label, groupItem, name);
     }
 
 }

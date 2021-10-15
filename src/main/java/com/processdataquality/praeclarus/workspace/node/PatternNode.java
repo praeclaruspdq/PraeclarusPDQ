@@ -21,15 +21,18 @@ import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import tech.tablesaw.api.Table;
 
 /**
+ * A container node for an imperfection pattern plugin
+ *
  * @author Michael Adams
  * @date 12/5/21
  */
 public class PatternNode extends Node {
 
+    // unlike other nodes, a pattern node can be in one of four states
     public enum State { IDLE, DETECTED, REPAIRING, COMPLETED }
 
-    private Table detected;
-    private Table repairs;
+    private Table detected;                 // a table of pattern matches
+    private Table repairs;                  // a table of repair rows (to be performed)
     private State state = State.IDLE;
 
 
@@ -37,6 +40,11 @@ public class PatternNode extends Node {
         super(plugin);
     }
 
+
+    /**
+     * Gets incoming data from a predecessor node and either detects or repairs,
+     * based on the current node state, using its defined algorithm
+     */
     @Override
     public void run() {
         ImperfectionPattern imperfectionPattern = (ImperfectionPattern) getPlugin();
@@ -53,16 +61,27 @@ public class PatternNode extends Node {
         }
         else if (state != State.COMPLETED && imperfectionPattern.canRepair()) {
              if (repairs != null) {
+
+                 // perform repairs on a new copy of the log so we can rollback if needed
                  setOutput(imperfectionPattern.repair(master.copy(), repairs));
              }
             state = State.COMPLETED;
         }
     }
 
+
+    /**
+     * Overrides super method
+     * @return true if this node has completed its run
+     */
     @Override
     public boolean hasCompleted() { return state == State.COMPLETED; }
 
 
+    /**
+     * The output returned depends on the current node state
+     * @return if completed, the detected imperfections, else the repaired output
+     */
     @Override
     public Table getOutput() {
         if (state == State.DETECTED) {
@@ -72,6 +91,9 @@ public class PatternNode extends Node {
     }
 
 
+    /**
+     * Sets this node back to its pre-run state
+     */
     @Override
     public void reset() {
         super.reset();
@@ -80,10 +102,23 @@ public class PatternNode extends Node {
         state = State.IDLE;
     }
 
+
+    /**
+     * @return the current state of this node
+     */
     public State getState() { return state; }
 
+
+    /**
+     * @return the table of detected imperfections
+     */
     public Table getDetected() { return detected; }
 
+
+    /**
+     * Sets the table with the repair rows (to be performed)
+     * @param r the table to set as the repaired table
+     */
     public void setRepairs(Table r) { repairs = r; }
     
 }

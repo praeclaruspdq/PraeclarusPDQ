@@ -20,46 +20,75 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 /**
+ * A directed arc between two nodes. Also handles rendering
+ *
  * @author Michael Adams
  * @date 19/5/21
  */
 public class Connector implements CanvasPrimitive {
 
-    private static final double HEAD_SIZE = 8;
-    private static final double PROXIMITY_TOLERANCE = 3;
-    public static final double WIDTH = 2;
+    // some static values to configure or select a line
+    private static final double HEAD_SIZE = 8;               // size of arrow head
+    private static final double PROXIMITY_TOLERANCE = 3;     // i.e. 3 pixels either side
+    public static final double WIDTH = 2;                    // line width
     public static final String COLOUR = "black";
 
-
+    // each port is owned by either the source or target vertex
     private final Port _source;
     private final Port _target;
 
+
+    // A connection is between two ports
     public Connector(Port source, Port target) {
         _source = source;
         _target = target;
     }
 
+
+    /**
+     * @return the source Vertex
+     */
     public Vertex getSource() {
         return _source.getParent();
     }
 
+
+    /**
+     * @return the target Vertex
+     */
     public Vertex getTarget() {
         return _target.getParent();
     }
 
+
+    /**
+     * @param vertex the Vertex to test
+     * @return true if this line is connected to the specified Vertex
+     */
     public boolean connects(Vertex vertex) {
         return getSource().equals(vertex) || getTarget().equals(vertex);
     }
 
+
+    /**
+     * Tests whether a point is on or proximate to this line
+     * @param x x-coord
+     * @param y y-coord
+     * @return true if the point is on or proximate (i.e under a threshold) to this line
+     */
     public boolean contains(double x, double y) {
         Point ps = _source.getConnectPoint();
         Point pt = _target.getConnectPoint();
         Point pb = new Point(x, y);
-        double diff = getDistance(ps, pb) + getDistance(pb, pt) - getDistance(ps, pt);
+        double diff = distance(ps, pb) + distance(pb, pt) - distance(ps, pt);
         return diff < PROXIMITY_TOLERANCE;
     }
 
 
+    /**
+     * @return a JSON representation of this connector
+     * @throws JSONException if there's any problem building the JSON object
+     */
     public JSONObject asJson() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("source", getSource().getID());
@@ -68,11 +97,21 @@ public class Connector implements CanvasPrimitive {
     }
 
 
-    private double getDistance(Point a, Point b) {
+    /**
+     * @param a a point describing the start of a line
+     * @param b a point describing the end of a line
+     * @return the distance between point a and point b
+     */
+    private double distance(Point a, Point b) {
         return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
     }
 
 
+    /**
+     * Renders this connector on the canvas
+     * @param ctx the graphics context
+     * @param selected the currently selected canvas primitive
+     */
     public void render(Context2D ctx, CanvasPrimitive selected) {
         double width = this.equals(selected) ? WIDTH * 2 : WIDTH;
         Point ps = _source.getConnectPoint();
@@ -88,6 +127,12 @@ public class Connector implements CanvasPrimitive {
     }
 
 
+    /**
+     * Renders the 'arrow' head for this connector on the canvas
+     * @param ctx the graphics context
+     * @param ps the start of the connector line
+     * @param pt the end of the connector line
+     */
     private void renderHead(Context2D ctx, Point ps, Point pt) {
         double d = Math.max(1.0, distance(ps, pt));
         double ax = -(HEAD_SIZE * (pt.x - ps.x) / d);
@@ -102,9 +147,9 @@ public class Connector implements CanvasPrimitive {
     }
 
 
-    private double distance(Point ps, Point pt) {
-        double dx = ps.x - pt.x; 
-        double dy = ps.y - pt.y;
-        return Math.sqrt(dx * dx + dy * dy);
-    }
+//    private double distance(Point ps, Point pt) {
+//        double dx = ps.x - pt.x;
+//        double dy = ps.y - pt.y;
+//        return Math.sqrt(dx * dx + dy * dy);
+//    }
 }

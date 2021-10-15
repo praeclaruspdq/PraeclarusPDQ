@@ -17,15 +17,17 @@
 package com.processdataquality.praeclarus.plugin;
 
 /**
+ * A store for a single configuration option (i.e. a parameter) for a plugin
+ * 
  * @author Michael Adams
  * @date 25/5/21
  */
 public class Option {
 
-    private final String _key;
-    private final Object _value;
-    private boolean _mandatory;
-    private String _mandatoryMessage;
+    private final String _key;              // the option's name
+    private final Object _value;            // the option's value
+    private boolean _mandatory;             // true if this option must have a value
+    private String _mandatoryMessage;       // message that explains why 
 
 
     public Option(String key, Object value) {
@@ -44,6 +46,9 @@ public class Option {
     public String key() { return _key; }
 
     public Object get() { return _value; }
+
+
+    // the remaining methods return the value cast to its actual type
 
     public String asString() {
         if (! (_value instanceof String)) {

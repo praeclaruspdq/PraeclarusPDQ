@@ -17,8 +17,11 @@
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.reader.AbstractDataReader;
+import com.processdataquality.praeclarus.ui.component.UploadDialog;
+import com.processdataquality.praeclarus.ui.component.UploadDialogCloseEvent;
+import com.processdataquality.praeclarus.ui.component.UploadDialogListener;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.icon.Icon;
@@ -29,25 +32,29 @@ import com.vaadin.flow.component.icon.VaadinIcon;
  * @date 8/6/21
  */
 @JsModule("./src/fs.js")
-public class FileOpenEditor extends AbstractFileEditor {
+public class FileOpenEditor extends AbstractFileEditor implements UploadDialogListener {
+
+    private final UploadDialog _uploadDialog;
 
     public FileOpenEditor(PDQPlugin plugin, PluginParameter param) {
         super(plugin, param);
+        _uploadDialog = new UploadDialog(this);
     }
 
+    
     @Override
     protected Button createButton() {
         Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
         icon.setSize("24px");
-        return new Button(icon, e ->
-                        UI.getCurrent().getPage().executeJs("getFile($0)", this.getId().get()));
-//                UI.getCurrent().getPage().executeJs(scriptName + "($0, $1)",
-//                        this.getId().get(), getOpts()));
-//
-//
-//
-//        return createButton(VaadinIcon.FOLDER_OPEN_O, "pickOpenFile");
+        return new Button(icon, e ->  _uploadDialog.open());
+    }
 
-
+    
+    @Override
+    public void dialogClosed(UploadDialogCloseEvent event) {
+        if (event.successful) {
+            setValue(event.fileName);
+            ((AbstractDataReader) getPlugin()).setSource(event.inputStream);
+        }
     }
 }

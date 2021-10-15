@@ -69,7 +69,7 @@ public class PluginFactory<T> {
         if (clazz != null) {
             Pattern[] annotations = clazz.getAnnotationsByType(Pattern.class);
             return annotations.length > 0 ? Arrays.asList(annotations) :
-                    Collections.emptyList();
+                    new ArrayList<>();       // deliberately not Collections.emptyList()
         }
         return null;
     }

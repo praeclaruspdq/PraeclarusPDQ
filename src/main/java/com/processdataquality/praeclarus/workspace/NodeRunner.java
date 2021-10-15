@@ -83,12 +83,15 @@ public class NodeRunner {
                 if (!previous.hasCompleted()) return previous;   // 2-part pattern node
             }
         }
-        announceNodeStarted(node);
-        node.run();
-        if (node.hasCompleted()) {
-            setLastCompletedNode(node);
-            if (_state == State.STEPPING) {
-                _state = State.IDLE;
+        if (node.runPreTask()) {                   // lets UIs do any pre-work necessary
+            announceNodeStarted(node);
+            node.run();
+            if (node.hasCompleted()) {
+                node.runPostTask();                    // lets UIs do any post-work necessary
+                setLastCompletedNode(node);
+                if (_state == State.STEPPING) {
+                    _state = State.IDLE;
+                }
             }
         }
         return node;

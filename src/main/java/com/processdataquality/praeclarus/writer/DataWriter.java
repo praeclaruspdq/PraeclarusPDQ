@@ -18,9 +18,9 @@ package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.io.Destination;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * @author Michael Adams
@@ -34,8 +34,16 @@ public interface DataWriter extends PDQPlugin {
      */
     void write(Table table) throws IOException;
 
-    OutputStream getOutputStream();
+    /**
+     * @return the stored output destination for this writer (if any)
+     */
+    Destination getDestination();
 
-    void setOutputStream(OutputStream stream);
+
+    /**
+     * Sets the output destination for this writer
+     * @param destination the output stream
+     */
+    void setDestination(Destination destination);
 
 }

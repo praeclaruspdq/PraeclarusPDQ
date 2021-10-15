@@ -27,6 +27,8 @@ import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.router.Route;
 
 /**
+ * The primary view for the web UI
+ *
  * @author Michael Adams
  * @date 14/4/21
  */
@@ -34,6 +36,7 @@ import com.vaadin.flow.router.Route;
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public class MainView extends VerticalLayout {
 
+    // the three sub-panels of the UI
     private final PropertiesPanel _propsPanel;
     private final PipelinePanel _pipelinePanel;
     private final ResultsPanel _resultsPanel;
@@ -76,7 +79,6 @@ public class MainView extends VerticalLayout {
         centreLayout.addToPrimary(_pipelinePanel);
         centreLayout.addToSecondary(_resultsPanel);
         centreLayout.setWidth("77%");
-//        centreLayout.setSplitterPosition(60);
         centreLayout.addSplitterDragendListener(e -> _pipelinePanel.onResize());
         return centreLayout;
     }

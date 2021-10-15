@@ -43,6 +43,8 @@ public class Canvas extends Component implements HasStyle, HasSize {
         setId("workflowCanvas");
         _ctx = new Context2D(this);
         setCoOrdSpace(String.valueOf(width), String.valueOf(height));
+
+        // initialise the mouse event and file load listeners on the HTML5 canvas
         UI.getCurrent().getPage().executeJs("window.init()");
     }
 
@@ -52,6 +54,9 @@ public class Canvas extends Component implements HasStyle, HasSize {
 
     public Context2D getContext() { return _ctx; }
 
+
+    // These @ClientCallable methods are called directly from the canvas listeners and
+    // immediately passed to the java-level component listeners
 
     @ClientCallable
     private void mousedown(double x, double y) {

@@ -17,11 +17,7 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvWriteOptions;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * @author Michael Adams
@@ -41,12 +37,6 @@ public class CsvDataWriter extends AbstractDataWriter {
     }
 
 
-    @Override
-    public void write(Table table) throws IOException {
-        table.write().usingOptions(getWriteOptions());
-    }
-
-
     private void initOptions() {
         _options.addDefault("Header", true);
         _options.addDefault("Destination", "");
@@ -55,15 +45,8 @@ public class CsvDataWriter extends AbstractDataWriter {
     }
 
 
-    private CsvWriteOptions.Builder createBuilder() throws IOException {
-        OutputStream stream = getOutputStream();
-        return stream != null ? CsvWriteOptions.builder(stream) :
-                CsvWriteOptions.builder(_options.get("Destination").asString());
-    }
-
-    
-    private CsvWriteOptions getWriteOptions() throws IOException {
-        CsvWriteOptions.Builder builder = createBuilder();
+    protected CsvWriteOptions getWriteOptions() {
+        CsvWriteOptions.Builder builder = CsvWriteOptions.builder(getDestination());
         for (String key : _options.getChanges().keySet()) {
             if (key.equals("Header")) {
                 builder.header(_options.get("Header").asBoolean());

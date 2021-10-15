@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.reader.FileDataReader;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.processdataquality.praeclarus.ui.util.FileUtil;
 import com.processdataquality.praeclarus.writer.DataWriter;
@@ -32,7 +31,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,26 +54,31 @@ public abstract class AbstractFileEditor extends AbstractEditor {
     private void setfile(String fileName, String content) {
         _field.setValue(fileName);
         File temp = FileUtil.stringToTempFile(content);
-        if (temp != null && getPlugin() instanceof FileDataReader) {
-            ((FileDataReader) getPlugin()).setFilePath(temp.getPath());
-        }
+//        if (temp != null && getPlugin() instanceof FileDataReader) {
+//            ((FileDataReader) getPlugin()).setFilePath(temp.getPath());
+//        }
     }
 
-    @ClientCallable
-    private void setFileName(String fileName) {
-        _field.setValue(fileName);
-    }
+//    @ClientCallable
+//    private void setFileName(String fileName) {
+//        _field.setValue(fileName);
+//    }
 
 
     @ClientCallable
     private void setSaveFileName(String fileName) {
         _field.setValue(fileName);
         if (getPlugin() instanceof DataWriter) {
-            ((DataWriter) getPlugin()).setOutputStream(new ByteArrayOutputStream());
+//            ((DataWriter) getPlugin()).setOutputStream(new ByteArrayOutputStream());
         }
     }
 
 
+    protected void setValue(Object value) {
+        getParam().setValue(value);
+        updateProperties(getParam());
+        _field.setValue(getParam().getStringValue());
+    }
 
     protected HorizontalLayout createField(PluginParameter param) {
         _field = initTextField(param);

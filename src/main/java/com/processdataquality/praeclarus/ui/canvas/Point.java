@@ -17,6 +17,8 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 /**
+ * Simple point implementation ( coords (x,y) )
+ *
  * @author Michael Adams
  * @date 21/5/21
  */
@@ -24,6 +26,7 @@ public class Point {
 
     public final double x;
     public final double y;
+
 
     Point(double x, double y) {
         this.x = x;

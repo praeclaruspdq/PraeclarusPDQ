@@ -23,6 +23,8 @@ import tech.tablesaw.api.Table;
 import java.io.IOException;
 
 /**
+ * A container node for a log data writer
+ *
  * @author Michael Adams
  * @date 12/5/21
  */
@@ -32,6 +34,11 @@ public class WriterNode extends Node {
         super(plugin);
     }
 
+
+    /**
+     * Gets incoming data from a predecessor node and writes it to a data 'sink' as
+     * defined in this node's plugin
+     */
     @Override
     public void run() {
         try {

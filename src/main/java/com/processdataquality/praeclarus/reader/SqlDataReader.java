@@ -19,6 +19,7 @@ package com.processdataquality.praeclarus.reader;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.io.Source;
 import tech.tablesaw.io.jdbc.SqlResultSetReader;
 
 import java.io.IOException;
@@ -64,6 +65,13 @@ public class SqlDataReader implements DataReader {
         return 1;
     }
 
+    @Override
+    public void setSource(Source source) { }      // unused
+
+    @Override
+    public Source getSource() {       // unused
+        return null;
+    }
 
     private Options initOptions() {
         Options options = new Options();

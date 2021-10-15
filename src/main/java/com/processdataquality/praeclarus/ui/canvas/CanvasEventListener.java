@@ -17,6 +17,8 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 /**
+ * A listener for various canvas events
+ *
  * @author Michael Adams
  * @date 20/5/21
  */

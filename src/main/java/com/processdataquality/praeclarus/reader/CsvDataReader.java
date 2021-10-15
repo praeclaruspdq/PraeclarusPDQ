@@ -32,7 +32,7 @@ import tech.tablesaw.io.csv.CsvReadOptions;
         synopsis = "Loads a log file consisting of lines of comma separated values.",
         fileDescriptors = "CSV Files;text/plain;.csv"
 )
-public class CsvDataReader extends AbstractFileDataReader {
+public class CsvDataReader extends AbstractDataReader {
 
     @Override
     public Options getOptions() {
@@ -45,19 +45,21 @@ public class CsvDataReader extends AbstractFileDataReader {
 
 
     protected CsvReadOptions getReadOptions() {
-        CsvReadOptions.Builder builder = createBuilder();
+        CsvReadOptions.Builder builder = CsvReadOptions.builder(getSource());
         for (String key : _options.getChanges().keySet()) {
-            if (key.equals("Separator")) {
-                builder.separator(_options.get("Separator").asChar());
-            }
-            if (key.equals("Missing Value")) {
-                builder.missingValueIndicator(_options.get("Missing Value").asString());
-            }
-            if (key.equals("Header")) {
-                builder.header(_options.get("Header").asBoolean());
-            }
-            if (key.equals("Table Name")) {
-                builder.tableName(_options.get("Table Name").asString());
+            switch (key) {
+                case "Separator":
+                    builder.separator(_options.get("Separator").asChar());
+                    break;
+                case "Missing Value":
+                    builder.missingValueIndicator(_options.get("Missing Value").asString());
+                    break;
+                case "Header":
+                    builder.header(_options.get("Header").asBoolean());
+                    break;
+                case "Table Name":
+                    builder.tableName(_options.get("Table Name").asString());
+                    break;
             }
         }
         return builder.build();
@@ -75,10 +77,5 @@ public class CsvDataReader extends AbstractFileDataReader {
 ////                .sample(((int) _options.get("Sample")) > 0)
 //                .build();
 //    }
-
-    private CsvReadOptions.Builder createBuilder() {
-        String fileName = getSource(_options.get("Source").asString());
-        return CsvReadOptions.builder(fileName);
-    }
     
 }

@@ -17,7 +17,6 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.reader.FileDataReader;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -120,12 +119,6 @@ public class Vertex implements CanvasPrimitive {
         PDQPlugin plugin = _node.getPlugin();
         json.put("plugin", plugin.getClass().getName());
         json.put("options", plugin.getOptions().getChangesAsJson());
-        if (plugin instanceof FileDataReader) {
-            String localPath = ((FileDataReader) plugin).getFilePath();
-            if (localPath != null) {
-                json.put("localPath", localPath);
-            }
-        }
         return json;
     }
 

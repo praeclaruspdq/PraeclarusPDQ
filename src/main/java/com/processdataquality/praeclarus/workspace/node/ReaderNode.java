@@ -22,6 +22,8 @@ import com.processdataquality.praeclarus.reader.DataReader;
 import java.io.IOException;
 
 /**
+ * A container node for a log data reader
+ *
  * @author Michael Adams
  * @date 12/5/21
  */
@@ -32,6 +34,10 @@ public class ReaderNode extends Node {
     }
 
 
+    /**
+     * Reads log data from the plugin contained by this node and sets the data as the
+     * node's output 
+     */
     @Override
     public void run() {
         try {
@@ -42,4 +48,5 @@ public class ReaderNode extends Node {
         }
         setCompleted(true);
     }
+
 }

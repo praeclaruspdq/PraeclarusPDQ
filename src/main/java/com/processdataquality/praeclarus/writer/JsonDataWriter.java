@@ -17,12 +17,9 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.plugin.Options;
-import tech.tablesaw.api.Table;
-import tech.tablesaw.io.Destination;
+import tech.tablesaw.io.WriteOptions;
 import tech.tablesaw.io.json.JsonWriteOptions;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -37,35 +34,25 @@ import java.io.IOException;
 )
 public class JsonDataWriter extends AbstractDataWriter {
 
-    private Options _options;
-
-    @Override
-    public void write(Table table) throws IOException {
-        if (_options == null) getOptions();  // fill null options with defaults
-        JsonWriteOptions options = JsonWriteOptions.builder(
-                new Destination(new File(_options.get("Destination").asString())))
-                .header(_options.get("Header").asBoolean())
-                .build();
-        table.write().usingOptions(options);
+    public JsonDataWriter() {
+        initOptions();
     }
 
+    public void initOptions() {
+        _options.addDefault("Header", true);
+        _options.addDefault("Destination", "out.json");
+    }
+
+
     @Override
-    public Options getOptions() {
-        if (_options == null) {
-            _options = new Options();
-            _options.addDefault("Header", true);
-            _options.addDefault("Destination", "out.json");
+    protected WriteOptions getWriteOptions() throws IOException {
+        JsonWriteOptions.Builder builder = JsonWriteOptions.builder(getDestination());
+        for (String key : _options.getChanges().keySet()) {
+            if (key.equals("Header")) {
+                builder.header(_options.get("Header").asBoolean());
+            }
         }
-        return _options;
+        return builder.build();
     }
-
-    @Override
-    public int getMaxInputs() {
-        return 1;
-    }
-
-    @Override
-    public int getMaxOutputs() {
-        return 0;
-    }
+    
 }

@@ -19,6 +19,7 @@ package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.io.Source;
 
 import java.io.IOException;
 
@@ -34,5 +35,18 @@ public interface DataReader extends PDQPlugin {
      * @throws IOException if anything goes wrong
      */
     Table read() throws IOException;
+
+
+    /**
+     * Sets the input source for this reader
+     * @param source A tablesaw Source (may reference a File, InputStream, etc.)
+     */
+    void setSource(Source source);
+
+
+    /**
+     * @return the currently set input data source (if any)
+     */
+    Source getSource();
     
 }

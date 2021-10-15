@@ -19,6 +19,35 @@ import { get, set } from "./index.js";
 //var writeHandle;
 //var readFile;
 
+// called from FileInput constructor
+window.addUploadListener = function(elem) {
+    elem.onchange = async event => {
+        const file = event.target.files[0];
+        await set(file.name, file);
+        elem.$server.setFileName(file.name);
+    }
+}
+
+async function handleUploadSelection(event) {
+    const file = event.target.files[0];
+    await set(file.name, file);
+    event.target.$server.setFileName(file.name);
+}
+
+
+// called from FileInput#upload
+window.upload = async function(elem, filename) {
+    const file = await get(filename);
+    const reader = new FileReader();
+    reader.readAsText(file, 'UTF-8');
+    
+    reader.onload = event => {
+        const content = event.target.result;
+        elem.$server.setContent(content);
+    }
+}
+
+
 window.getFile = async function(elemID) {
     let fileHandle;
     [fileHandle] = await window.showOpenFilePicker();

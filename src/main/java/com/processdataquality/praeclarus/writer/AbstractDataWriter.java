@@ -17,10 +17,16 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.plugin.Options;
+import org.apache.commons.io.output.WriterOutputStream;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.io.Destination;
+import tech.tablesaw.io.WriteOptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
+import java.nio.charset.Charset;
 
 /**
  * @author Michael Adams
@@ -29,13 +35,18 @@ import java.io.OutputStream;
 public abstract class AbstractDataWriter implements DataWriter {
 
     protected final Options _options = new Options();
-    protected OutputStream _stream;
+    protected Destination _destination;
 
     protected AbstractDataWriter() { }
 
+    // each sub-class will have unique read options for data format etc.
+    protected abstract WriteOptions getWriteOptions() throws IOException;
+
 
     @Override
-    public abstract void write(Table table) throws IOException;
+    public void write(Table table) throws IOException {
+        table.write().usingOptions(getWriteOptions());
+    }
 
 
     @Override
@@ -50,17 +61,46 @@ public abstract class AbstractDataWriter implements DataWriter {
 
     @Override
     public int getMaxOutputs() {
-        return 0;
+        return 1;
     }
 
     @Override
-    public OutputStream getOutputStream() {
-        return _stream;
+    public Destination getDestination() {
+        return _destination;
     }
 
     @Override
-    public void setOutputStream(OutputStream stream) {
-        _stream = stream;
+    public void setDestination(Destination destination) {
+        _destination = destination;
+    }
+
+
+    public OutputStream getDestinationAsOutputStream() throws IOException {
+        Destination destination = getDestination();
+        if (destination != null) {
+            if (destination.stream() != null) {
+                return destination.stream();
+            }
+            if (destination.writer() != null) {
+                return new WriterOutputStream(destination.writer(), Charset.defaultCharset());
+            }
+        }
+        throw new IOException("Unable to get an OutputStream from Destination");
+    }
+
+
+    public void setDestination(File file) throws IOException {
+        setDestination(new Destination(file));
+    }
+
+
+    public void setDestination(Writer writer) {
+        setDestination(new Destination(writer));
+    }
+
+
+    public void setDestination(OutputStream stream) {
+        setDestination(new Destination(stream));
     }
 
 }

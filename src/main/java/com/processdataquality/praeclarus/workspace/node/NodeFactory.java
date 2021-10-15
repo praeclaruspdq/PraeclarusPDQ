@@ -23,6 +23,8 @@ import com.processdataquality.praeclarus.reader.DataReader;
 import com.processdataquality.praeclarus.writer.DataWriter;
 
 /**
+ * Creates and returns the appropriate Node to contain a plugin
+ *
  * @author Michael Adams
  * @date 13/5/21
  */

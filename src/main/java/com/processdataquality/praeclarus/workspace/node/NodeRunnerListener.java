@@ -17,6 +17,8 @@
 package com.processdataquality.praeclarus.workspace.node;
 
 /**
+ * Notifies listeners of changes of state during a node's execution
+ *
  * @author Michael Adams
  * @date 9/6/21
  */

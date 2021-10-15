@@ -29,13 +29,9 @@ import tech.tablesaw.io.json.JsonReadOptions;
         version = "1.0",
         synopsis = "Loads a log file formatted as JSON."
 )
-public class JsonDataReader extends AbstractFileDataReader {
-
+public class JsonDataReader extends AbstractDataReader {
     protected JsonReadOptions getReadOptions() {
-        String fileName = getFilePath() != null ? getFilePath() :
-                _options.get("Source").asString();
-
-        return JsonReadOptions.builder(fileName)
+        return JsonReadOptions.builder(getSource())
                 .missingValueIndicator(_options.get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
 //                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))

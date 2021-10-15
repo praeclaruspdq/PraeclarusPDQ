@@ -23,11 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * An enclosed map of Options (i.e. a set of parameters) to configure a plugin.
+ *
  * @author Michael Adams
  * @date 12/5/21
  */
-public class Options extends HashMap<String, Option> {
+public class Options extends HashMap<String, Option> {         // key is Option's name
 
+    // track any changes made to option values for this plugin
     private final Map<String, Option> changes = new HashMap<>();
 
 
@@ -93,6 +96,7 @@ public class Options extends HashMap<String, Option> {
      }
 
 
+     // just a little test 
     public static void main(String[] args) {
         Options o = new Options();
         o.add("one", "string");

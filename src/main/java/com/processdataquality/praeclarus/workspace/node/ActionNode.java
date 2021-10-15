@@ -20,6 +20,8 @@ import com.processdataquality.praeclarus.action.Action;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 
 /**
+ * A container node for a generic action to be performed on data inputs
+ *
  * @author Michael Adams
  * @date 12/5/21
  */
@@ -29,6 +31,11 @@ public class ActionNode extends Node {
         super(plugin);
     }
 
+
+    /**
+     * Runs a plugin's Action algorithm using this node's input tables and write the
+     * result to the output table
+     */
     @Override
     public void run() {
         setOutput(((Action) getPlugin()).run(getInputs()));

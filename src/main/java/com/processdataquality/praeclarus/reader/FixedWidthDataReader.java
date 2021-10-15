@@ -30,7 +30,7 @@ import tech.tablesaw.io.fixed.FixedWidthReadOptions;
         version = "1.0",
         synopsis = "Loads a log file formatted as a fixed-width set of fields."
 )
-public class FixedWidthDataReader extends AbstractFileDataReader {
+public class FixedWidthDataReader extends AbstractDataReader {
 
     @Override
     public Options getOptions() {
@@ -44,10 +44,7 @@ public class FixedWidthDataReader extends AbstractFileDataReader {
 
     
     protected FixedWidthReadOptions getReadOptions() {
-        String fileName = getFilePath() != null ? getFilePath() :
-                _options.get("Source").asString();
-
-        return FixedWidthReadOptions.builder(fileName)
+        return FixedWidthReadOptions.builder(getSource())
                 .missingValueIndicator(_options.get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
 //                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))

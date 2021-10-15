@@ -17,11 +17,14 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 /**
+ * Renders an indicator on a Vertex of its current state
+ *
  * @author Michael Adams
  * @date 9/6/21
  */
 public class VertexStateIndicator {
 
+    // an enum of available states and their associated colours
     public enum State {
 
         DORMANT ("#C54E57"),          // dull red
@@ -36,19 +39,31 @@ public class VertexStateIndicator {
     }
 
 
+    // some constants on where and how to render the shape of the indicator
     private static final double RADIUS = 5;
     private static final double LINE_WIDTH = 1;
     private static final double X_INSET = 12;
     private static final double Y_INSET = 12;
 
-    private State state;
+    private State state;                         // the current state of this indicator
 
+    // the initial state is 'dormant'
     public VertexStateIndicator() { state = State.DORMANT; }
 
 
+    /**
+     * Sets the current state of this indicator
+     * @param s the state
+     */
     public void setState(State s) { state = s; }
 
 
+    /**
+     * Renders this indicator (as a circle in bottom right of a Vertex)
+     * @param vx the Vertex's x-coord
+     * @param vy the Vertex's y-coord
+     * @param ctx the graphics context
+     */
     public void render(double vx, double vy, Context2D ctx) {
         double x = vx + Vertex.WIDTH - X_INSET;
         double y = vy + Vertex.HEIGHT - Y_INSET;

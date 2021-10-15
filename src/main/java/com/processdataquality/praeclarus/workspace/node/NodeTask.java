@@ -14,33 +14,17 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.plugin;
+package com.processdataquality.praeclarus.workspace.node;
 
 /**
- * The base interface for all plugins in the environment
+ * Implementers of this interface can provide UI-specific tasks to run before and/or
+ * after a plugin's algorithm is run.
  *
  * @author Michael Adams
- * @date 6/4/21
+ * @date 15/6/21
  */
-public interface PDQPlugin {
-    
-    /**
-     * @return A map of configuration parameters for the plugin.
-     */
-    Options getOptions();
+public interface NodeTask {
 
-
-    /**
-     * @return the maximum number of plugins that can be connected as inputs to this
-     * plugin (i.e. the threshold of allowable inputs for this plugin)
-     */
-    int getMaxInputs();
-
-
-    /**
-     * @return the maximum number of plugins that can be connected as outputs from this
-     * plugin (i.e. the threshold of allowable outputs for this plugin)
-     */
-    int getMaxOutputs();
+    boolean run(Node node);
 
 }
