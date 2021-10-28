@@ -38,7 +38,7 @@ public class FileOpenEditor extends AbstractFileEditor implements UploadDialogLi
 
     public FileOpenEditor(PDQPlugin plugin, PluginParameter param) {
         super(plugin, param);
-        _uploadDialog = new UploadDialog(this);
+        _uploadDialog = new UploadDialog(this, getFileDescriptors());
     }
 
     

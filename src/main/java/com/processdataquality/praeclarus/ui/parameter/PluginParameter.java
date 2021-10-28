@@ -16,8 +16,10 @@
 
 package com.processdataquality.praeclarus.ui.parameter;
 
+import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.ui.parameter.editor.*;
+import com.processdataquality.praeclarus.writer.DataWriter;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
@@ -26,79 +28,82 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
  */
 public class PluginParameter {
 
-    String _name;
-    Object _value;
-    String _synopsis;
-    boolean _updated = false;
+    private Option _option;
+    private boolean _updated = false;
 
-    public PluginParameter(String name, Object value, String synopsis) {
-        _name = name;
-        _value = value;
-        _synopsis = synopsis;
+    public PluginParameter(Option option) {
+        _option = option;
     }
 
-    public String getName() { return _name; }
+    public String getName() { return _option.key(); }
 
-    public Object getValue() { return _value; }
+    public Object getValue() { return _option.get(); }
 
-    public String getStringValue() { return String.valueOf(_value); }
-
-    public String getSynopsis() { return _synopsis; }
+    public String getStringValue() { return String.valueOf(getValue()); }
 
     public boolean isUpdated() { return _updated; }
 
 
+    public Option getOption() { return _option; }
+
+
     public void setValue(Object value) {
-        _value = value;
+        _option = new Option(_option.key(), value,
+                _option.getMandatoryErrorMessage(), _option.isForFile());
         _updated = true;
     }
 
     public void setStringValue(String value) {
         convertAndSet(value);
-        _updated = true;
     }
 
     public HorizontalLayout editor(PDQPlugin plugin) {
-        if (_value instanceof Boolean) {
-            return new BooleanEditor(plugin, this);
-        }
-        if (_name.equals("Source")) {
-            return new FileOpenEditor(plugin, this);
-        }
-        if (_name.equals("Destination")) {
-            return new FileSaveEditor(plugin, this);
+        if (_option.isForFile()) {
+            if (plugin instanceof DataWriter) {
+                return new FileSaveEditor(plugin, this);
+            }
+            else {
+                return new FileOpenEditor(plugin, this);
+            }
         }
 
-        
+        if (getValue() instanceof Boolean) {
+            return new BooleanEditor(plugin, this);
+        }
+
 //        else if (_value instanceof Character) {
 //            _value = value.charAt(0);
 //        }
-        else if (_value instanceof Integer) {
+        else if (getValue() instanceof Integer) {
             return new IntEditor(plugin, this);
         }
-        else if (_value instanceof Double) {
+        else if (getValue() instanceof Double) {
             return new NumberEditor(plugin, this);
         }
+        else if (getValue() instanceof String[]) {
+            return new StringListEditor(plugin, this);
+        }
+
 
         return new StringEditor(plugin, this);
     }
 
 
     private void convertAndSet(String value) {
-        if (_value instanceof Boolean) {
-            _value = Boolean.valueOf(value);
+        if (getValue() instanceof Boolean) {
+            setValue(Boolean.valueOf(value));
         }
-        else if (_value instanceof Character) {
-            _value = value.charAt(0);
+        else if (getValue() instanceof Character) {
+            setValue(value.charAt(0));
         }
-        else if (_value instanceof Integer) {
-            _value = Integer.valueOf(value);
+        else if (getValue() instanceof Integer) {
+            setValue(Integer.valueOf(value));
         }
-        else if (_value instanceof Long) {
-            _value = Long.valueOf(value);
+        else if (getValue() instanceof Long) {
+            setValue(Long.valueOf(value));
         }
         else {
-            _value = value;
+            setValue(value);
         }
     }
 

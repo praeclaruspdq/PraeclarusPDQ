@@ -26,8 +26,8 @@ public class Option {
 
     private final String _key;              // the option's name
     private final Object _value;            // the option's value
-    private boolean _mandatory;             // true if this option must have a value
-    private String _mandatoryMessage;       // message that explains why 
+    private String _mandatoryMessage;       // message that explains why option is mandatory
+    private boolean _forFile;               // flag if this option is to capture a file path
 
 
     public Option(String key, Object value) {
@@ -35,13 +35,32 @@ public class Option {
         _value = value;
     }
 
-    public boolean isMandatory() { return _mandatory; }
+    public Option(String key, Object value, String msg) {
+        this(key, value);
+        setMandatoryErrorMessage(msg);
+    }
 
-    public void setMandatory(boolean b) { _mandatory = b; }
+    public Option(String key, Object value, String msg, boolean forFile) {
+        this(key, value, msg);
+        setForFile(forFile);
+    }
+    
+    public Option(String key, Object value, boolean forFile) {
+        this(key, value);
+        setForFile(forFile);
+    }
+
+    public boolean isMandatory() { return _mandatoryMessage != null; }
 
     public String getMandatoryErrorMessage() { return _mandatoryMessage; }
 
     public void setMandatoryErrorMessage(String msg) { _mandatoryMessage = msg; }
+
+
+    public boolean isForFile() { return _forFile; }
+
+    public void setForFile(boolean b) { _forFile = b; }
+    
 
     public String key() { return _key; }
 
@@ -51,8 +70,8 @@ public class Option {
     // the remaining methods return the value cast to its actual type
 
     public String asString() {
-        if (! (_value instanceof String)) {
-            throw new IllegalArgumentException("Value is missing or not a String");
+        if (_value == null) {
+            throw new IllegalArgumentException("Value is missing");
         }
         return String.valueOf(_value);
     }

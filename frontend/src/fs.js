@@ -16,61 +16,13 @@
 
 import { get, set } from "./index.js";
 
-//var writeHandle;
-//var readFile;
-
-// called from FileInput constructor
-window.addUploadListener = function(elem) {
-    elem.onchange = async event => {
-        const file = event.target.files[0];
-        await set(file.name, file);
-        elem.$server.setFileName(file.name);
-    }
-}
-
-async function handleUploadSelection(event) {
-    const file = event.target.files[0];
-    await set(file.name, file);
-    event.target.$server.setFileName(file.name);
-}
-
-
-// called from FileInput#upload
-window.upload = async function(elem, filename) {
-    const file = await get(filename);
-    const reader = new FileReader();
-    reader.readAsText(file, 'UTF-8');
-    
-    reader.onload = event => {
-        const content = event.target.result;
-        elem.$server.setContent(content);
-    }
-}
-
-
-window.getFile = async function(elemID) {
-    let fileHandle;
-    [fileHandle] = await window.showOpenFilePicker();
-    const file = await fileHandle.getFile();
-    const contents = await file.text();
-    document.getElementById(elemID).$server.setfile(file.name, contents);
-}
-
-
-window.pickOpenFile = async function(elemID, optsStr) {
-    const opts = JSON.parse(optsStr);
-    let fileHandle;
-    [fileHandle] = await window.showOpenFilePicker(opts);
-    readFile = await fileHandle.getFile();
-    document.getElementById(elemID).$server.setFileName(readFile.name);
-}
-
-
-window.readFile = async function(elemID) {
-    const contents = await readFile.text();
-    document.getElementById(elemID).$server.setfile(contents);
-}
-
+// window.addUploadListener = function(elem) {
+//     elem.onchange = async event => {
+//         const file = event.target.files[0];
+//         await set(file.name, file);
+//         elem.$server.setFileName(file.name);
+//     }
+// }
 
 window.pickSaveFile = async function(elemID, optsStr) {
     try {
@@ -79,22 +31,22 @@ window.pickSaveFile = async function(elemID, optsStr) {
             const writeHandle = await window.showSaveFilePicker(opts);
 
             if (writeHandle) {
-                await set("writeHandle", writeHandle);
+                await set(elemID, writeHandle);
                 const file = await writeHandle.getFile();
                 document.getElementById(elemID).$server.setSaveFileName(file.name);
             }
-            return;
+ //           return;
         }
-        const opts = {
-            type: 'save-file',
-            accepts: [{
-              description: 'Text file',
-              extensions: ['txt'],
-              mimeTypes: ['text/plain'],
-            }],
-          };
-        const writeHandle = await window.chooseFileSystemEntries(opts);
-        alert(writeHandle);
+        
+        // const opts = {
+        //     type: 'save-file',
+        //     accepts: [{
+        //       description: 'Text file',
+        //       extensions: ['txt'],
+        //       mimeTypes: ['text/plain'],
+        //     }],
+        //   };
+        // const writeHandle = await window.chooseFileSystemEntries(opts);
     }
     catch (error) {
         alert(error.message);
@@ -102,9 +54,9 @@ window.pickSaveFile = async function(elemID, optsStr) {
 }
 
 
-window.writeFile = async function(contents) {
+window.writeFile = async function(elemID, contents) {
     try {
-        const writeHandle = await get("writeHandle");
+        const writeHandle = await get(elemID);
         if (writeHandle && await verifyPermission(writeHandle, true)) {
             const writable = await writeHandle.createWritable();
             await writable.write(contents);
@@ -132,8 +84,63 @@ async function verifyPermission(fileHandle, withWrite) {
   if (await fileHandle.requestPermission(opts) === 'granted') {
     return true;
   }
-  // The user did nt grant permission, return false.
+  // The user did not grant permission, return false.
   return false;
 }
+
+
+
+
+// //var writeHandle;
+// //var readFile;
+//
+// // called from FileInput constructor
+
+//
+// async function handleUploadSelection(event) {
+//     const file = event.target.files[0];
+//     await set(file.name, file);
+//     event.target.$server.setFileName(file.name);
+// }
+//
+//
+// // called from FileInput#upload
+// window.upload = async function(elem, filename) {
+//     const file = await get(filename);
+//     const reader = new FileReader();
+//     reader.readAsText(file, 'UTF-8');
+//
+//     reader.onload = event => {
+//         const content = event.target.result;
+//         elem.$server.setContent(content);
+//     }
+// }
+//
+//
+// window.getFile = async function(elemID) {
+//     let fileHandle;
+//     [fileHandle] = await window.showOpenFilePicker();
+//     const file = await fileHandle.getFile();
+//     const contents = await file.text();
+//     document.getElementById(elemID).$server.setfile(file.name, contents);
+// }
+//
+//
+// window.pickOpenFile = async function(elemID, optsStr) {
+//     const opts = JSON.parse(optsStr);
+//     let fileHandle;
+//     [fileHandle] = await window.showOpenFilePicker(opts);
+//     readFile = await fileHandle.getFile();
+//     document.getElementById(elemID).$server.setFileName(readFile.name);
+// }
+//
+//
+// window.readFile = async function(elemID) {
+//     const contents = await readFile.text();
+//     document.getElementById(elemID).$server.setfile(contents);
+// }
+
+
+
 
 

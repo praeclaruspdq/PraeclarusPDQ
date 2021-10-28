@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.reader;
 
+import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import org.apache.commons.io.input.ReaderInputStream;
 import tech.tablesaw.api.Table;
@@ -55,6 +56,8 @@ public abstract class AbstractDataReader implements DataReader {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options(new CommonReadOptions().toMap());
+            Option source = new Option("Source", "", true);
+            _options.addDefault(source);
         }
         return _options;
     }

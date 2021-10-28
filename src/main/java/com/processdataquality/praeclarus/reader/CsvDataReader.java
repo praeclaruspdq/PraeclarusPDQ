@@ -30,7 +30,7 @@ import tech.tablesaw.io.csv.CsvReadOptions;
         author = "Michael Adams",
         version = "1.0",
         synopsis = "Loads a log file consisting of lines of comma separated values.",
-        fileDescriptors = "CSV Files;text/plain;.csv"
+        fileDescriptors = "text/csv;text/plain;.csv"
 )
 public class CsvDataReader extends AbstractDataReader {
 

@@ -38,8 +38,7 @@ public class CommonReadOptions {
         ReadOptions options = CsvReadOptions.builder(source).build();
 
         Map<String, Object> map = new HashMap<>();
-        map.put("Source", "");
-        map.put("Missing Value", options.missingValueIndicator());
+        map.put("Missing Value", options.missingValueIndicators());
         map.put("Date Format", options.dateFormatter());
         map.put("DateTime Format", options.dateTimeFormatter());
         map.put("Time Format", options.timeFormatter());

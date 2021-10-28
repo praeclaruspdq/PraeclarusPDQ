@@ -23,7 +23,6 @@ import com.processdataquality.praeclarus.ui.canvas.Canvas;
 import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
 import com.processdataquality.praeclarus.ui.canvas.Vertex;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
-import com.processdataquality.praeclarus.ui.parameter.editor.FileInput;
 import com.processdataquality.praeclarus.ui.task.ReaderTask;
 import com.processdataquality.praeclarus.ui.task.WriterTask;
 import com.processdataquality.praeclarus.workspace.Workspace;
@@ -59,7 +58,7 @@ public class PipelinePanel extends VerticalLayout {
     private final MainView _parent;
     private final RunnerButtons _runnerButtons;
     private final Canvas _canvas = new Canvas(1600, 400);
-    private final FileInput _fileInput;
+
 
     public PipelinePanel(MainView parent) {
         _parent = parent;
@@ -67,8 +66,6 @@ public class PipelinePanel extends VerticalLayout {
         _workflow = new Workflow(this, _canvas.getContext());
         _canvas.addListener(_workflow);
         _runnerButtons = initRunnerButtons();
-        _fileInput = new FileInput();
-        add(_fileInput);
         VerticalLayout vl = new VerticalLayout();
         vl.add(new H3("Workflow"));
         vl.add(_runnerButtons);

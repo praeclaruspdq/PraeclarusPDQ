@@ -22,6 +22,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
@@ -33,15 +34,17 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 public class UploadDialog extends Dialog {
 
 
-    public UploadDialog(UploadDialogListener listener) {
+    public UploadDialog(UploadDialogListener listener, String[] mimeDescriptors) {
         MemoryBuffer _buffer = new MemoryBuffer();
         Upload _upload = new Upload(_buffer);
         Div _outputMsg = new Div();
         Button _ok = new Button("OK");
+        H4 title = new H4("Select File");
 
         setCloseOnOutsideClick(false);
         setModal(true);
 
+        _upload.setAcceptedFileTypes(mimeDescriptors);
         _upload.addSucceededListener(event -> _ok.setEnabled(true));
         
         _upload.getElement().addEventListener("file-remove",
@@ -67,7 +70,7 @@ public class UploadDialog extends Dialog {
             close();
         });
 
-        add(_upload, _outputMsg, new HorizontalLayout(_ok, cancel));
+        add(title, _upload, _outputMsg, new HorizontalLayout(_ok, cancel));
     }
 
 }

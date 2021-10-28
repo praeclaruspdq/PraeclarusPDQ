@@ -163,22 +163,22 @@
         <dependency>
             <groupId>tech.tablesaw</groupId>
             <artifactId>tablesaw-core</artifactId>
-            <version>0.38.2</version>
+            <version>0.38.4</version>
         </dependency>
         <dependency>
             <groupId>tech.tablesaw</groupId>
             <artifactId>tablesaw-html</artifactId>
-            <version>0.38.2</version>
+            <version>0.38.4</version>
         </dependency>
         <dependency>
             <groupId>tech.tablesaw</groupId>
             <artifactId>tablesaw-json</artifactId>
-            <version>0.38.2</version>
+            <version>0.38.4</version>
         </dependency>
         <dependency>
             <groupId>tech.tablesaw</groupId>
             <artifactId>tablesaw-jsplot</artifactId>
-            <version>0.38.2</version>
+            <version>0.38.4</version>
         </dependency>
 
 
@@ -201,6 +201,13 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
+        </dependency>
+
+        <!-- JGit -->
+        <dependency>
+          <groupId>org.eclipse.jgit</groupId>
+          <artifactId>org.eclipse.jgit</artifactId>
+          <version>5.13.0.202109080827-r</version>
         </dependency>
 
     </dependencies>

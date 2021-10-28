@@ -61,7 +61,7 @@ public class PropertiesPanel extends VerticalLayout {
         VerticalScrollLayout form = new VerticalScrollLayout();
         Options options = _plugin.getOptions();
         for (Option option : options.values()) {
-            PluginParameter param = new PluginParameter(option.key(), option.get(), null);
+            PluginParameter param = new PluginParameter(option);
             form.add(param.editor(_plugin));
         }
         return form;

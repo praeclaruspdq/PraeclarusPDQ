@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.plugin.Option;
 import tech.tablesaw.io.csv.CsvWriteOptions;
 
 /**
@@ -38,8 +39,8 @@ public class CsvDataWriter extends AbstractDataWriter {
 
 
     private void initOptions() {
+        _options.addDefault(new Option("Destination", "", true));
         _options.addDefault("Header", true);
-        _options.addDefault("Destination", "");
         _options.addDefault("Separator", ',');
         _options.addDefault("Quote", '\"');
     }

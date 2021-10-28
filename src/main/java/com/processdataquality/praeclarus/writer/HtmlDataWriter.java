@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.plugin.Option;
 import tech.tablesaw.io.WriteOptions;
 import tech.tablesaw.io.html.HtmlWriteOptions;
 
@@ -39,8 +40,8 @@ public class HtmlDataWriter extends AbstractDataWriter {
     }
 
     public void initOptions() {
+        _options.addDefault(new Option("Destination", "", true));
         _options.addDefault("Escape Text", true);
-        _options.addDefault("Destination", "out.html");
     }
 
 
