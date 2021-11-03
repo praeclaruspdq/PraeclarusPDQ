@@ -60,11 +60,11 @@ public class PatternNode extends Node {
             }
         }
         else if (state != State.COMPLETED && imperfectionPattern.canRepair()) {
-             if (repairs != null) {
+            if (repairs != null) {
 
-                 // perform repairs on a new copy of the log so we can rollback if needed
-                 setOutput(imperfectionPattern.repair(master.copy(), repairs));
-             }
+                // perform repairs on a new copy of the log so we can rollback if needed
+                setOutput(imperfectionPattern.repair(master.copy(), repairs));
+            }
             state = State.COMPLETED;
         }
     }

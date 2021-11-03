@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import tech.tablesaw.api.Table;
 
 /**
@@ -55,4 +56,6 @@ public interface ImperfectionPattern extends PDQPlugin {
      * @return true if this plugin can repair the data
      */
     boolean canRepair();
+
+    PluginUI getUI();
 }

@@ -16,8 +16,10 @@
 
 package com.processdataquality.praeclarus.pattern;
 
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.plugin.uitemplate.*;
 import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;
@@ -86,7 +88,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
         StringColumn repaired = (StringColumn) master.column(colName);
         for (Row row : changes) {
             repaired = repaired.replaceAll(
-                    row.getString(0), row.getString(1));
+                    row.getString("Label2"), row.getString("Label1"));
         }
         repaired.setName(colName);
         master.replaceColumn(colName, repaired);
@@ -190,5 +192,24 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
         result.stringColumn(2).append(s2);
         result.intColumn(3).append(c2);
     }
+
+
+    public PluginUI getUI() {
+        String title = getClass().getAnnotation(Plugin.class).name() + " - Detected";
+        PluginUI ui = new PluginUI(title);
+
+        UITable table = new UITable(result);
+        table.setMultiSelect(true);
+        UIContainer tableLayout = new UIContainer();
+        tableLayout.add(table);
+        ui.add(tableLayout);
+
+        UIContainer buttonLayout = new UIContainer(UIContainer.Orientation.HORIZONTAL);
+        buttonLayout.add(new UIButton(ButtonAction.CANCEL));
+        buttonLayout.add(new UIButton(ButtonAction.REPAIR));
+        ui.add(buttonLayout);
+        
+        return ui;
+   }
 
 }

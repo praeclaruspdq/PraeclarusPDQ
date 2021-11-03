@@ -44,9 +44,7 @@ public class VertexLabelDialog extends Dialog {
             close();
         });
 
-        Button cancel = new Button("Cancel", event -> {
-            close();
-        });
+        Button cancel = new Button("Cancel", event -> close());
 
         add(new HorizontalLayout(ok, cancel));
     }
