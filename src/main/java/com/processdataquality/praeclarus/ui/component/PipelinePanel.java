@@ -23,13 +23,9 @@ import com.processdataquality.praeclarus.ui.canvas.Canvas;
 import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
 import com.processdataquality.praeclarus.ui.canvas.Vertex;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
-import com.processdataquality.praeclarus.ui.task.ReaderTask;
-import com.processdataquality.praeclarus.ui.task.WriterTask;
 import com.processdataquality.praeclarus.workspace.Workspace;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeFactory;
-import com.processdataquality.praeclarus.workspace.node.ReaderNode;
-import com.processdataquality.praeclarus.workspace.node.WriterNode;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -135,13 +131,8 @@ public class PipelinePanel extends VerticalLayout {
         }
 
         Node node = NodeFactory.create(instance);
-        if (node instanceof ReaderNode) {
-            node.setPreTask(new ReaderTask());
-        }
-        else if (node instanceof WriterNode) {
-            node.setPostTask(new WriterTask());
-        }
         _workspace.addNode(node);
+
         showPluginProperties(node);
         return node;
     }

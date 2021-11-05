@@ -18,7 +18,11 @@ package com.processdataquality.praeclarus.workspace.node;
 
 import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
+import com.processdataquality.praeclarus.plugin.uitemplate.UITable;
 import tech.tablesaw.api.Table;
+
+import java.util.List;
 
 /**
  * A container node for an imperfection pattern plugin
@@ -32,7 +36,6 @@ public class PatternNode extends Node {
     public enum State { IDLE, DETECTED, REPAIRING, COMPLETED }
 
     private Table detected;                 // a table of pattern matches
-    private Table repairs;                  // a table of repair rows (to be performed)
     private State state = State.IDLE;
 
 
@@ -60,6 +63,7 @@ public class PatternNode extends Node {
             }
         }
         else if (state != State.COMPLETED && imperfectionPattern.canRepair()) {
+            Table repairs = getRepairs();
             if (repairs != null) {
 
                 // perform repairs on a new copy of the log so we can rollback if needed
@@ -98,7 +102,6 @@ public class PatternNode extends Node {
     public void reset() {
         super.reset();
         detected = null;
-        repairs = null;
         state = State.IDLE;
     }
 
@@ -116,9 +119,23 @@ public class PatternNode extends Node {
 
 
     /**
-     * Sets the table with the repair rows (to be performed)
-     * @param r the table to set as the repaired table
+     * Updates the plugin's UI template with any changes made at the front end
+     * @param ui the updated UI
      */
-    public void setRepairs(Table r) { repairs = r; }
-    
+    public void updateUI(PluginUI ui) {
+       ((ImperfectionPattern) getPlugin()).updateUI(ui);
+    }
+
+
+    /**
+     * Gets the table with the repair rows (to be performed)
+     */
+    public Table getRepairs() {
+        PluginUI ui = ((ImperfectionPattern) getPlugin()).getUI();
+        List<UITable> tables = ui.extractTables();
+
+        // only one for this ui
+        return tables.get(0).getSelectedRows();
+    }
+
 }

@@ -30,20 +30,7 @@ public class WriterTask implements NodeTask {
 
     @Override
     public boolean run(Node node) {
-//        PDQPlugin plugin = node.getPlugin();
-//        if (plugin instanceof DataWriter) {
-//            try {
-//                ByteArrayOutputStream stream =
-//                        (ByteArrayOutputStream) ((DataWriter) plugin).getOutputStream();
-//                String contents = stream.toString("UTF-8");
-//                UI.getCurrent().getPage().executeJs("writeFile($0)", contents);
-                return true;
-//            }
-//            catch (UnsupportedEncodingException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return false;
+        return true;
     }
 
 }

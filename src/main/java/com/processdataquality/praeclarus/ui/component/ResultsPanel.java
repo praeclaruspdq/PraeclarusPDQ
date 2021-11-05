@@ -20,7 +20,6 @@ import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
 import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import com.processdataquality.praeclarus.ui.MainView;
-import com.processdataquality.praeclarus.ui.task.WriterTask;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.processdataquality.praeclarus.workspace.NodeRunner;
 import com.processdataquality.praeclarus.workspace.node.Node;
@@ -97,8 +96,9 @@ public class ResultsPanel extends VerticalLayout implements NodeRunnerListener, 
 
 
     public void addResult(Node node) {
-        if (node instanceof WriterNode) {        // special treatment for writers
-            new WriterTask().run(node);
+
+        // safety code (should not occur) WriterNodes don't generate new output
+        if (node instanceof WriterNode) {        
             return;
         }
 
@@ -111,6 +111,7 @@ public class ResultsPanel extends VerticalLayout implements NodeRunnerListener, 
             return;
         }
 
+        // otherwise, show the results
         Grid<Row> grid = UiUtil.tableToGrid(node.getOutput());
         UiUtil.removeTopMargin(grid);
 

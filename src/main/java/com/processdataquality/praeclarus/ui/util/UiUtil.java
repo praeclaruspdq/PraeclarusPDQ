@@ -18,6 +18,7 @@ package com.processdataquality.praeclarus.ui.util;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
@@ -84,10 +85,22 @@ public class UiUtil {
     }
 
 
-    public static Table gridSelectedToTable(Grid<Row> grid, Table repTable) {
-        Table copy = repTable.copy();
+    public static Table gridSelectedToTable(Grid<Row> grid, Table table) {
+        Table copy = table.copy();
         copy.clear();
         for (Row row : grid.asMultiSelect().getSelectedItems()) {
+            copy.addRow(row);
+        }
+        return copy;
+    }
+
+    
+    public static Table gridToTable(Grid<Row> grid, Table table) {
+        Table copy = table.copy();
+        copy.clear();
+
+        ListDataProvider<Row> provider = (ListDataProvider<Row>) grid.getDataProvider();
+        for (Row row : provider.getItems()) {
             copy.addRow(row);
         }
         return copy;

@@ -39,7 +39,7 @@ public class PluginUIDialog extends Dialog {
         setModal(true);
         setWidth("800px");
         setHeight("600px");
-        add(new PluginUIBuilder().build(pluginUI, node, this));
+        add(new PluginUIBuilder(pluginUI).build(node, this));
     }
 
 

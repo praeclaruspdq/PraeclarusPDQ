@@ -36,10 +36,13 @@ import java.util.List;
 public abstract class AbstractDistortedLabel implements ImperfectionPattern {
 
     // The table that will contain the results of the pattern detection
-    private final Table result = createResultTable();
+    private final Table _detected = createResultTable();
 
     // The set of parameters used by this plugin
-    private Options options;
+    private Options _options;
+
+    // The UI template used for the front-end interactions
+    private PluginUI _ui;
 
 
     protected AbstractDistortedLabel() { }
@@ -70,7 +73,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
                 detect(column, testValue, compValue);    // call method in subclass
             }
         }
-        return result;
+        return _detected;
     }
 
 
@@ -84,7 +87,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
      */
     @Override
     public Table repair(Table master, Table changes) {
-        String colName = options.get("Column Name").asString();
+        String colName = _options.get("Column Name").asString();
         StringColumn repaired = (StringColumn) master.column(colName);
         for (Row row : changes) {
             repaired = repaired.replaceAll(
@@ -130,11 +133,11 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
      */
     @Override
     public Options getOptions() {
-        if (options == null) {
-            options = new Options();
-            options.addDefault("Column Name", "");
+        if (_options == null) {
+            _options = new Options();
+            _options.addDefault("Column Name", "");
         }
-        return options;
+        return _options;
     }
 
 
@@ -143,7 +146,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
      * @param options a map of configuration keys and values
      */
     public void setOptions(Options options) {
-        this.options = options;
+        this._options = options;
     }
 
 
@@ -153,7 +156,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
      * @return the specified column
      */
     protected StringColumn getSelectedColumn(Table table) {
-        Option option = options.get("Column Name");
+        Option option = _options.get("Column Name");
         if (option != null) {
             String colName = option.asString();
             if (colName != null) {
@@ -187,29 +190,35 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
     protected void addResult(StringColumn column, String s1, String s2) {
         int c1 = column.countOccurrences(s1);
         int c2 = column.countOccurrences(s2);
-        result.stringColumn(0).append(s1);
-        result.intColumn(1).append(c1);
-        result.stringColumn(2).append(s2);
-        result.intColumn(3).append(c2);
+        _detected.stringColumn(0).append(s1);
+        _detected.intColumn(1).append(c1);
+        _detected.stringColumn(2).append(s2);
+        _detected.intColumn(3).append(c2);
     }
 
-
+    @Override
     public PluginUI getUI() {
-        String title = getClass().getAnnotation(Plugin.class).name() + " - Detected";
-        PluginUI ui = new PluginUI(title);
+        if (_ui == null) {
+            String title = getClass().getAnnotation(Plugin.class).name() + " - Detected";
+            _ui = new PluginUI(title);
 
-        UITable table = new UITable(result);
-        table.setMultiSelect(true);
-        UIContainer tableLayout = new UIContainer();
-        tableLayout.add(table);
-        ui.add(tableLayout);
+            UITable table = new UITable(_detected);
+            table.setMultiSelect(true);
+            UIContainer tableLayout = new UIContainer();
+            tableLayout.add(table);
+            _ui.add(tableLayout);
 
-        UIContainer buttonLayout = new UIContainer(UIContainer.Orientation.HORIZONTAL);
-        buttonLayout.add(new UIButton(ButtonAction.CANCEL));
-        buttonLayout.add(new UIButton(ButtonAction.REPAIR));
-        ui.add(buttonLayout);
-        
-        return ui;
+            UIContainer buttonLayout = new UIContainer(UIContainer.Orientation.HORIZONTAL);
+            buttonLayout.add(new UIButton(ButtonAction.CANCEL));
+            buttonLayout.add(new UIButton(ButtonAction.REPAIR));
+            _ui.add(buttonLayout);
+        }
+        return _ui;
    }
 
+
+    @Override
+    public void updateUI(PluginUI ui) {
+        _ui = ui;
+    }
 }

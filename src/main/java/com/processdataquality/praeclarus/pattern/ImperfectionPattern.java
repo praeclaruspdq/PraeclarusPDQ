@@ -57,5 +57,18 @@ public interface ImperfectionPattern extends PDQPlugin {
      */
     boolean canRepair();
 
+
+    /**
+     * Allows plugin to define its own UI (as a template to be instantiated by the front end)
+     * @return the UI template
+     */
     PluginUI getUI();
+
+
+    /**
+     * Updates the UI with any changes made in the front end
+     * @param ui the updated UI template
+     */
+    void updateUI(PluginUI ui);
+    
 }

@@ -32,39 +32,49 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Michael Adams
  * @date 2/11/21
  */
 public class PluginUIBuilder {
 
-    private Grid<Row> _grid;
-    private Table _table;
+    // maps plugin UI components to their Vaadin instantiations
+    private final Map<UIComponent, Component> _componentMap = new HashMap<>();
+
+    private final PluginUI _pluginUI;
 
 
-    public VerticalLayout build(PluginUI pluginUI, Node node, PluginUIDialog dialog) {
+    public PluginUIBuilder(PluginUI pluginUI) {
+        _pluginUI = pluginUI;
+    }
+
+
+    public VerticalLayout build(Node node, PluginUIDialog dialog) {
         VerticalLayout parent = new VerticalLayout();
-        parent.add(new H4(pluginUI.getTitle()));
-        for (UIContainer layout : pluginUI.getLayouts()) {
-             parent.add(buildContainer(layout, node, dialog));
+        parent.add(new H4(_pluginUI.getTitle()));
+        for (UIContainer container : _pluginUI.getContainers()) {
+             parent.add(buildLayout(container, node, dialog));
         }
         return parent;
     }
 
 
-    private Component buildContainer(UIContainer layout, Node node, PluginUIDialog dialog) {
-        HasComponents container;
-        if (layout.getOrientation() == UIContainer.Orientation.HORIZONTAL) {
-            container = new HorizontalLayout();
+    private Component buildLayout(UIContainer container, Node node, PluginUIDialog dialog) {
+        HasComponents layout;
+        if (container.getOrientation() == UIContainer.Orientation.HORIZONTAL) {
+            layout = new HorizontalLayout();
         }
         else {
-            container = new VerticalLayout();
+            layout = new VerticalLayout();
         }
-        for (UIComponent uiComponent : layout.getComponents()) {
+        for (UIComponent uiComponent : container.getComponents()) {
             Component c = buildContent(uiComponent, node, dialog);
-            if (c != null) container.add();
+            if (c != null) layout.add(c);
         }
-        return (Component) container;
+        return (Component) layout;
     }
 
     
@@ -74,16 +84,7 @@ public class PluginUIBuilder {
             return buildButton(uib, node, dialog);
         }
         else if (component instanceof UITable) {
-            UITable uit = (UITable) component;
-            _table = uit.getTable();
-            _grid = UiUtil.tableToGrid(_table);
-            UiUtil.removeTopMargin(_grid);
-            if (uit.isMultiSelect()) {
-                _grid.setSelectionMode(Grid.SelectionMode.MULTI);
-            }
-            VerticalScrollLayout layout = new VerticalScrollLayout();
-            layout.add(_grid);
-            return layout;
+            return buildGrid((UITable) component);
         }
         return null;
     }
@@ -94,8 +95,8 @@ public class PluginUIBuilder {
         ButtonAction action = uib.getAction();
         if (action == ButtonAction.REPAIR) {
             button.addClickListener(buttonClickEvent -> {
-                Table repairs = UiUtil.gridSelectedToTable(_grid, _table);
-                ((PatternNode) node).setRepairs(repairs);
+                updatePluginUI();
+                ((PatternNode) node).updateUI(_pluginUI);
                 if (uib.hasListener()) {
                     uib.getListener().clickEvent();
                 }
@@ -120,12 +121,44 @@ public class PluginUIBuilder {
                 }
             });
         }
+        _componentMap.put(uib, button);
         return button;
+    }
+
+
+    private VerticalScrollLayout buildGrid(UITable uiTable) {
+        Grid<Row> grid = UiUtil.tableToGrid(uiTable.getTable());
+        UiUtil.removeTopMargin(grid);
+        if (uiTable.isMultiSelect()) {
+            grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        }
+        VerticalScrollLayout layout = new VerticalScrollLayout();
+        layout.add(grid);
+        _componentMap.put(uiTable, grid);
+        return layout;
     }
 
 
     private void close(ButtonAction action, Node node, PluginUIDialog dialog) {
         dialog.close(action, node);
+    }
+
+
+    private void updatePluginUI() {
+        for (UIContainer container : _pluginUI.getContainers()) {
+            for (UIComponent uiComponent : container.getComponents()) {
+                 if (uiComponent instanceof UITable) {
+                     UITable uiTable = (UITable) uiComponent;
+                     Table ogTable = uiTable.getTable();
+
+                     @SuppressWarnings("unchecked")
+                     Grid<Row> grid = (Grid<Row>) _componentMap.get(uiComponent);
+                     
+                     uiTable.setUpdatedTable(UiUtil.gridToTable(grid, ogTable));
+                     uiTable.setSelectedRows(UiUtil.gridSelectedToTable(grid, ogTable));
+                 }
+            }
+        }
     }
 
 }

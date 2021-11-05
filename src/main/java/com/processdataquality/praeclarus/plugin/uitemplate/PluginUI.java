@@ -25,21 +25,34 @@ import java.util.List;
  */
 public class PluginUI {
 
-    private String _title;
-    private List<UIContainer> _layouts = new ArrayList<>();
+    private final String _title;
+    private final List<UIContainer> _containers = new ArrayList<>();
 
     public PluginUI(String title) {
         _title = title;
     }
 
     public void add(UIContainer l) {
-        _layouts.add(l);
+        _containers.add(l);
     }
 
-    public List<UIContainer> getLayouts() {
-        return _layouts;
+    public List<UIContainer> getContainers() {
+        return _containers;
     }
 
     public String getTitle() { return _title; }
+
+
+    public List<UITable> extractTables() {
+        List<UITable> tables = new ArrayList<>();
+        for (UIContainer container : _containers) {
+            for (UIComponent component : container.getComponents()) {
+                if (component instanceof UITable) {
+                    tables.add((UITable) component);
+                }
+            }
+        }
+        return tables;
+    }
 
 }

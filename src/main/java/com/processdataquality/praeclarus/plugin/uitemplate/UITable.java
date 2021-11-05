@@ -24,14 +24,27 @@ import tech.tablesaw.api.Table;
  */
 public class UITable implements UIComponent {
 
-    private Table _table;
+    private final Table _originalTable;
+    private Table _updatedTable;
+    private Table _selectedRows;
     private boolean _multiSelect;
 
     public UITable(Table table) {
-        _table = table;
+        _originalTable = table;
     }
 
-    public Table getTable() { return _table; }
+    public Table getTable() { return _originalTable; }
+
+
+    public void setUpdatedTable(Table table) { _updatedTable = table; }
+
+    public Table getUpdatedTable() { return _updatedTable; }
+
+
+    public void setSelectedRows(Table table) { _selectedRows = table; }
+
+    public Table getSelectedRows() { return _selectedRows; }
+
 
     public boolean isMultiSelect() { return _multiSelect; }
 
