@@ -18,8 +18,10 @@ package com.processdataquality.praeclarus.workspace.node;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.reader.DataReader;
+import tech.tablesaw.api.Table;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * A container node for a log data reader
@@ -29,8 +31,8 @@ import java.io.IOException;
  */
 public class ReaderNode extends Node {
 
-    public ReaderNode(PDQPlugin plugin) { 
-        super(plugin);
+    public ReaderNode(PDQPlugin plugin, String id) {
+        super(plugin, id);
     }
 
 
@@ -41,7 +43,9 @@ public class ReaderNode extends Node {
     @Override
     public void run() {
         try {
-            setOutput(((DataReader) getPlugin()).read());
+            Table table = ((DataReader) getPlugin()).read();
+            table.setName(UUID.randomUUID().toString());
+            setOutput(table);
         }
         catch (IOException ioException) {
             ioException.printStackTrace();

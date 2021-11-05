@@ -22,6 +22,8 @@ import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.reader.DataReader;
 import com.processdataquality.praeclarus.writer.DataWriter;
 
+import java.util.UUID;
+
 /**
  * Creates and returns the appropriate Node to contain a plugin
  *
@@ -30,18 +32,25 @@ import com.processdataquality.praeclarus.writer.DataWriter;
  */
 public class NodeFactory {
 
+    // called when creating a new node
     public static Node create(PDQPlugin plugin) {
+        return create(plugin, UUID.randomUUID().toString());
+    }
+
+
+    // called when restoring a node in a saved workflow
+    public static Node create(PDQPlugin plugin, String id) {
         if (plugin instanceof DataReader) {
-            return new ReaderNode(plugin);
+            return new ReaderNode(plugin, id);
         }
         if (plugin instanceof DataWriter) {
-            return new WriterNode(plugin);
+            return new WriterNode(plugin, id);
         }
         if (plugin instanceof ImperfectionPattern) {
-            return new PatternNode(plugin);
+            return new PatternNode(plugin, id);
         }
         if (plugin instanceof Action) {
-             return new ActionNode(plugin);
+             return new ActionNode(plugin, id);
          }
 
         return null;

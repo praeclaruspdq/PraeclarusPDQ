@@ -27,8 +27,8 @@ import com.processdataquality.praeclarus.plugin.PDQPlugin;
  */
 public class ActionNode extends Node {
 
-    public ActionNode(PDQPlugin plugin) {
-        super(plugin);
+    public ActionNode(PDQPlugin plugin, String id) {
+        super(plugin, id);
     }
 
 

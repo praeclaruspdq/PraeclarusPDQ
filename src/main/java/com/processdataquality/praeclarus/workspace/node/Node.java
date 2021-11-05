@@ -18,33 +18,38 @@ package com.processdataquality.praeclarus.workspace.node;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.repo.Repo;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import tech.tablesaw.api.Table;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * A node in a workflow, representing a plugin. This class provides base functionality
- * to be overridden by sub-classes.
+ * to be used and/or extended by sub-classes.
  *
  * @author Michael Adams
  * @date 12/5/21
  */
 public abstract class Node {
 
+    private final PDQPlugin _plugin;
     private final Set<Node> _next;      // set of immediate target nodes for this node
     private final Set<Node> _previous;  // set of immediate source nodes for this node
+
     private Table _output;              // a table with the result of running this plugin
-    private final PDQPlugin _plugin;
+    private String _repoID;             // the id of this version of the table in the repo
+    private final String _internalID;         // a unique id for this node
+
     private NodeTask _preTask;          // optional code to run before plugin is run
     private NodeTask _postTask;         // optional code to run after plugin is run
     private boolean _completed = false;
 
 
-    protected Node(PDQPlugin plugin) {
+    protected Node(PDQPlugin plugin, String id) {
         _plugin = plugin;
+        _internalID = id;
         _next = new HashSet<>();
         _previous = new HashSet<>();
     }
@@ -174,6 +179,13 @@ public abstract class Node {
     public PDQPlugin getPlugin() { return _plugin; }
 
 
+    public String getInternalID() { return _internalID; }
+
+    public String getRepoID() { return _repoID; }
+
+    public void setRepoID(String id) { _repoID = id; }
+
+
     /**
      * @return the plugin's name as supplied in its metadata
      */
@@ -232,7 +244,14 @@ public abstract class Node {
      * Sets the output table for this node
      * @param t the table to set as output
      */
-    protected void setOutput(Table t) { _output = t; }
+    protected void setOutput(Table t) {
+        _output = t;
+        commit(t);
+    }
+
+    public void setOutput(String tableID) throws IOException {
+        setOutput(Repo.getTable(_repoID, tableID));
+    }
 
 
     /**
@@ -249,6 +268,22 @@ public abstract class Node {
         Table table = _output;
         _output = null;
         return table;
+    }
+
+
+    private void commit(Table t) {
+        try {
+            _repoID = Repo.commit(t, getCommitMessage(), "author");
+        }
+        catch (IOException | GitAPIException e) {
+            System.out.println("Failed to commit table to repo: " + e.getMessage());
+        }
+    }
+
+
+    private String getCommitMessage() {
+        return "Node: " + getInternalID() + "; Plugin: " + getName() +
+                "; Plugin Class: " + getPlugin().getClass().getName();
     }
 
 }

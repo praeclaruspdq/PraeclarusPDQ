@@ -24,6 +24,24 @@ import { get, set } from "./index.js";
 //     }
 // }
 
+window.pickAndSaveFile = async function(elemID, optsStr, contents) {
+    try {
+        if ('showSaveFilePicker' in window) {
+            const opts = JSON.parse(optsStr);
+            const writeHandle = await window.showSaveFilePicker(opts);
+
+            if (writeHandle && await verifyPermission(writeHandle, true)) {
+                const writable = await writeHandle.createWritable();
+                await writable.write(contents);
+                await writable.close();
+            }
+        }
+    }
+    catch (error) {
+        alert(error.message);
+    }
+}
+
 window.pickSaveFile = async function(elemID, optsStr) {
     try {
         if ('showSaveFilePicker' in window) {

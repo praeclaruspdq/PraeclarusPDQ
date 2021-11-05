@@ -24,6 +24,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class WorkflowLoader {
     }
 
 
-    public void load(String jsonStr) throws JSONException {
+    public void load(String jsonStr) throws JSONException, IOException {
        _workflow.clear();
        _workspace.clear();
        _workflow.setLoading(true);
@@ -56,7 +57,7 @@ public class WorkflowLoader {
     }
 
 
-    private Map<Integer, Vertex> loadVertices(JSONArray array) throws JSONException {
+    private Map<Integer, Vertex> loadVertices(JSONArray array) throws JSONException, IOException {
         Map<Integer, Vertex> vertexMap = new HashMap<>();
         for (int i=0; i < array.length(); i++) {
             JSONObject json = array.getJSONObject(i);
@@ -64,10 +65,19 @@ public class WorkflowLoader {
             double x = json.getDouble("x");
             double y = json.getDouble("y");
             String label = json.getString("label");
+            String nodeID = json.getString("nodeID");
+            String repoID = json.optString("repoID");
+            String tableID = json.optString("tableID");
             PDQPlugin plugin = newPluginInstance(json.getString("plugin"));
             if (plugin != null) {
                 addOptions(plugin, json.getJSONObject("options"));
-                Node node = NodeFactory.create(plugin);
+                Node node = NodeFactory.create(plugin, nodeID);
+                if (!repoID.isEmpty()) {
+                    node.setRepoID(repoID);
+                }
+                if (!tableID.isEmpty()) {
+                    node.setOutput(tableID);
+                }
                 _workspace.addNode(node);
                 Vertex vertex = new Vertex(x, y, node, id);
                 vertex.setLabel(label);

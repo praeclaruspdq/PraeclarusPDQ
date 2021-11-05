@@ -39,8 +39,8 @@ public class PatternNode extends Node {
     private State state = State.IDLE;
 
 
-    public PatternNode(PDQPlugin plugin) {
-        super(plugin);
+    public PatternNode(PDQPlugin plugin, String id) {
+        super(plugin, id);
     }
 
 

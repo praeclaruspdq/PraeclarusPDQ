@@ -26,6 +26,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -129,7 +130,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
         try {
             loader.load(jsonStr);
         }
-        catch (JSONException je) {
+        catch (JSONException | IOException je) {
             Notification.show("Failed to load file: " + je.getMessage());
         }
     }

@@ -96,7 +96,7 @@ public abstract class AbstractDataReader implements DataReader {
         Source source = getSource();
         if (source != null) {
             if (source.inputStream() != null) {
-                return source.inputStream();
+                return source.inputStream(); 
             }
             if (source.file() != null) {
                 return new FileInputStream(source.file());

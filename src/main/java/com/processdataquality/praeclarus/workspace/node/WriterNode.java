@@ -30,8 +30,8 @@ import java.io.IOException;
  */
 public class WriterNode extends Node {
 
-    public WriterNode(PDQPlugin plugin) {
-        super(plugin);
+    public WriterNode(PDQPlugin plugin, String id) {
+        super(plugin, id);
     }
 
 

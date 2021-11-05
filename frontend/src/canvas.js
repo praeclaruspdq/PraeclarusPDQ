@@ -49,17 +49,22 @@ window.loadFile = async function() {
 
 
 window.saveFile = async function(contents) {
-    const opts = {
-      types: [{
-          description: 'Praeclarus Workflows',
-          accept: { 'application/json': ['.pwf', '.json']}
-        }],
-    };
-    
-    const fileHandle = await window.showSaveFilePicker(opts);
-    const writable = await fileHandle.createWritable();
-    await writable.write(contents);
-    await writable.close();
+   try {
+       const opts = {
+           types: [{
+               description: 'Praeclarus Workflows',
+               accept: {'application/json': ['.pwf', '.json']}
+           }],
+       };
+
+       const fileHandle = await window.showSaveFilePicker(opts);
+       const writable = await fileHandle.createWritable();
+       await writable.write(contents);
+       await writable.close();
+   }
+   catch (error) {
+       alert(error.message);
+   }
 }
 
 
