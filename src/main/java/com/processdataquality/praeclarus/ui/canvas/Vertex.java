@@ -16,11 +16,9 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import tech.tablesaw.api.Table;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -116,17 +114,7 @@ public class Vertex implements CanvasPrimitive {
         json.put("x", _x);
         json.put("y", _y);
         json.put("label", _label);
-        json.put("nodeID", _node.getInternalID());
-
-        String repoID = _node.getRepoID();
-        if (repoID != null) json.put("repoID", repoID);
-
-        Table output = _node.getOutput();
-        if (output != null) json.put("tableID", output.name());
-
-        PDQPlugin plugin = _node.getPlugin();
-        json.put("plugin", plugin.getClass().getName());
-        json.put("options", plugin.getOptions().getChangesAsJson());
+        json.put("node", _node.asJson());
         return json;
     }
 

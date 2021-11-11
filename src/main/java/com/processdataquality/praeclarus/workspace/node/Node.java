@@ -20,10 +20,15 @@ import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.repo.Repo;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import tech.tablesaw.api.Table;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A node in a workflow, representing a plugin. This class provides base functionality
@@ -38,9 +43,10 @@ public abstract class Node {
     private final Set<Node> _next;      // set of immediate target nodes for this node
     private final Set<Node> _previous;  // set of immediate source nodes for this node
 
+    private final String _internalID;   // a unique id for this node
     private Table _output;              // a table with the result of running this plugin
-    private String _repoID;             // the id of this version of the table in the repo
-    private final String _internalID;         // a unique id for this node
+    private String _commitID;           // the commit version of the table in the repo
+    private String _tableID;            // the file name of the table in the repo
 
     private NodeTask _preTask;          // optional code to run before plugin is run
     private NodeTask _postTask;         // optional code to run after plugin is run
@@ -181,9 +187,9 @@ public abstract class Node {
 
     public String getInternalID() { return _internalID; }
 
-    public String getRepoID() { return _repoID; }
+    public String getCommitID() { return _commitID; }
 
-    public void setRepoID(String id) { _repoID = id; }
+    public void setCommitID(String id) { _commitID = id; }
 
 
     /**
@@ -191,7 +197,7 @@ public abstract class Node {
      */
     public String getName() {
         Plugin metaData = getPlugin().getClass().getAnnotation(Plugin.class);
-        return metaData.name();
+        return metaData != null ? metaData.name() : "unnamed";
     }
 
 
@@ -234,6 +240,23 @@ public abstract class Node {
     }
 
 
+    public String getTableID() {
+        return _tableID;
+    }
+
+
+    // called from loader
+    public void setTableID(String id) {
+        _tableID = id;
+        try {
+            setOutput(Repo.getTable(_commitID, _tableID));
+        }
+        catch (IOException e) {
+            // ignore - have to rerun the node;
+        }
+    }
+
+
     /**
      * @return the output table (if any) for this node
      */
@@ -246,11 +269,13 @@ public abstract class Node {
      */
     protected void setOutput(Table t) {
         _output = t;
+        _tableID = t.name();
         commit(t);
     }
 
+
     public void setOutput(String tableID) throws IOException {
-        setOutput(Repo.getTable(_repoID, tableID));
+        setOutput(Repo.getTable(_commitID, tableID));
     }
 
 
@@ -273,7 +298,7 @@ public abstract class Node {
 
     private void commit(Table t) {
         try {
-            _repoID = Repo.commit(t, getCommitMessage(), "author");
+            _commitID = Repo.commit(t, getCommitMessage(), "author");
         }
         catch (IOException | GitAPIException e) {
             System.out.println("Failed to commit table to repo: " + e.getMessage());
@@ -284,6 +309,18 @@ public abstract class Node {
     private String getCommitMessage() {
         return "Node: " + getInternalID() + "; Plugin: " + getName() +
                 "; Plugin Class: " + getPlugin().getClass().getName();
+    }
+
+
+    public JSONObject asJson() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("id", _internalID);
+        if (_commitID != null) json.put("commitID", _commitID);
+        if (_tableID != null) json.put("tableID", _tableID);
+
+        json.put("plugin", _plugin.getClass().getName());
+        json.put("options", _plugin.getOptions().getChangesAsJson());
+        return json;
     }
 
 }

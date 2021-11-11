@@ -58,19 +58,19 @@ public class TreeData {
 
         // create headers
         TreeItem readers = new TreeItem("Readers");
-        TreeItem writers = new TreeItem("Writers");
         TreeItem patterns = new TreeItem("Patterns");
         TreeItem actions = new TreeItem("Actions");
+        TreeItem writers = new TreeItem("Writers");
         list.add(readers);
-        list.add(writers);
         list.add(patterns);
         list.add(actions);
+        list.add(writers);
 
         // create menu items
         list.addAll(createItems(PluginService.readers(), readers));
-        list.addAll(createItems(PluginService.writers(), writers));
         list.addAll(createItems(PluginService.actions(), actions));
         list.addAll(createPatternItems(PluginService.patterns(), patterns));
+        list.addAll(createItems(PluginService.writers(), writers));
 
         return list;
     }

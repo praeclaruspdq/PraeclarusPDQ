@@ -16,10 +16,10 @@
 
 package com.processdataquality.praeclarus.ui;
 
+import com.processdataquality.praeclarus.ui.component.OutputPanel;
 import com.processdataquality.praeclarus.ui.component.PipelinePanel;
 import com.processdataquality.praeclarus.ui.component.PluginsPanel;
 import com.processdataquality.praeclarus.ui.component.PropertiesPanel;
-import com.processdataquality.praeclarus.ui.component.ResultsPanel;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -39,13 +39,13 @@ public class MainView extends VerticalLayout {
     // the three sub-panels of the UI
     private final PropertiesPanel _propsPanel;
     private final PipelinePanel _pipelinePanel;
-    private final ResultsPanel _resultsPanel;
+//    private final ResultsPanel _resultsPanel;
 
 
     public MainView() {
         _propsPanel = new PropertiesPanel();
         _pipelinePanel = new PipelinePanel(this);
-        _resultsPanel = new ResultsPanel(this);
+ //       _resultsPanel = new ResultsPanel(this);
         add(getTitleImage());
         SplitLayout masterLayout = new SplitLayout();
         masterLayout.addToPrimary(leftPanel());
@@ -57,7 +57,7 @@ public class MainView extends VerticalLayout {
 
     public PropertiesPanel getPropertiesPanel() { return _propsPanel; }
 
-    public ResultsPanel getResultsPanel() { return _resultsPanel; }
+//    public ResultsPanel getResultsPanel() { return _resultsPanel; }
 
     public PipelinePanel getPipelinePanel() { return _pipelinePanel; }
 
@@ -77,11 +77,40 @@ public class MainView extends VerticalLayout {
         SplitLayout centreLayout = new SplitLayout();
         centreLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
         centreLayout.addToPrimary(_pipelinePanel);
-        centreLayout.addToSecondary(_resultsPanel);
+        centreLayout.addToSecondary(new OutputPanel(this));
         centreLayout.setWidth("77%");
         centreLayout.addSplitterDragendListener(e -> _pipelinePanel.onResize());
         return centreLayout;
     }
+
+
+//    private VerticalLayout resultsPanelLayout() {
+//       VerticalLayout layout = new VerticalLayout();
+//       layout.add(_resultsPanel, resultsPanelButtons());
+//       layout.setHeight("100%");
+//       return layout;
+//    }
+
+
+//    private HorizontalLayout resultsPanelButtons() {
+//        HorizontalLayout hl = new HorizontalLayout();
+//
+//        hl.add(createResultsPanelButton("Output", new Icon(VaadinIcon.DATABASE)));
+//        hl.add(createResultsPanelButton("Log", new Icon(VaadinIcon.FILE_PROCESS)));
+//        hl.add(createResultsPanelButton("Diff", new Icon(VaadinIcon.PLUS_MINUS)));
+//
+//        return hl;
+//    }
+
+
+//    private Button createResultsPanelButton(String label, Icon icon) {
+//        icon.setSize("20px");
+//        Button b = new Button(label, icon);
+//        b.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
+//        b.setHeight("24px");
+//        b.setWidth("96px");
+//        return b;
+//    }
 
 
     private Image getTitleImage() {

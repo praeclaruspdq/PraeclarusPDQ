@@ -42,6 +42,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
     private final Context2D _ctx;
     private final Set<Vertex> _vertices = new HashSet<>();
     private final Set<Connector> _connectors = new HashSet<>();
+    private final Set<VertexSelectionListener> _selectionListeners = new HashSet<>();
 
     private ActiveLine activeLine;
     private CanvasPrimitive selected;
@@ -65,7 +66,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
         else {
             Vertex vertex = getVertexAt(x, y);
             if (vertex != null) {
-                selected = vertex;
+                setSelected(vertex);
                 vertex.setDragOffset(x, y);
                 state = State.VERTEX_DRAG;
             }
@@ -110,7 +111,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
 
     @Override
     public void mouseClick(double x, double y) {
-        selected = setSelected(x, y);
+        setSelected(x, y);
         _parent.changedSelected(getSelectedNode());
         render();
     }
@@ -160,6 +161,17 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
     @Override
     public void nodePaused(Node node) { }
 
+
+    public void addVertexSelectionListener(VertexSelectionListener listener) {
+        _selectionListeners.add(listener);
+    }
+
+
+    public boolean removeVertexSelectionListener(VertexSelectionListener listener) {
+        return _selectionListeners.remove(listener);
+    }
+
+    
     public void clear() {
         _vertices.clear();
         _connectors.clear();
@@ -183,6 +195,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
     public void setSelected(CanvasPrimitive primitive) {
         selected = primitive;
         render();
+        announceSelectionChange();
     }
 
     public Node getSelectedNode() {
@@ -210,19 +223,19 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
      public void removeSelected() {
         if (selected instanceof Vertex) {
             removeVertex((Vertex) selected);
-            selected = null;
+            setSelected(null);
         }
         else if (selected instanceof Connector) {
             removeConnector((Connector) selected);
-            selected = null;
+            setSelected(null);
         }
     }
 
     
     public void addVertex(Vertex vertex) {
         _vertices.add(vertex);
-        selected = vertex;
-        render();
+        setSelected(vertex);
+//        render();
     }
 
 
@@ -236,7 +249,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
         if (vertex != null) {
             _vertices.remove(vertex);
             removeConnectors(vertex);
-            render();
+ //           render();
         }
     }
 
@@ -248,6 +261,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
         _parent.getWorkspace().connect(source, target);
         render();
     }
+
 
     public boolean removeConnector(Connector c) {
         boolean success = _connectors.remove(c);
@@ -323,18 +337,27 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
     }
 
 
-    private CanvasPrimitive setSelected(double x, double y) {
+    private void setSelected(double x, double y) {
         for (Vertex vertex : _vertices) {
             if (vertex.contains(x, y)) {
-                return vertex;
+                setSelected(vertex);
+                return;
             }
         }
         for (Connector connector : _connectors) {
             if (connector.contains(x, y)) {
-                return connector;
+                setSelected(connector);
+                return;
             }
         }
-        return null;
+        setSelected(null);
+    }
+
+
+    private void announceSelectionChange() {
+        for (VertexSelectionListener listener : _selectionListeners) {
+            listener.vertexSelectionChanged(getSelectedVertex());
+        }
     }
 
 

@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.util;
 
+import com.processdataquality.praeclarus.repo.LogEntry;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -99,11 +100,22 @@ public class UiUtil {
         Table copy = table.copy();
         copy.clear();
 
+        @SuppressWarnings("unchecked")
         ListDataProvider<Row> provider = (ListDataProvider<Row>) grid.getDataProvider();
         for (Row row : provider.getItems()) {
             copy.addRow(row);
         }
         return copy;
+    }
+
+
+    public static Grid<LogEntry> logEntriesToGrid(List<LogEntry> entries) {
+        Grid<LogEntry> grid = new Grid<>();
+        grid.addColumn(LogEntry::getTimeString).setHeader("Time").setAutoWidth(true);
+        grid.addColumn(LogEntry::getCommitter).setHeader("Committer").setAutoWidth(true);
+        grid.addColumn(LogEntry::getMessage).setHeader("Message").setAutoWidth(true);
+        grid.setItems(entries);
+        return grid;
     }
     
 }

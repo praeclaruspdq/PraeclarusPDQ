@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
@@ -29,7 +29,7 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 public class PluginsPanel extends VerticalLayout {
 
     public PluginsPanel() {
-        add(new H3("Plugins"));
+        add(new H4("Plugins"));
         add(pluginsTree());
     }
 

@@ -65,23 +65,28 @@ public class WorkflowLoader {
             double x = json.getDouble("x");
             double y = json.getDouble("y");
             String label = json.getString("label");
-            String nodeID = json.getString("nodeID");
-            String repoID = json.optString("repoID");
-            String tableID = json.optString("tableID");
-            PDQPlugin plugin = newPluginInstance(json.getString("plugin"));
+
+            JSONObject nodeJson = json.getJSONObject("node");
+            String nodeID = nodeJson.getString("id");
+            String commitID = nodeJson.optString("commitID");
+            String tableID = nodeJson.optString("tableID");
+            PDQPlugin plugin = newPluginInstance(nodeJson.getString("plugin"));
             if (plugin != null) {
-                addOptions(plugin, json.getJSONObject("options"));
+                addOptions(plugin, nodeJson.getJSONObject("options"));
                 Node node = NodeFactory.create(plugin, nodeID);
-                if (!repoID.isEmpty()) {
-                    node.setRepoID(repoID);
+                if (!commitID.isEmpty()) {
+                    node.setCommitID(commitID);
                 }
                 if (!tableID.isEmpty()) {
-                    node.setOutput(tableID);
+                    node.setTableID(tableID);
                 }
                 _workspace.addNode(node);
                 Vertex vertex = new Vertex(x, y, node, id);
                 vertex.setLabel(label);
                 _workflow.addVertex(vertex);
+                if (node.hasOutput()) {
+                    vertex.setRunState(VertexStateIndicator.State.COMPLETED);
+                }
                 vertexMap.put(id, vertex);
             }
         }

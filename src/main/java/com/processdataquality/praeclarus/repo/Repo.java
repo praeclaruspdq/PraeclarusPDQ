@@ -18,15 +18,23 @@ package com.processdataquality.praeclarus.repo;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import tech.tablesaw.api.Table;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -34,7 +42,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class Repo {
 
-    private static final File REPO_DIR = new File("./repo");
+    private static final File REPO_DIR = new File("../pdq_repo");
 
     static {
         checkInitiated();
@@ -53,26 +61,31 @@ public class Repo {
             RevCommit rev = git.commit().setMessage(msg)
                     .setAuthor(user, "user@example.com")
                     .call();                    
-            return rev.getId().toString();
+            return rev.getId().name();
         }
     }
+
 
 
     public static Table getTable(String objID, String tableName) throws IOException {
-        try (Git git = Git.open(REPO_DIR)) {
-            ObjectReader objectReader = git.getRepository().newObjectReader();
-            ObjectLoader objectLoader = objectReader.open(ObjectId.fromString(objID));
-            byte[] bytes = objectLoader.getBytes();
-            String content = new String(bytes, StandardCharsets.UTF_8);
-            return Table.read().csv(content, tableName);
+        String content = fetchContent(objID, tableName);
+        return Table.read().csv(content, tableName);
+    }
 
-//            RevWalk walk = new RevWalk(git.getRepository());
-//            RevCommit commit = walk.parseCommit(ObjectId.fromString(objID));
-//            commit.getTree().
+
+    public static List<LogEntry> getFullLog() throws IOException, GitAPIException {
+        try (Git git = Git.open(REPO_DIR)) {
+            return listLog(git.log().all().call());
         }
     }
 
 
+    public static List<LogEntry> getLog(String fileName) throws GitAPIException, IOException {
+        try (Git git = Git.open(REPO_DIR)) {
+            return listLog(git.log().addPath(fileName + ".csv").call());
+        }
+    }
+    
 
     private static void checkInitiated() {
         if (!REPO_DIR.exists()) {
@@ -93,8 +106,55 @@ public class Repo {
     private static String write(Table table) throws IOException {
         String fileName = table.name() + ".csv";         // needs extn for write() below
         File file = new File(REPO_DIR, fileName);
-        table.write().toFile(file); 
-        return table.name();
+        table.write().toFile(file);
+        return fileName;
+    }
+
+
+    private static List<LogEntry> listLog(Iterable<RevCommit> logs) {
+        List<LogEntry> logList = new ArrayList<>();
+        for (RevCommit rev : logs) {
+            LogEntry entry = new LogEntry();
+            entry.setTime(Instant.ofEpochSecond(rev.getCommitTime()));
+            entry.setMessage(rev.getFullMessage());
+            entry.setEntryName(rev.getId().getName());
+            entry.setCommitter(rev.getAuthorIdent().getName());
+            logList.add(entry);
+        }
+        Collections.reverse(logList);       // RevCommits are provided in reverse order
+        return logList;
+    }
+
+
+    // based on: https://stackoverflow.com/questions/1685228/how-to-cat-a-file-in-jgit
+    public static String fetchContent(String commitID, String path)
+            throws MissingObjectException, IncorrectObjectTypeException,
+            IOException {
+
+        ObjectReader reader = null;
+        try (Git git = Git.open(REPO_DIR)) {
+            ObjectId id = ObjectId.fromString(commitID);
+            reader = git.getRepository().newObjectReader();
+
+            // Get the commit object for that revision
+            RevWalk walk = new RevWalk(reader);
+            RevCommit commit = walk.parseCommit(id);
+
+            // Get the revision's file tree and the single file's path
+            RevTree tree = commit.getTree();
+            TreeWalk treewalk = TreeWalk.forPath(reader, path + ".csv", tree);
+
+            if (treewalk != null) {
+                byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
+                return new String(data, StandardCharsets.UTF_8);
+            }
+            else {
+                return "";
+            }
+        }
+        finally {
+            if (reader != null) reader.close();
+        }
     }
 
 }

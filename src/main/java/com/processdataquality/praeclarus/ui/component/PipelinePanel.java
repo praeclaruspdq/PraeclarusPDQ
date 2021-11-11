@@ -16,23 +16,25 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.PluginService;
+import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
+import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import com.processdataquality.praeclarus.ui.MainView;
-import com.processdataquality.praeclarus.ui.canvas.Canvas;
-import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
-import com.processdataquality.praeclarus.ui.canvas.Vertex;
-import com.processdataquality.praeclarus.ui.canvas.Workflow;
+import com.processdataquality.praeclarus.ui.canvas.*;
+import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.processdataquality.praeclarus.workspace.Workspace;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeFactory;
-import com.vaadin.flow.component.Component;
+import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
+import com.processdataquality.praeclarus.workspace.node.PatternNode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -47,13 +49,13 @@ import java.util.List;
  */
 @CssImport("./styles/pdq-styles.css")
 @JsModule("./src/fs.js")
-public class PipelinePanel extends VerticalLayout {
+public class PipelinePanel extends VerticalLayout implements NodeRunnerListener, PluginUIListener {
 
     private final Workspace _workspace;               // backend
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
     private final RunnerButtons _runnerButtons;
-    private final Canvas _canvas = new Canvas(1600, 400);
+    private final Canvas _canvas = new Canvas(1600, 800);
 
 
     public PipelinePanel(MainView parent) {
@@ -62,13 +64,43 @@ public class PipelinePanel extends VerticalLayout {
         _workflow = new Workflow(this, _canvas.getContext());
         _canvas.addListener(_workflow);
         _runnerButtons = initRunnerButtons();
+        _workspace.getRunner().addListener(this);
         VerticalLayout vl = new VerticalLayout();
-        vl.add(new H3("Workflow"));
+        vl.add(new H4("Workflow"));
         vl.add(_runnerButtons);
-        removeTopMargin(vl);
+        UiUtil.removeTopMargin(vl);
         add(vl);
         add(createCanvasContainer());
     }
+
+
+    @Override
+    public void pluginUICloseEvent(ButtonAction action, Node node) {
+        if (action == ButtonAction.REPAIR) {
+            _workspace.getRunner().resume(node);           //todo: resume after cancel?
+        }
+    }
+
+    @Override
+    public void nodePaused(Node node) {
+        
+        // pattern detected but not yet repaired
+        if (node instanceof PatternNode && ! node.hasCompleted()) {
+            PluginUI ui = ((ImperfectionPattern) node.getPlugin()).getUI();
+            if (ui != null) {
+                new PluginUIDialog(ui, node, this).open();
+            }
+        }
+    }
+
+    @Override
+    public void nodeStarted(Node node) { }
+
+    @Override
+    public void nodeCompleted(Node node) { }
+
+    @Override
+    public void nodeRollback(Node node) { }
 
 
     private RunnerButtons initRunnerButtons() {
@@ -97,7 +129,7 @@ public class PipelinePanel extends VerticalLayout {
 
         VerticalScrollLayout container = new VerticalScrollLayout();
         container.add(_canvas);
-        removeTopMargin(container);
+        UiUtil.removeTopMargin(container);
         return container;
     }
 
@@ -181,7 +213,8 @@ public class PipelinePanel extends VerticalLayout {
         _workflow.render();
     }
 
-    private void removeTopMargin(Component c) {
-        c.getElement().getStyle().set("margin-top", "0");
+
+    public void addVertexSelectionListener(VertexSelectionListener listener) {
+        _workflow.addVertexSelectionListener(listener);
     }
 }
