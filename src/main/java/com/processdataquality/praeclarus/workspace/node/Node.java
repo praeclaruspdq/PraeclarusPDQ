@@ -245,18 +245,6 @@ public abstract class Node {
     }
 
 
-    // called from loader
-    public void setTableID(String id) {
-        _tableID = id;
-        try {
-            setOutput(Repo.getTable(_commitID, _tableID));
-        }
-        catch (IOException e) {
-            // ignore - have to rerun the node;
-        }
-    }
-
-
     /**
      * @return the output table (if any) for this node
      */

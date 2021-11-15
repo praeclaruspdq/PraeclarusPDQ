@@ -18,6 +18,7 @@ package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.ui.component.PipelinePanel;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
+import com.processdataquality.praeclarus.workspace.NodeUtil;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
 import com.processdataquality.praeclarus.workspace.node.ReaderNode;
@@ -53,7 +54,6 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
     public Workflow(PipelinePanel parent, Context2D context) {
         _parent = parent;
         _ctx = context;
-        _parent.getWorkspace().getRunner().addListener(this);
     }
 
     @Override
@@ -127,9 +127,10 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
 
     @Override
     public void fileLoaded(String jsonStr) {
-        WorkflowLoader loader = new WorkflowLoader(this, _parent.getWorkspace());
+        WorkflowLoader loader = new WorkflowLoader(this);
         try {
             loader.load(jsonStr);
+            _parent.getRunner().reset();
         }
         catch (JSONException | IOException je) {
             Notification.show("Failed to load file: " + je.getMessage());
@@ -258,7 +259,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
         _connectors.add(c);
         Node source = c.getSource().getNode();
         Node target = c.getTarget().getNode();
-        _parent.getWorkspace().connect(source, target);
+        new NodeUtil().connect(source, target);
         render();
     }
 
@@ -268,7 +269,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
         if (success) {
             Node previous = c.getSource().getNode();
             Node next = c.getTarget().getNode();
-            _parent.getWorkspace().disconnect(previous, next);
+            new NodeUtil().disconnect(previous, next);
             render();
         }
         return success;

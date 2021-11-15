@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.workspace.NodeRunner;
-import com.processdataquality.praeclarus.workspace.Workspace;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
@@ -32,7 +31,7 @@ import com.vaadin.flow.component.notification.Notification;
  */
 public class RunnerButtons extends Div {
 
-    private final Workspace _workspace;
+    private final NodeRunner _runner;
     private final Workflow _workflow;
 
     private NodeRunner.State _state;
@@ -43,8 +42,8 @@ public class RunnerButtons extends Div {
     private Button _stopButton;
 
 
-    public RunnerButtons(Workspace workspace, Workflow workflow) {
-        _workspace = workspace;
+    public RunnerButtons(NodeRunner runner, Workflow workflow) {
+        _runner = runner;
         _workflow = workflow;
         addButtons();
         _state = NodeRunner.State.IDLE;
@@ -115,14 +114,14 @@ public class RunnerButtons extends Div {
             Node node = _workflow.getSelectedNode();
             if (node != null) {
                 setState(NodeRunner.State.STEPPING);
-                _workspace.getRunner().stepBack(node);
+                _runner.stepBack(node);
                 setState(NodeRunner.State.IDLE);
             }
         });
 
         Icon stopIcon = createIcon(VaadinIcon.CLOSE_CIRCLE_O,"red");
         _stopButton = new Button(stopIcon, e -> {
-            _workspace.reset();
+            _runner.reset();
             setState(NodeRunner.State.IDLE);
         });
         
@@ -141,10 +140,10 @@ public class RunnerButtons extends Div {
     private void runNode(Node node) {
         try {
             if (getState() == NodeRunner.State.RUNNING) {
-                _workspace.getRunner().run(node);
+               _runner.run(node);
             }
             else if (getState() == NodeRunner.State.STEPPING) {
-                _workspace.getRunner().step(node);
+                _runner.step(node);
             }
         }
         catch (IllegalArgumentException iae) {
@@ -152,7 +151,7 @@ public class RunnerButtons extends Div {
         }
         finally {
             setState(NodeRunner.State.IDLE);
-//            Node lastCompleted = _workspace.getRunner().getLastCompletedNode();
+//            Node lastCompleted = _runner.getLastCompletedNode();
 //            if (lastCompleted != null) {
 //                _workflow.setSelectedNode(lastCompleted);
 //            }

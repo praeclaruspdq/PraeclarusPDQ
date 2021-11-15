@@ -16,17 +16,14 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.workspace.Workspace;
+import com.processdataquality.praeclarus.workspace.NodeUtil;
 import com.processdataquality.praeclarus.workspace.node.Node;
-import com.processdataquality.praeclarus.workspace.node.NodeFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,27 +34,26 @@ import java.util.Set;
 public class WorkflowLoader {
 
     private final Workflow _workflow;      // frontend
-    private final Workspace _workspace;    // backend
 
-    public WorkflowLoader(Workflow workflow, Workspace workspace) {
+    public WorkflowLoader(Workflow workflow) {
         _workflow = workflow;
-        _workspace = workspace;
     }
 
 
     public void load(String jsonStr) throws JSONException, IOException {
        _workflow.clear();
-       _workspace.clear();
        _workflow.setLoading(true);
+        NodeUtil nodeUtil = new NodeUtil();
         JSONObject json = new JSONObject(jsonStr);
-        Map<Integer, Vertex> vertices = loadVertices(json.getJSONArray("vertices"));
+        Map<Integer, Vertex> vertices = loadVertices(json.getJSONArray("vertices"), nodeUtil);
         loadConnectors(json.getJSONArray("connectors"), vertices);
         _workflow.setLoading(false);
-        selectHeadVertex(vertices);
+        selectHeadVertex(vertices, nodeUtil);
     }
 
 
-    private Map<Integer, Vertex> loadVertices(JSONArray array) throws JSONException, IOException {
+    private Map<Integer, Vertex> loadVertices(JSONArray array, NodeUtil nodeUtil)
+            throws JSONException, IOException {
         Map<Integer, Vertex> vertexMap = new HashMap<>();
         for (int i=0; i < array.length(); i++) {
             JSONObject json = array.getJSONObject(i);
@@ -65,22 +61,8 @@ public class WorkflowLoader {
             double x = json.getDouble("x");
             double y = json.getDouble("y");
             String label = json.getString("label");
-
-            JSONObject nodeJson = json.getJSONObject("node");
-            String nodeID = nodeJson.getString("id");
-            String commitID = nodeJson.optString("commitID");
-            String tableID = nodeJson.optString("tableID");
-            PDQPlugin plugin = newPluginInstance(nodeJson.getString("plugin"));
-            if (plugin != null) {
-                addOptions(plugin, nodeJson.getJSONObject("options"));
-                Node node = NodeFactory.create(plugin, nodeID);
-                if (!commitID.isEmpty()) {
-                    node.setCommitID(commitID);
-                }
-                if (!tableID.isEmpty()) {
-                    node.setTableID(tableID);
-                }
-                _workspace.addNode(node);
+            Node node = nodeUtil.fromJson(json.getJSONObject("node"));
+            if (node != null) {
                 Vertex vertex = new Vertex(x, y, node, id);
                 vertex.setLabel(label);
                 _workflow.addVertex(vertex);
@@ -111,34 +93,10 @@ public class WorkflowLoader {
     }
 
 
-    @SuppressWarnings("unchecked")
-    private PDQPlugin newPluginInstance(String fqClassName) {
-        try {
-            Class<PDQPlugin> clazz = (Class<PDQPlugin>) Class.forName(fqClassName);
-            return clazz.getDeclaredConstructor().newInstance();
-        }
-        catch (Throwable e) {
-            return null;
-        }
-    }
-
-
-    @SuppressWarnings("unchecked")
-    private void addOptions(PDQPlugin plugin, JSONObject jsonOptions) throws JSONException {
-        if (jsonOptions != null) {
-            Iterator<String> keys = jsonOptions.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                plugin.getOptions().add(key, jsonOptions.get(key));
-            }
-        }
-    }
-
-
-    private void selectHeadVertex(Map<Integer, Vertex> vertices) {
+    private void selectHeadVertex(Map<Integer, Vertex> vertices, NodeUtil nodeUtil) {
         if (! vertices.isEmpty()) {
             Vertex anyVertex = vertices.values().iterator().next();       // get any vertex
-            Set<Node> heads = _workspace.getHeads(anyVertex.getNode());
+            Set<Node> heads = nodeUtil.getHeads(anyVertex.getNode());
             if (! heads.isEmpty()) {
                 _workflow.setSelectedNode(heads.iterator().next());       // set any head
             }

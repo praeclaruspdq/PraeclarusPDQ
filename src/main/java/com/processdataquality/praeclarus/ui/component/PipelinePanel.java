@@ -24,7 +24,8 @@ import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.ui.canvas.*;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
-import com.processdataquality.praeclarus.workspace.Workspace;
+import com.processdataquality.praeclarus.workspace.NodeRunner;
+import com.processdataquality.praeclarus.workspace.NodeUtil;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeFactory;
 import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
@@ -51,20 +52,20 @@ import java.util.List;
 @JsModule("./src/fs.js")
 public class PipelinePanel extends VerticalLayout implements NodeRunnerListener, PluginUIListener {
 
-    private final Workspace _workspace;               // backend
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
     private final RunnerButtons _runnerButtons;
     private final Canvas _canvas = new Canvas(1600, 800);
+    private final NodeRunner _runner = new NodeRunner();
 
 
     public PipelinePanel(MainView parent) {
         _parent = parent;
-        _workspace = new Workspace();
         _workflow = new Workflow(this, _canvas.getContext());
         _canvas.addListener(_workflow);
         _runnerButtons = initRunnerButtons();
-        _workspace.getRunner().addListener(this);
+        _runner.addListener(this);
+        _runner.addListener(_workflow);
         VerticalLayout vl = new VerticalLayout();
         vl.add(new H4("Workflow"));
         vl.add(_runnerButtons);
@@ -77,7 +78,7 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
     @Override
     public void pluginUICloseEvent(ButtonAction action, Node node) {
         if (action == ButtonAction.REPAIR) {
-            _workspace.getRunner().resume(node);           //todo: resume after cancel?
+            _runner.resume(node);           //todo: resume after cancel?
         }
     }
 
@@ -104,7 +105,7 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
 
 
     private RunnerButtons initRunnerButtons() {
-        RunnerButtons buttons = new RunnerButtons(_workspace, _workflow);
+        RunnerButtons buttons = new RunnerButtons(_runner, _workflow);
         buttons.addButton(createRemoveButton());
         buttons.addButton(createLoadButton());
         buttons.addButton(createSaveButton());
@@ -118,7 +119,10 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
         dropTarget.addDropListener(event -> {
             if (event.getDropEffect() == DropEffect.COPY) {
                 if (event.getDragData().isPresent()) {
+
+                    @SuppressWarnings("unchecked")
                     List<TreeItem> droppedItems = (List<TreeItem>) event.getDragData().get();
+
                     TreeItem item = droppedItems.get(0);     // only one is dropped
                     Node node = addPluginInstance(item);
                     _workflow.addVertex(node);
@@ -163,14 +167,15 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
         }
 
         Node node = NodeFactory.create(instance);
-        _workspace.addNode(node);
-
         showPluginProperties(node);
         return node;
     }
     
-
-    public Workspace getWorkspace() { return _workspace; }
+    
+    /**
+     * @return the runner for this panel
+     */
+    public NodeRunner getRunner() { return _runner; }
 
 
     private Button createRemoveButton() {
@@ -180,7 +185,7 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
             CanvasPrimitive selected = _workflow.getSelected();
             if (selected instanceof Vertex) {
                 Node node = ((Vertex) selected).getNode();
-                _workspace.removeNode(node);
+                new NodeUtil().removeNode(node);
             }
             _workflow.removeSelected();
         });

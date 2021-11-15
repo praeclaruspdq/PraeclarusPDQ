@@ -16,46 +16,22 @@
 
 package com.processdataquality.praeclarus.workspace;
 
+import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.workspace.node.NodeFactory;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
  * @author Michael Adams
  * @date 12/5/21
  */
-public class Workspace {
-
-    private final NodeRunner _runner = new NodeRunner();
-
-    // a List of Nodes that do not have any predecessors. A workspace may contain any
-    // number of head nodes, each representing the start of a workflow (chain of nodes)
-    private final List<Node> _heads = new ArrayList<>();
-
-
-    /**
-     * Remove all nodes from the workspace
-     */
-    public void clear() {
-        _heads.clear();
-        _runner.reset();
-    }
-
-
-    /**
-     * @return the runner for this workspace
-     */
-    public NodeRunner getRunner() { return _runner; }
-
-
-    /**
-     * Adds a disconnected node to the workspace
-     * @param node the node to add
-     */
-    public void addNode(Node node) { _heads.add(node); }
+public class NodeUtil {
 
 
     /**
@@ -77,7 +53,6 @@ public class Workspace {
     public void connect(Node source, Node target) {
         source.addNext(target);
         target.addPrevious(source);
-        _heads.remove(target);       // if the target node was a head, it's not now
     }
 
 
@@ -89,16 +64,7 @@ public class Workspace {
     public void disconnect(Node source, Node target) {
         source.removeNext(target);
         target.removePrevious(source);
-        if (target.isHead()) {             // if no more nodes in target's pre-set
-            _heads.add(target);
-        }
     }
-
-
-    /**
-     * Stops the runner if it is currently running
-     */
-    public void reset() { _runner.abort(); }
 
 
     /**
@@ -135,5 +101,50 @@ public class Workspace {
         if (tails.isEmpty()) tails.add(node);     // the node passed is a tail
         return tails;
    }
+
+
+    public Node fromJson(JSONObject json) throws JSONException, IOException {
+        Node node = null;
+        PDQPlugin plugin = newPluginInstance(json.getString("plugin"));
+        if (plugin != null) {
+            addOptions(plugin, json.getJSONObject("options"));
+            String nodeID = json.getString("id");
+            String commitID = json.optString("commitID");
+            String tableID = json.optString("tableID");
+            node = NodeFactory.create(plugin, nodeID);
+            if (!commitID.isEmpty()) {
+                node.setCommitID(commitID);
+                if (!tableID.isEmpty()) {
+                    node.setOutput(tableID);
+                }
+            }
+        }
+        return node;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private PDQPlugin newPluginInstance(String fqClassName) {
+        try {
+            Class<PDQPlugin> clazz = (Class<PDQPlugin>) Class.forName(fqClassName);
+            return clazz.getDeclaredConstructor().newInstance();
+        }
+        catch (Throwable e) {
+            return null;
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private void addOptions(PDQPlugin plugin, JSONObject jsonOptions) throws JSONException {
+        if (jsonOptions != null) {
+            Iterator<String> keys = jsonOptions.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                plugin.getOptions().add(key, jsonOptions.get(key));
+            }
+        }
+    }
+
 
 }
