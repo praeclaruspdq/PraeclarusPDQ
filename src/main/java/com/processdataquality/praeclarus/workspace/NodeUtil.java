@@ -115,7 +115,7 @@ public class NodeUtil {
             if (!commitID.isEmpty()) {
                 node.setCommitID(commitID);
                 if (!tableID.isEmpty()) {
-                    node.setOutput(tableID);
+                    node.loadOutput(tableID);           // loads from repo
                 }
             }
         }

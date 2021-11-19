@@ -18,10 +18,10 @@ package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.ui.component.PipelinePanel;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
+import com.processdataquality.praeclarus.workspace.NodeRunner;
 import com.processdataquality.praeclarus.workspace.NodeUtil;
 import com.processdataquality.praeclarus.workspace.node.Node;
 import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
-import com.processdataquality.praeclarus.workspace.node.ReaderNode;
 import com.vaadin.flow.component.notification.Notification;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -140,9 +140,6 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
 
     @Override
     public void nodeStarted(Node node) {
-        if (node instanceof ReaderNode) {
-            
-        }
         changeStateIndicator(node, VertexStateIndicator.State.RUNNING);
     }
 
@@ -161,6 +158,10 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
 
     @Override
     public void nodePaused(Node node) { }
+
+
+    @Override
+    public void stateChanged(NodeRunner.State newState) { }
 
 
     public void addVertexSelectionListener(VertexSelectionListener listener) {

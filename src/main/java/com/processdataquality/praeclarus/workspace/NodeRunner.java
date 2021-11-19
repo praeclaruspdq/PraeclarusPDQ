@@ -46,18 +46,20 @@ public class NodeRunner {
 
 
     public void run(Node node) {
+        if (node == null) return;
+
         if (_state == State.ABORTED) {
             reset();
             return;
         }
-        _state = State.RUNNING;
+        setState(State.RUNNING);
         node = step(node);
         if (node.hasCompleted()) {
             if (node.hasNext()) {
                 node.next().forEach(this::run);
             }
             else {
-                _state = State.IDLE;
+                setState(State.IDLE);
             }
         }
         else {
@@ -72,8 +74,10 @@ public class NodeRunner {
      * @return the node passed in, or a previous unrun pattern node that is incomplete
      */
     public Node step(Node node) {
+        if (node == null) return null;
+
         if (_state == State.IDLE) {
-            _state = State.STEPPING;
+            setState(State.STEPPING);
         }
 
         // need all previous nodes to have run before this one can
@@ -90,7 +94,7 @@ public class NodeRunner {
                 node.runPostTask();                    // lets UIs do any post-work necessary
                 setLastCompletedNode(node);
                 if (_state == State.STEPPING) {
-                    _state = State.IDLE;
+                    setState(State.IDLE);
                 }
             }
         }
@@ -99,35 +103,38 @@ public class NodeRunner {
 
 
     public void resume(Node node) {
-        if (_state == State.RUNNING) {
-            run(node);
+        switch (_state) {
+            case RUNNING: run(node); break;
+            case STEPPING: step(node); break;
         }
-        else if (_state == State.STEPPING) {
-            step(node);
-        }
-        // else error
     }
 
 
     public void stepBack(Node node) {
         node.reset();
-        _lastCompletedNode = node.isHead() ? null : node.previous().iterator().next();
+        setLastCompletedNode(node.isHead() ? null : node.previous().iterator().next());
         announceNodeRollback(node);
     }
 
     
     public void reset() {
         setLastCompletedNode(null);
-        _state = State.IDLE;
+        setState(State.IDLE);
     }
 
     public void abort() {
-        _state = State.ABORTED;
+        setState(State.ABORTED);
     }
 
     public Node getLastCompletedNode() { return _lastCompletedNode; }
 
+
     public State getState() { return _state; }
+
+    private void setState(State state) {
+        _state = state;
+        announceStateChanged(_state);
+    }
 
 
     private void setLastCompletedNode(Node node) {
@@ -151,6 +158,10 @@ public class NodeRunner {
 
     private void announceNodeRollback(Node node) {
          _listeners.forEach(l -> l.nodeRollback(node));
+    }
+
+    private void announceStateChanged(State state) {
+        _listeners.forEach(l -> l.stateChanged(state));
     }
 
 }

@@ -55,23 +55,25 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
     private final RunnerButtons _runnerButtons;
-    private final Canvas _canvas = new Canvas(1600, 800);
-    private final NodeRunner _runner = new NodeRunner();
+    private final Canvas _canvas;
+    private final NodeRunner _runner;
 
 
     public PipelinePanel(MainView parent) {
         _parent = parent;
+        _canvas = new Canvas(1600, 800);
+        _runner = new NodeRunner();
         _workflow = new Workflow(this, _canvas.getContext());
         _canvas.addListener(_workflow);
         _runnerButtons = initRunnerButtons();
+        addVertexSelectionListener(_runnerButtons);
         _runner.addListener(this);
         _runner.addListener(_workflow);
+        
         VerticalLayout vl = new VerticalLayout();
-        vl.add(new H4("Workflow"));
-        vl.add(_runnerButtons);
+        vl.add(new H4("Workflow"), _runnerButtons);
         UiUtil.removeTopMargin(vl);
-        add(vl);
-        add(createCanvasContainer());
+        add(vl, createCanvasContainer());
     }
 
 
@@ -103,9 +105,14 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
     @Override
     public void nodeRollback(Node node) { }
 
+    @Override
+    public void stateChanged(NodeRunner.State newState) {
+        _runnerButtons.setState(newState);
+    }
+
 
     private RunnerButtons initRunnerButtons() {
-        RunnerButtons buttons = new RunnerButtons(_runner, _workflow);
+        RunnerButtons buttons = new RunnerButtons(_runner);
         buttons.addButton(createRemoveButton());
         buttons.addButton(createLoadButton());
         buttons.addButton(createSaveButton());

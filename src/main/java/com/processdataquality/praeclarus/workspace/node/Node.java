@@ -262,8 +262,11 @@ public abstract class Node {
     }
 
 
-    public void setOutput(String tableID) throws IOException {
-        setOutput(Repo.getTable(_commitID, tableID));
+    public void loadOutput(String tableID) throws IOException {
+        _output = Repo.getTable(_commitID, tableID);
+        if (_output != null) {
+            _tableID = tableID;
+        }
     }
 
 

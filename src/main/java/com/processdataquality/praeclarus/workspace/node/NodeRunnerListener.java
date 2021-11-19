@@ -16,6 +16,8 @@
 
 package com.processdataquality.praeclarus.workspace.node;
 
+import com.processdataquality.praeclarus.workspace.NodeRunner;
+
 /**
  * Notifies listeners of changes of state during a node's execution
  *
@@ -31,4 +33,6 @@ public interface NodeRunnerListener {
     void nodeCompleted(Node node);
 
     void nodeRollback(Node node);
+
+    void stateChanged(NodeRunner.State newState);
 }
