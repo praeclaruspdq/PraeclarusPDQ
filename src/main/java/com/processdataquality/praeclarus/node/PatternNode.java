@@ -14,15 +14,12 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.workspace.node;
+package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
-import com.processdataquality.praeclarus.plugin.uitemplate.UITable;
 import tech.tablesaw.api.Table;
-
-import java.util.List;
 
 /**
  * A container node for an imperfection pattern plugin
@@ -32,11 +29,8 @@ import java.util.List;
  */
 public class PatternNode extends Node {
 
-    // unlike other nodes, a pattern node can be in one of four states
-    public enum State { IDLE, DETECTED, REPAIRING, COMPLETED }
 
     private Table detected;                 // a table of pattern matches
-    private State state = State.IDLE;
 
 
     public PatternNode(PDQPlugin plugin, String id) {
@@ -52,34 +46,22 @@ public class PatternNode extends Node {
     public void run() {
         ImperfectionPattern imperfectionPattern = (ImperfectionPattern) getPlugin();
         Table master = getInputs().get(0);         // only one input
-        if (state == State.IDLE && imperfectionPattern.canDetect()) {
+        if (getState() == NodeState.UNSTARTED && imperfectionPattern.canDetect()) {
+            setState(NodeState.EXECUTING);
             detected = imperfectionPattern.detect(master);
             if (imperfectionPattern.canRepair()) {
-                state = State.DETECTED;
+                setState(NodeState.PAUSED);
             }
             else {
-                state = State.COMPLETED;
                 setOutput(master);
+                setState(NodeState.COMPLETED);
             }
         }
-        else if (state != State.COMPLETED && imperfectionPattern.canRepair()) {
-            Table repairs = getRepairs();
-            if (repairs != null) {
-
-                // perform repairs on a new copy of the log so we can rollback if needed
-                setOutput(imperfectionPattern.repair(master.copy(), repairs));
-            }
-            state = State.COMPLETED;
+        else if (getState() != NodeState.COMPLETED && imperfectionPattern.canRepair()) {
+            setOutput(imperfectionPattern.repair(master));
+            setState(NodeState.COMPLETED);
         }
     }
-
-
-    /**
-     * Overrides super method
-     * @return true if this node has completed its run
-     */
-    @Override
-    public boolean hasCompleted() { return state == State.COMPLETED; }
 
 
     /**
@@ -88,7 +70,7 @@ public class PatternNode extends Node {
      */
     @Override
     public Table getOutput() {
-        if (state == State.DETECTED) {
+        if (getState() == NodeState.PAUSED) {
             return detected;
         }
         return super.getOutput();
@@ -102,20 +84,7 @@ public class PatternNode extends Node {
     public void reset() {
         super.reset();
         detected = null;
-        state = State.IDLE;
     }
-
-
-    /**
-     * @return the current state of this node
-     */
-    public State getState() { return state; }
-
-
-    /**
-     * @return the table of detected imperfections
-     */
-    public Table getDetected() { return detected; }
 
 
     /**
@@ -124,18 +93,6 @@ public class PatternNode extends Node {
      */
     public void updateUI(PluginUI ui) {
        ((ImperfectionPattern) getPlugin()).updateUI(ui);
-    }
-
-
-    /**
-     * Gets the table with the repair rows (to be performed)
-     */
-    public Table getRepairs() {
-        PluginUI ui = ((ImperfectionPattern) getPlugin()).getUI();
-        List<UITable> tables = ui.extractTables();
-
-        // only one for this ui
-        return tables.get(0).getSelectedRows();
     }
 
 }

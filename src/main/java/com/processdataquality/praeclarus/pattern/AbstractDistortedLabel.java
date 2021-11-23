@@ -80,16 +80,13 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
     /**
      * Repair instances of an imperfection pattern found within a table
      * @param master the original table containing pattern instances
-     * @param changes a table of two columns containing rows of keys (strings to find)
-     *                and values (strings to replace them with) to use to make
-     *                the necessary changes to repair the pattern instances found
      * @return        a table of the original data with the repairs done
      */
     @Override
-    public Table repair(Table master, Table changes) {
+    public Table repair(Table master) {
         String colName = _options.get("Column Name").asString();
         StringColumn repaired = (StringColumn) master.column(colName);
-        for (Row row : changes) {
+        for (Row row : getRepairs()) {
             repaired = repaired.replaceAll(
                     row.getString("Label2"), row.getString("Label1"));
         }
@@ -195,6 +192,18 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
         _detected.stringColumn(2).append(s2);
         _detected.intColumn(3).append(c2);
     }
+
+
+    /**
+     * Gets the table with the repair rows (to be performed)
+     */
+    public Table getRepairs() {
+        List<UITable> tables = _ui.extractTables();
+
+        // only one UITable component for this ui
+        return tables.get(0).getSelectedRows();
+    }
+
 
     @Override
     public PluginUI getUI() {

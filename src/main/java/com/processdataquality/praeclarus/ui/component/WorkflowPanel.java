@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.node.*;
 import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.PluginService;
@@ -24,12 +25,6 @@ import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.ui.canvas.*;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
-import com.processdataquality.praeclarus.workspace.NodeRunner;
-import com.processdataquality.praeclarus.workspace.NodeUtil;
-import com.processdataquality.praeclarus.workspace.node.Node;
-import com.processdataquality.praeclarus.workspace.node.NodeFactory;
-import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
-import com.processdataquality.praeclarus.workspace.node.PatternNode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -50,7 +45,8 @@ import java.util.List;
  */
 @CssImport("./styles/pdq-styles.css")
 @JsModule("./src/fs.js")
-public class PipelinePanel extends VerticalLayout implements NodeRunnerListener, PluginUIListener {
+public class WorkflowPanel extends VerticalLayout
+        implements NodeRunnerListener, PluginUIListener, SaveExistingListener {
 
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
@@ -58,8 +54,11 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
     private final Canvas _canvas;
     private final NodeRunner _runner;
 
+    private Button _removeButton;
+    private Button _saveButton;
 
-    public PipelinePanel(MainView parent) {
+
+    public WorkflowPanel(MainView parent) {
         _parent = parent;
         _canvas = new Canvas(1600, 800);
         _runner = new NodeRunner();
@@ -68,7 +67,6 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
         _runnerButtons = initRunnerButtons();
         addVertexSelectionListener(_runnerButtons);
         _runner.addListener(this);
-        _runner.addListener(_workflow);
         
         VerticalLayout vl = new VerticalLayout();
         vl.add(new H4("Workflow"), _runnerButtons);
@@ -79,14 +77,19 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
 
     @Override
     public void pluginUICloseEvent(ButtonAction action, Node node) {
-        if (action == ButtonAction.REPAIR) {
-            _runner.resume(node);           //todo: resume after cancel?
-        }
+        _runner.resume(node);          // action doesn't matter
     }
+    
 
     @Override
-    public void nodePaused(Node node) {
-        
+    public void runnerStateChanged(NodeRunner.RunnerState state) {
+        _runnerButtons.setState(state);
+    }
+
+
+    @Override
+    public void runnerNodePaused(Node node) {
+
         // pattern detected but not yet repaired
         if (node instanceof PatternNode && ! node.hasCompleted()) {
             PluginUI ui = ((ImperfectionPattern) node.getPlugin()).getUI();
@@ -96,26 +99,25 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
         }
     }
 
-    @Override
-    public void nodeStarted(Node node) { }
 
     @Override
-    public void nodeCompleted(Node node) { }
-
-    @Override
-    public void nodeRollback(Node node) { }
-
-    @Override
-    public void stateChanged(NodeRunner.State newState) {
-        _runnerButtons.setState(newState);
+    public void saveExistingDialogEvent(SaveExistingDialog.CLICKED clicked) {
+        switch (clicked) {
+            case SAVE: if (saveWorkflow()) _canvas.loadFromFile(); break;
+            case DISCARD: _canvas.loadFromFile(); break;
+        }
     }
 
 
     private RunnerButtons initRunnerButtons() {
         RunnerButtons buttons = new RunnerButtons(_runner);
-        buttons.addButton(createRemoveButton());
+        _removeButton = createRemoveButton();
+        _removeButton.setEnabled(false);
+        _saveButton = createSaveButton();
+        _saveButton.setEnabled(false);
+        buttons.addButton(_removeButton);
         buttons.addButton(createLoadButton());
-        buttons.addButton(createSaveButton());
+        buttons.addButton(_saveButton);
         return buttons;
     }
 
@@ -148,6 +150,12 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
     public void changedSelected(Node selected) {
         showPluginProperties(selected);
         _runnerButtons.enable();
+    }
+
+
+    public void canvasSelectionChanged(CanvasPrimitive selected) {
+        _removeButton.setEnabled(selected instanceof Vertex);
+        _saveButton.setEnabled(_workflow.hasContent());
     }
 
 
@@ -195,6 +203,7 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
                 new NodeUtil().removeNode(node);
             }
             _workflow.removeSelected();
+            _saveButton.setEnabled(_workflow.hasContent());
         });
     }
 
@@ -202,22 +211,34 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
     private Button createLoadButton() {
         Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
         icon.setSize("24px");
-        return new Button(icon, e -> _canvas.loadFromFile());
+        return new Button(icon, e -> {
+            if (_workflow.hasContent()) {
+                new SaveExistingDialog(this).open();
+            }
+            else {
+                _canvas.loadFromFile();
+            }
+        });
     }
 
 
     private Button createSaveButton() {
-        Icon icon = VaadinIcon.DOWNLOAD_ALT.create();
+        Icon icon = VaadinIcon.DOWNLOAD.create();
         icon.setSize("24px");
-        return new Button(icon, e -> {
-            try {
-                 String jsonStr = _workflow.asJson().toString(3);
-                _canvas.saveToFile(jsonStr);
-             }
-             catch (JSONException je) {
-                 Notification.show("Failed to save file: " + je.getMessage());
-             }
-        });
+        return new Button(icon, e -> saveWorkflow());
+    }
+
+
+    private boolean saveWorkflow() {
+        try {
+            String jsonStr = _workflow.asJson().toString(3);
+            _canvas.saveToFile(jsonStr);
+            return true;
+        }
+        catch (JSONException je) {
+            Notification.show("Failed to save file: " + je.getMessage());
+        }
+        return false;
     }
 
 
@@ -226,7 +247,7 @@ public class PipelinePanel extends VerticalLayout implements NodeRunnerListener,
     }
 
 
-    public void addVertexSelectionListener(VertexSelectionListener listener) {
+    public void addVertexSelectionListener(CanvasSelectionListener listener) {
         _workflow.addVertexSelectionListener(listener);
     }
 }

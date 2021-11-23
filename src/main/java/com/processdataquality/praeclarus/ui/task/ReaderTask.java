@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.task;
 
-import com.processdataquality.praeclarus.workspace.node.Node;
-import com.processdataquality.praeclarus.workspace.node.NodeTask;
+import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.NodeTask;
 import com.vaadin.flow.component.dependency.JsModule;
 
 /**

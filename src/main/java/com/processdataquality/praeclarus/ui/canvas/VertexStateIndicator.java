@@ -29,6 +29,7 @@ public class VertexStateIndicator {
 
         DORMANT ("#C54E57"),          // dull red
         RUNNING ("#EEDC5B"),          // dull yellow
+        PAUSED ("#49759C"),           // dull blue
         COMPLETED ("#749f64");        // dull green
 
         String _colour;

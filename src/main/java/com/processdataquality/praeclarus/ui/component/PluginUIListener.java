@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
-import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.node.Node;
 
 /**
  * @author Michael Adams

@@ -37,11 +37,9 @@ public interface ImperfectionPattern extends PDQPlugin {
     /**
      * Repair instances of an imperfection pattern found within a table
      * @param master the original table containing pattern instances
-     * @param changes a table containing the rows and values that describe
-     *                the necessary changes to repair the pattern instances found
      * @return        a table of the original data with the repairs done
      */
-    Table repair(Table master, Table changes);
+    Table repair(Table master);
 
 
     /**

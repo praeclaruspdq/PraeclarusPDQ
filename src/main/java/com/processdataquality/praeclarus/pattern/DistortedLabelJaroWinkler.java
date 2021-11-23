@@ -21,7 +21,6 @@ import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Options;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import tech.tablesaw.api.StringColumn;
-import tech.tablesaw.api.Table;
 
 /**
  * @author Michael Adams
@@ -60,32 +59,4 @@ public class DistortedLabelJaroWinkler extends AbstractDistortedLabel {
         return options;
     }
 
-    
-    public static void main(String[] args) {
-        Table master = Table.create("Master").addColumns(StringColumn.create("Label1"));
-        master.column(0).appendCell("house");
-        master.column(0).appendCell("hose");
-        master.column(0).appendCell("house");
-        master.column(0).appendCell("house");
-        master.column(0).appendCell("roust");
-        master.column(0).appendCell("rusty");
-        master.column(0).appendCell("nomatch");
-        DistortedLabelJaroWinkler jw = new DistortedLabelJaroWinkler();
-        Options options = jw.getOptions();
-        options.add("Column Name", "Label1");
-        jw.setOptions(options);
-        Table result = jw.detect(master);
-        System.out.println(result.toString());
-
-        Table changes = Table.create("Repair").addColumns(
-                StringColumn.create("Replace"),StringColumn.create("Replacement")
-        );
-        changes.column(0).appendCell("hose");
-        changes.column(1).appendCell("house");
-        changes.column(0).appendCell("roust");
-        changes.column(1).appendCell("house");
-        Table newMaster = jw.repair(master, changes);
-        System.out.println(newMaster.toString());
-
-    }
 }

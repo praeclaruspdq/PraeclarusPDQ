@@ -16,12 +16,9 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.ui.component.PipelinePanel;
+import com.processdataquality.praeclarus.node.*;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
-import com.processdataquality.praeclarus.workspace.NodeRunner;
-import com.processdataquality.praeclarus.workspace.NodeUtil;
-import com.processdataquality.praeclarus.workspace.node.Node;
-import com.processdataquality.praeclarus.workspace.node.NodeRunnerListener;
+import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.vaadin.flow.component.notification.Notification;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -35,15 +32,15 @@ import java.util.Set;
  * @author Michael Adams
  * @date 19/5/21
  */
-public class Workflow implements CanvasEventListener, NodeRunnerListener {
+public class Workflow implements CanvasEventListener, NodeStateListener {
 
     private enum State { VERTEX_DRAG, ARC_DRAW, NONE }
 
-    private final PipelinePanel _parent;
+    private final WorkflowPanel _parent;
     private final Context2D _ctx;
     private final Set<Vertex> _vertices = new HashSet<>();
     private final Set<Connector> _connectors = new HashSet<>();
-    private final Set<VertexSelectionListener> _selectionListeners = new HashSet<>();
+    private final Set<CanvasSelectionListener> _selectionListeners = new HashSet<>();
 
     private ActiveLine activeLine;
     private CanvasPrimitive selected;
@@ -51,7 +48,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
     private boolean _loading = false;
 
 
-    public Workflow(PipelinePanel parent, Context2D context) {
+    public Workflow(WorkflowPanel parent, Context2D context) {
         _parent = parent;
         _ctx = context;
     }
@@ -138,38 +135,32 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
     }
 
 
+
     @Override
-    public void nodeStarted(Node node) {
-        changeStateIndicator(node, VertexStateIndicator.State.RUNNING);
+    public void nodeStateChanged(Node node) {
+        switch (node.getState()) {
+            case UNSTARTED:
+                changeStateIndicator(node, VertexStateIndicator.State.DORMANT);
+                break;
+            case EXECUTING:
+                changeStateIndicator(node, VertexStateIndicator.State.RUNNING);
+                break;
+            case PAUSED:
+                changeStateIndicator(node, VertexStateIndicator.State.PAUSED);
+                break;
+            case COMPLETED:
+                changeStateIndicator(node, VertexStateIndicator.State.COMPLETED);
+                break;
+        }
     }
 
 
-    @Override
-    public void nodeCompleted(Node node) {
-        changeStateIndicator(node, VertexStateIndicator.State.COMPLETED);
-    }
-
-
-    @Override
-    public void nodeRollback(Node node) {
-        changeStateIndicator(node, VertexStateIndicator.State.DORMANT);
-    }
-
-
-    @Override
-    public void nodePaused(Node node) { }
-
-
-    @Override
-    public void stateChanged(NodeRunner.State newState) { }
-
-
-    public void addVertexSelectionListener(VertexSelectionListener listener) {
+    public void addVertexSelectionListener(CanvasSelectionListener listener) {
         _selectionListeners.add(listener);
     }
 
 
-    public boolean removeVertexSelectionListener(VertexSelectionListener listener) {
+    public boolean removeVertexSelectionListener(CanvasSelectionListener listener) {
         return _selectionListeners.remove(listener);
     }
 
@@ -198,6 +189,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
         selected = primitive;
         render();
         announceSelectionChange();
+        _parent.canvasSelectionChanged(selected);
     }
 
     public Node getSelectedNode() {
@@ -237,6 +229,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
     public void addVertex(Vertex vertex) {
         _vertices.add(vertex);
         setSelected(vertex);
+        vertex.getNode().addStateListener(this);
 //        render();
     }
 
@@ -251,6 +244,7 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
         if (vertex != null) {
             _vertices.remove(vertex);
             removeConnectors(vertex);
+            vertex.getNode().removeStateListener(this);
  //           render();
         }
     }
@@ -357,8 +351,8 @@ public class Workflow implements CanvasEventListener, NodeRunnerListener {
 
 
     private void announceSelectionChange() {
-        for (VertexSelectionListener listener : _selectionListeners) {
-            listener.vertexSelectionChanged(getSelectedVertex());
+        for (CanvasSelectionListener listener : _selectionListeners) {
+            listener.canvasSelectionChanged(getSelected());
         }
     }
 

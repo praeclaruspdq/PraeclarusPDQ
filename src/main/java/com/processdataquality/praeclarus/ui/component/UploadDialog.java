@@ -35,33 +35,33 @@ public class UploadDialog extends Dialog {
 
 
     public UploadDialog(UploadDialogListener listener, String[] mimeDescriptors) {
-        MemoryBuffer _buffer = new MemoryBuffer();
-        Upload _upload = new Upload(_buffer);
-        Div _outputMsg = new Div();
-        Button _ok = new Button("OK");
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        Div outputMsg = new Div();
+        Button ok = new Button("OK");
         H4 title = new H4("Select File");
 
         setCloseOnOutsideClick(false);
         setModal(true);
 
-        _upload.setAcceptedFileTypes(mimeDescriptors);
-        _upload.addSucceededListener(event -> _ok.setEnabled(true));
+        upload.setAcceptedFileTypes(mimeDescriptors);
+        upload.addSucceededListener(event -> ok.setEnabled(true));
         
-        _upload.getElement().addEventListener("file-remove",
-                event -> _outputMsg.removeAll());
+        upload.getElement().addEventListener("file-remove",
+                event -> outputMsg.removeAll());
 
-        _upload.addFileRejectedListener(event -> {
-            _outputMsg.removeAll();
+        upload.addFileRejectedListener(event -> {
+            outputMsg.removeAll();
             HtmlComponent p = new HtmlComponent(Tag.P);
             p.getElement().setText(event.getErrorMessage());
-            _outputMsg.add(p);
-            _ok.setEnabled(false);
+            outputMsg.add(p);
+            ok.setEnabled(false);
         });
 
-        _ok.setEnabled(false);
-        _ok.addClickListener(event -> {
+        ok.setEnabled(false);
+        ok.addClickListener(event -> {
             listener.dialogClosed(new UploadDialogCloseEvent(true,
-                    _buffer.getInputStream(), _buffer.getFileName()));
+                    buffer.getInputStream(), buffer.getFileName()));
             close();
         });
 
@@ -70,7 +70,7 @@ public class UploadDialog extends Dialog {
             close();
         });
 
-        add(title, _upload, _outputMsg, new HorizontalLayout(_ok, cancel));
+        add(title, upload, outputMsg, new HorizontalLayout(ok, cancel));
     }
 
 }

@@ -14,13 +14,17 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.canvas;
+package com.processdataquality.praeclarus.node;
 
 /**
+ * Notifies listeners of changes of state during a node's execution
+ *
  * @author Michael Adams
- * @date 9/11/21
+ * @date 9/6/21
  */
-public interface VertexSelectionListener {
+public interface NodeRunnerListener {
 
-    void vertexSelectionChanged(Vertex vertex);
+    void runnerStateChanged(NodeRunner.RunnerState newState);
+
+    void runnerNodePaused(Node node);
 }

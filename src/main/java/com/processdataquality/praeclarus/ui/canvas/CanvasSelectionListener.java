@@ -14,23 +14,13 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.task;
-
-import com.processdataquality.praeclarus.node.Node;
-import com.processdataquality.praeclarus.node.NodeTask;
-import com.vaadin.flow.component.dependency.JsModule;
+package com.processdataquality.praeclarus.ui.canvas;
 
 /**
  * @author Michael Adams
- * @date 15/6/21
+ * @date 9/11/21
  */
-@JsModule("./src/fs.js")
-public class WriterTask implements NodeTask {
+public interface CanvasSelectionListener {
 
-
-    @Override
-    public boolean run(Node node) {
-        return true;
-    }
-
+    void canvasSelectionChanged(CanvasPrimitive selected);
 }

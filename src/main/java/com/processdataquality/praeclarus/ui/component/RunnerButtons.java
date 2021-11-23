@@ -16,11 +16,12 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
 import com.processdataquality.praeclarus.ui.canvas.Vertex;
-import com.processdataquality.praeclarus.ui.canvas.VertexSelectionListener;
+import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
-import com.processdataquality.praeclarus.workspace.NodeRunner;
-import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.node.NodeRunner;
+import com.processdataquality.praeclarus.node.Node;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
@@ -30,11 +31,11 @@ import com.vaadin.flow.component.icon.VaadinIcon;
  * @author Michael Adams
  * @date 14/5/21
  */
-public class RunnerButtons extends Div implements VertexSelectionListener {
+public class RunnerButtons extends Div implements CanvasSelectionListener {
 
     private final NodeRunner _runner;
 
-    private NodeRunner.State _state;
+    private NodeRunner.RunnerState _state;
     private Node _selectedNode;
     
     private Button _runButton;
@@ -46,15 +47,15 @@ public class RunnerButtons extends Div implements VertexSelectionListener {
     public RunnerButtons(NodeRunner runner) {
         _runner = runner;
         addButtons();
-        _state = NodeRunner.State.IDLE;
+        _state = NodeRunner.RunnerState.IDLE;
         UiUtil.removeTopMargin(this);
         enable();
     }
 
 
     @Override
-    public void vertexSelectionChanged(Vertex vertex) {
-        _selectedNode = vertex.getNode();
+    public void canvasSelectionChanged(CanvasPrimitive selected) {
+        _selectedNode = (selected instanceof Vertex) ? ((Vertex) selected).getNode() : null;
         enable();
     }
 
@@ -96,9 +97,11 @@ public class RunnerButtons extends Div implements VertexSelectionListener {
     }
 
 
-    protected void setState(NodeRunner.State state) {
-        _state = state;
-        enable();
+    protected void setState(NodeRunner.RunnerState state) {
+        if (_state != state) {
+            _state = state;
+            enable();
+        }
     }
 
 
@@ -133,8 +136,7 @@ public class RunnerButtons extends Div implements VertexSelectionListener {
 
 
     private boolean canStepBackSelectedNode() {
-        return _selectedNode != null &&
-                (_selectedNode.hasCompleted() || _selectedNode.hasPrevious());
+        return _selectedNode != null && _selectedNode.hasCompleted();
     }
     
 }

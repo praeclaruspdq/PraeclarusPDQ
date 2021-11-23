@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.workspace.node;
+package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
@@ -42,15 +42,17 @@ public abstract class Node {
     private final PDQPlugin _plugin;
     private final Set<Node> _next;      // set of immediate target nodes for this node
     private final Set<Node> _previous;  // set of immediate source nodes for this node
-
     private final String _internalID;   // a unique id for this node
+
+    private final Set<NodeStateListener> _listeners;
+    private NodeState _state;
+
     private Table _output;              // a table with the result of running this plugin
     private String _commitID;           // the commit version of the table in the repo
     private String _tableID;            // the file name of the table in the repo
 
     private NodeTask _preTask;          // optional code to run before plugin is run
     private NodeTask _postTask;         // optional code to run after plugin is run
-    private boolean _completed = false;
 
 
     protected Node(PDQPlugin plugin, String id) {
@@ -58,6 +60,8 @@ public abstract class Node {
         _internalID = id;
         _next = new HashSet<>();
         _previous = new HashSet<>();
+        _listeners = new HashSet<>();
+        _state = NodeState.UNSTARTED;
     }
 
 
@@ -65,6 +69,26 @@ public abstract class Node {
      * Implemented by subclasses to run a plugin's algorithm
      */
     public abstract void run();
+
+
+    public void addStateListener(NodeStateListener listener) { _listeners.add(listener); }
+
+    public boolean removeStateListener(NodeStateListener listener) {
+        return _listeners.remove(listener);
+    }
+
+
+    protected void setState(NodeState state) {
+        if (_state != state) {
+            _state = state;
+            announceStateChange();
+        }
+    }
+
+    /**
+     * @return the current state of this node
+     */
+    public NodeState getState() { return _state; }
 
 
     /**
@@ -169,15 +193,10 @@ public abstract class Node {
      * May be overridden by plugins with multi-part run actions
      * @return true if the current run of this node has completed
      */
-    public boolean hasCompleted() { return _completed; }
+    public boolean hasCompleted() { return _state == NodeState.COMPLETED; }
 
 
-    /**
-     * Sets the run completion status of this node
-     * @param b the completion status
-     */
-    protected void setCompleted(boolean b) { _completed = b; }
-
+    public boolean canStart() { return _state == NodeState.UNSTARTED; }
 
     /**
      * @return the plugin contained within this node
@@ -236,7 +255,7 @@ public abstract class Node {
      */
     public void reset() {
         clearOutput();
-        _completed = false;
+        setState(NodeState.UNSTARTED);
     }
 
 
@@ -266,6 +285,7 @@ public abstract class Node {
         _output = Repo.getTable(_commitID, tableID);
         if (_output != null) {
             _tableID = tableID;
+            _state = NodeState.COMPLETED;
         }
     }
 
@@ -312,6 +332,11 @@ public abstract class Node {
         json.put("plugin", _plugin.getClass().getName());
         json.put("options", _plugin.getOptions().getChangesAsJson());
         return json;
+    }
+
+
+    private void announceStateChange() {
+        _listeners.forEach(l -> l.nodeStateChanged(this));
     }
 
 }

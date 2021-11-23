@@ -16,14 +16,15 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.repo.Differ;
 import com.processdataquality.praeclarus.repo.LogEntry;
 import com.processdataquality.praeclarus.repo.Repo;
 import com.processdataquality.praeclarus.ui.MainView;
+import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
+import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
 import com.processdataquality.praeclarus.ui.canvas.Vertex;
-import com.processdataquality.praeclarus.ui.canvas.VertexSelectionListener;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
-import com.processdataquality.praeclarus.workspace.node.Node;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
@@ -49,7 +50,7 @@ import java.util.List;
  * @date 8/11/21
  */
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
-public class OutputPanel extends VerticalLayout implements VertexSelectionListener {
+public class OutputPanel extends VerticalLayout implements CanvasSelectionListener {
 
     private enum Page { OUTPUT, HISTORY, DIFF, NONE }
     
@@ -62,7 +63,7 @@ public class OutputPanel extends VerticalLayout implements VertexSelectionListen
 
     
     public OutputPanel(MainView parent) {
-        parent.getPipelinePanel().addVertexSelectionListener(this);
+        parent.getWorkflowPanel().addVertexSelectionListener(this);
         setId("OutputPanel");
         add(title, page, buttonsPanel());
         page.setSizeFull();
@@ -72,11 +73,12 @@ public class OutputPanel extends VerticalLayout implements VertexSelectionListen
 
 
     @Override
-    public void vertexSelectionChanged(Vertex vertex) {
-        selectedVertex = vertex;
+    public void canvasSelectionChanged(CanvasPrimitive selected) {
+        selectedVertex = (selected instanceof Vertex) ? (Vertex) selected : null;
         show();
     }
 
+    
     private HorizontalLayout buttonsPanel() {
         buttonBar.add(createButton(
                 "Output", new Icon(VaadinIcon.DATABASE), Page.OUTPUT));

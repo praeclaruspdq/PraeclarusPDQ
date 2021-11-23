@@ -14,25 +14,13 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.workspace.node;
-
-import com.processdataquality.praeclarus.workspace.NodeRunner;
+package com.processdataquality.praeclarus.node;
 
 /**
- * Notifies listeners of changes of state during a node's execution
- *
  * @author Michael Adams
- * @date 9/6/21
+ * @date 22/11/21
  */
-public interface NodeRunnerListener {
+public interface NodeStateListener {
 
-    void nodeStarted(Node node);
-
-    void nodePaused(Node node);
-
-    void nodeCompleted(Node node);
-
-    void nodeRollback(Node node);
-
-    void stateChanged(NodeRunner.State newState);
+    void nodeStateChanged(Node node);
 }

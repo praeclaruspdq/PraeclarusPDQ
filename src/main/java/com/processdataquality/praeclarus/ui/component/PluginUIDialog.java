@@ -20,7 +20,7 @@ package com.processdataquality.praeclarus.ui.component;
 import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
 import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import com.processdataquality.praeclarus.ui.builder.PluginUIBuilder;
-import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.node.Node;
 import com.vaadin.flow.component.dialog.Dialog;
 
 import java.util.HashSet;

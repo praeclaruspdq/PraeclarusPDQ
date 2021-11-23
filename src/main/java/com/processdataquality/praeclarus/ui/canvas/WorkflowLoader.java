@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.workspace.NodeUtil;
-import com.processdataquality.praeclarus.workspace.node.Node;
+import com.processdataquality.praeclarus.node.NodeUtil;
+import com.processdataquality.praeclarus.node.Node;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -66,7 +66,7 @@ public class WorkflowLoader {
                 Vertex vertex = new Vertex(x, y, node, id);
                 vertex.setLabel(label);
                 _workflow.addVertex(vertex);
-                if (node.hasOutput()) {
+                if (node.hasCompleted()) {
                     vertex.setRunState(VertexStateIndicator.State.COMPLETED);
                 }
                 vertexMap.put(id, vertex);

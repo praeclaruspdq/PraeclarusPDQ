@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.workspace.node;
+package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.action.Action;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
@@ -38,7 +38,8 @@ public class ActionNode extends Node {
      */
     @Override
     public void run() {
+        setState(NodeState.EXECUTING);
         setOutput(((Action) getPlugin()).run(getInputs()));
-        setCompleted(true);
+        setState(NodeState.COMPLETED);
     }
 }

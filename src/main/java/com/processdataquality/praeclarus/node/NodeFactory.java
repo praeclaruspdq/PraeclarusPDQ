@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.workspace.node;
+package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.action.Action;
 import com.processdataquality.praeclarus.pattern.ImperfectionPattern;

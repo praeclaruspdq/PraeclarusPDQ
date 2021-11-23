@@ -25,9 +25,9 @@ import tech.tablesaw.api.Table;
 public class UITable implements UIComponent {
 
     private final Table _originalTable;
-    private Table _updatedTable;
-    private Table _selectedRows;
-    private boolean _multiSelect;
+    private Table _updatedTable = null;
+    private Table _selectedRows = null;
+    private boolean _multiSelect = false;
 
     public UITable(Table table) {
         _originalTable = table;
@@ -38,12 +38,16 @@ public class UITable implements UIComponent {
 
     public void setUpdatedTable(Table table) { _updatedTable = table; }
 
-    public Table getUpdatedTable() { return _updatedTable; }
+    public Table getUpdatedTable() {
+        return _updatedTable != null ? _updatedTable : Table.create();
+    }
 
 
     public void setSelectedRows(Table table) { _selectedRows = table; }
 
-    public Table getSelectedRows() { return _selectedRows; }
+    public Table getSelectedRows() {
+        return _selectedRows != null ? _selectedRows : Table.create();
+    }
 
 
     public boolean isMultiSelect() { return _multiSelect; }

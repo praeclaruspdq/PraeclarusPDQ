@@ -14,41 +14,44 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.workspace.node;
+package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.writer.DataWriter;
+import com.processdataquality.praeclarus.reader.DataReader;
 import tech.tablesaw.api.Table;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
- * A container node for a log data writer
+ * A container node for a log data reader
  *
  * @author Michael Adams
  * @date 12/5/21
  */
-public class WriterNode extends Node {
+public class ReaderNode extends Node {
 
-    public WriterNode(PDQPlugin plugin, String id) {
+    public ReaderNode(PDQPlugin plugin, String id) {
         super(plugin, id);
     }
 
 
     /**
-     * Gets incoming data from a predecessor node and writes it to a data 'sink' as
-     * defined in this node's plugin
+     * Reads log data from the plugin contained by this node and sets the data as the
+     * node's output 
      */
     @Override
     public void run() {
+        setState(NodeState.EXECUTING);
         try {
-            Table input = getInputs().get(0);     // a writer node has only one input
-            ((DataWriter) getPlugin()).write(input);
+            Table table = ((DataReader) getPlugin()).read();
+            table.setName(UUID.randomUUID().toString());
+            setOutput(table);
         }
         catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        setCompleted(true);
+        setState(NodeState.COMPLETED);
     }
-    
+
 }

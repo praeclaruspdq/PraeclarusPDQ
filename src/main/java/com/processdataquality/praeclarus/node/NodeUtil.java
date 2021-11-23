@@ -14,11 +14,9 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.workspace;
+package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.workspace.node.Node;
-import com.processdataquality.praeclarus.workspace.node.NodeFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
