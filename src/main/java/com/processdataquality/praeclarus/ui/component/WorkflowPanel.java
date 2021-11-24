@@ -103,7 +103,7 @@ public class WorkflowPanel extends VerticalLayout
     @Override
     public void saveExistingDialogEvent(SaveExistingDialog.CLICKED clicked) {
         switch (clicked) {
-            case SAVE: if (saveWorkflow()) _canvas.loadFromFile(); break;
+            case SAVE: saveThenLoadNewWorkflow(); break;
             case DISCARD: _canvas.loadFromFile(); break;
         }
     }
@@ -212,7 +212,7 @@ public class WorkflowPanel extends VerticalLayout
         Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
         icon.setSize("24px");
         return new Button(icon, e -> {
-            if (_workflow.hasContent()) {
+            if (_workflow.hasChanges()) {
                 new SaveExistingDialog(this).open();
             }
             else {
@@ -239,6 +239,17 @@ public class WorkflowPanel extends VerticalLayout
             Notification.show("Failed to save file: " + je.getMessage());
         }
         return false;
+    }
+
+
+    private void saveThenLoadNewWorkflow() {
+        try {
+            String jsonStr = _workflow.asJson().toString(3);
+            _canvas.saveThenLoadFile(jsonStr);
+        }
+        catch (JSONException je) {
+            Notification.show("Failed to save file: " + je.getMessage());
+        }
     }
 
 

@@ -46,6 +46,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     private CanvasPrimitive selected;
     private State state = State.NONE;
     private boolean _loading = false;
+    private boolean _changed = false;
 
 
     public Workflow(WorkflowPanel parent, Context2D context) {
@@ -80,6 +81,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         }
         else if (state == State.VERTEX_DRAG) {
             ((Vertex) selected).moveTo(x, y);
+            setChanged(true);
             render();
         }
     }
@@ -164,10 +166,16 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         return _selectionListeners.remove(listener);
     }
 
-    
+
+    public void setChanged(boolean b) { _changed = b; }
+
+    public boolean hasChanges() { return _changed; }
+
+
     public void clear() {
         _vertices.clear();
         _connectors.clear();
+        setChanged(false);
         render();
     }
 
@@ -230,7 +238,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         _vertices.add(vertex);
         setSelected(vertex);
         vertex.getNode().addStateListener(this);
-//        render();
+        setChanged(true);
     }
 
 
@@ -245,7 +253,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
             _vertices.remove(vertex);
             removeConnectors(vertex);
             vertex.getNode().removeStateListener(this);
- //           render();
+            setChanged(true);
         }
     }
 
@@ -255,6 +263,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         Node source = c.getSource().getNode();
         Node target = c.getTarget().getNode();
         new NodeUtil().connect(source, target);
+        setChanged(true);
         render();
     }
 
@@ -265,6 +274,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
             Node previous = c.getSource().getNode();
             Node next = c.getTarget().getNode();
             new NodeUtil().disconnect(previous, next);
+            setChanged(true);
             render();
         }
         return success;

@@ -42,6 +42,7 @@ public class Vertex implements CanvasPrimitive {
     private double _x;
     private double _y;
     private String _label;
+    private String _infoText;
     private Port _inPort;
     private Port _outPort;
     private Point _dragOffset;
@@ -105,6 +106,9 @@ public class Vertex implements CanvasPrimitive {
 
     public void setRunState(VertexStateIndicator.State state) {
         _indicator.setState(state);
+        if (state == VertexStateIndicator.State.COMPLETED) {
+            _infoText = getNode().getOutput().rowCount() + " rows";
+        }
     }
 
 
@@ -146,6 +150,7 @@ public class Vertex implements CanvasPrimitive {
 
         renderPorts(ctx, selected);
         renderLabel(ctx, colour);
+        renderInfoBar(ctx);
     }
 
 
@@ -201,6 +206,20 @@ public class Vertex implements CanvasPrimitive {
             ctx.fillText(word, innerX, innerY, WIDTH - 20);
             innerY+=lineHeight;
         }
+        ctx.stroke();
+    }
+
+
+    private void renderInfoBar(Context2D ctx) {
+        if (_infoText == null) return;
+
+        double x = _x + 12;
+        double y = _y + HEIGHT - 18;
+        ctx.textBaseline("top");
+        ctx.font("10px Arial");
+        ctx.beginPath();
+        ctx.fillStyle("gray");
+        ctx.fillText(_infoText, x, y, WIDTH - 30);
         ctx.stroke();
     }
 

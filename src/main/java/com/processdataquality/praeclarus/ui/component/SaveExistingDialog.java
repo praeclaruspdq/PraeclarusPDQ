@@ -34,7 +34,6 @@ public class SaveExistingDialog extends Dialog {
 
 
     public SaveExistingDialog(SaveExistingListener listener) {
-
         H4 title = new H4("Save changes to existing workflow?");
         HtmlComponent p = new HtmlComponent(Tag.P);
         p.getElement().setText("Click 'Save' to save changes, " +

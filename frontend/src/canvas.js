@@ -68,6 +68,12 @@ window.saveFile = async function(contents) {
 }
 
 
+window.saveThenLoadFile = async function(contents) {
+    await window.saveFile(contents);
+    await window.loadFile();
+}
+
+
 window.init = function() {
     canvas = document.getElementById("workflowCanvas");
     canvas.addEventListener("mousedown", fireMouseDown, false);

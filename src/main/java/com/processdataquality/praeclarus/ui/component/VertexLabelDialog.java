@@ -40,6 +40,7 @@ public class VertexLabelDialog extends Dialog {
 
         Button ok = new Button("OK", event -> {
             vertex.setLabel(field.getValue());
+            parent.setChanged(true);
             parent.render();
             close();
         });

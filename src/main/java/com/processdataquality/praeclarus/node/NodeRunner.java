@@ -75,6 +75,7 @@ public class NodeRunner implements NodeStateListener {
 
     public void reset() {
         setState(RunnerState.IDLE);
+        _stepToNode = null;
     }
 
 
@@ -90,7 +91,10 @@ public class NodeRunner implements NodeStateListener {
         // else error already in stepping/running
 
         // check all previous have completed
-        if (completeAllPrevious(node)) {
+        if (node.hasCompleted()) {
+            runNext(node);
+        }
+        else if (completeAllPrevious(node)) {
             start(node);
         }
     }
@@ -130,12 +134,10 @@ public class NodeRunner implements NodeStateListener {
 
     private void complete(Node node) {
         node.runPostTask();
-        node.removeStateListener(this);
         
         switch (_runnerState) {
             case STEPPING: if (node == _stepToNode) {
-                _stepToNode = null;
-                setState(RunnerState.IDLE);
+                reset();
                 break;
             } 
             case RUNNING: runNext(node); break;
@@ -147,13 +149,13 @@ public class NodeRunner implements NodeStateListener {
     private void runNext(Node node) {
         if (node.hasNext()) {
             for (Node next : node.next()) {
-                if (completeAllPrevious(next)) {
+                if (next.canStart() && completeAllPrevious(next)) {
                     start(next);
                 }
             }
         }
         else {
-            setState(RunnerState.IDLE);
+            reset();
         }
     }
 

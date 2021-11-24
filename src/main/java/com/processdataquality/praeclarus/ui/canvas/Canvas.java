@@ -116,6 +116,12 @@ public class Canvas extends Component implements HasStyle, HasSize {
     }
 
 
+    // saves the current canvas content to file, then loads new content from another file
+    public void saveThenLoadFile(String jsonStr) {
+        UI.getCurrent().getPage().executeJs("saveThenLoadFile($0)", jsonStr);
+    }
+
+
     private void setCoOrdSpace(String width, String height) {
         getElement().setAttribute("width", width);
         getElement().setAttribute("height", height);

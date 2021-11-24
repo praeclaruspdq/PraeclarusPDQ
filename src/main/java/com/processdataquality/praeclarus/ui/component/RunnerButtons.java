@@ -71,7 +71,7 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
                 break;
             }
             case IDLE: {
-                _runButton.setEnabled(canRunSelectedNode());
+                _runButton.setEnabled(_selectedNode != null);
                 _stepButton.setEnabled(canRunSelectedNode());
                 _backButton.setEnabled(canStepBackSelectedNode());
                 _stopButton.setEnabled(false);
