@@ -46,7 +46,7 @@ import java.util.List;
 @CssImport("./styles/pdq-styles.css")
 @JsModule("./src/fs.js")
 public class WorkflowPanel extends VerticalLayout
-        implements NodeRunnerListener, PluginUIListener, SaveExistingListener {
+        implements NodeRunnerListener, PluginUIListener {
 
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
@@ -100,12 +100,11 @@ public class WorkflowPanel extends VerticalLayout
     }
 
 
-    @Override
-    public void saveExistingDialogEvent(SaveExistingDialog.CLICKED clicked) {
-        switch (clicked) {
-            case SAVE: saveThenLoadNewWorkflow(); break;
-            case DISCARD: _canvas.loadFromFile(); break;
-        }
+    public boolean hasChanges() { return _workflow.hasChanges(); }
+
+
+    public void setWorkflowChanged(boolean changed) {
+        _parent.setUnsavedChanges(changed);
     }
 
 
@@ -213,7 +212,14 @@ public class WorkflowPanel extends VerticalLayout
         icon.setSize("24px");
         return new Button(icon, e -> {
             if (_workflow.hasChanges()) {
-                new SaveExistingDialog(this).open();
+                MessageDialog dialog = new MessageDialog(
+                        "Save changes to existing workflow?");
+                dialog.setText("Click 'Save' to save changes, " +
+                        "'Discard' to discard changes, 'Cancel' to keep working.");
+                dialog.addButton(new Button("Save", s -> saveThenLoadNewWorkflow()));
+                dialog.addButton(new Button("Discard", d -> _canvas.loadFromFile()));
+                dialog.addButton(new Button("Cancel"));
+                dialog.open();
             }
             else {
                 _canvas.loadFromFile();
@@ -233,6 +239,7 @@ public class WorkflowPanel extends VerticalLayout
         try {
             String jsonStr = _workflow.asJson().toString(3);
             _canvas.saveToFile(jsonStr);
+            _workflow.setChanged(false);
             return true;
         }
         catch (JSONException je) {

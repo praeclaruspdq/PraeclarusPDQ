@@ -14,13 +14,20 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component;
+var hasChanges = false;
 
-/**
- * @author Michael Adams
- * @date 23/11/21
- */
-public interface SaveExistingListener {
+window.setChanged = function() { hasChanges = true; }
+window.resetChanged = function() { hasChanges = false; }
 
-    void saveExistingDialogEvent(SaveExistingDialog.CLICKED clicked);
-}
+window.addEventListener('beforeunload', function (e) {
+    if (hasChanges) {
+        e.preventDefault();   // Cancel the event
+        e.returnValue = 'Unsaved Changes';
+    }
+});
+
+
+// window.exitAll = function() {
+//     setCanClose();
+//     window.close();
+// }

@@ -17,9 +17,10 @@
 package com.processdataquality.praeclarus.ui;
 
 import com.processdataquality.praeclarus.ui.component.OutputPanel;
-import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.processdataquality.praeclarus.ui.component.PluginsPanel;
 import com.processdataquality.praeclarus.ui.component.PropertiesPanel;
+import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -33,6 +34,7 @@ import com.vaadin.flow.router.Route;
  * @date 14/4/21
  */
 @Route
+@JsModule("./src/unload.js")
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public class MainView extends VerticalLayout {
 
@@ -41,6 +43,7 @@ public class MainView extends VerticalLayout {
 
 
     public MainView() {
+        setId("mainview");
         _propsPanel = new PropertiesPanel();
         _workflowPanel = new WorkflowPanel(this);
         add(getTitleImage());
@@ -57,6 +60,12 @@ public class MainView extends VerticalLayout {
 
     public WorkflowPanel getWorkflowPanel() { return _workflowPanel; }
 
+
+    public void setUnsavedChanges(boolean changed) {
+        String js = "window." + (changed ? "set" : "reset") + "Changed()";
+        UI.getCurrent().getPage().executeJs(js);
+    }
+    
 
     private SplitLayout leftPanel() {
         SplitLayout leftLayout = new SplitLayout();

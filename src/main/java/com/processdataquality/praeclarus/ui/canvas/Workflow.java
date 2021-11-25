@@ -167,7 +167,12 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     }
 
 
-    public void setChanged(boolean b) { _changed = b; }
+    public void setChanged(boolean b) {
+        if (_changed != b) {
+            _changed = b;
+            _parent.setWorkflowChanged(b);
+        }
+    }
 
     public boolean hasChanges() { return _changed; }
 
