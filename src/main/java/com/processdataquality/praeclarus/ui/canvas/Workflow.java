@@ -16,7 +16,11 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.node.*;
+import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.NodeStateListener;
+import com.processdataquality.praeclarus.node.NodeUtil;
+import com.processdataquality.praeclarus.plugin.Option;
+import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
 import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.vaadin.flow.component.notification.Notification;
@@ -27,6 +31,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author Michael Adams
@@ -36,12 +41,14 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
 
     private enum State { VERTEX_DRAG, ARC_DRAW, NONE }
 
-    private final WorkflowPanel _parent;
+    private final WorkflowPanel _container;
     private final Context2D _ctx;
     private final Set<Vertex> _vertices = new HashSet<>();
     private final Set<Connector> _connectors = new HashSet<>();
     private final Set<CanvasSelectionListener> _selectionListeners = new HashSet<>();
 
+    private String _name;
+    private String _id;
     private ActiveLine activeLine;
     private CanvasPrimitive selected;
     private State state = State.NONE;
@@ -49,9 +56,10 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     private boolean _changed = false;
 
 
-    public Workflow(WorkflowPanel parent, Context2D context) {
-        _parent = parent;
+    public Workflow(WorkflowPanel container, Context2D context) {
+        _container = container;
         _ctx = context;
+        clear();
     }
 
     @Override
@@ -111,7 +119,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     @Override
     public void mouseClick(double x, double y) {
         setSelected(x, y);
-        _parent.changedSelected(getSelectedNode());
+        _container.changedSelected(getSelectedNode());
         render();
     }
 
@@ -129,13 +137,14 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         WorkflowLoader loader = new WorkflowLoader(this);
         try {
             loader.load(jsonStr);
-            _parent.getRunner().reset();
+            _container.getRunner().reset();
+  //          new Logger().workflowLoadEvent("user", "dummy");
         }
         catch (JSONException | IOException je) {
             Notification.show("Failed to load file: " + je.getMessage());
+            clear();
         }
     }
-
 
 
     @Override
@@ -170,7 +179,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     public void setChanged(boolean b) {
         if (_changed != b) {
             _changed = b;
-            _parent.setWorkflowChanged(b);
+            _container.setWorkflowChanged(b);
         }
     }
 
@@ -180,6 +189,8 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     public void clear() {
         _vertices.clear();
         _connectors.clear();
+        _name = "New Workflow";
+        _id = UUID.randomUUID().toString();
         setChanged(false);
         render();
     }
@@ -202,7 +213,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         selected = primitive;
         render();
         announceSelectionChange();
-        _parent.canvasSelectionChanged(selected);
+        _container.canvasSelectionChanged(selected);
     }
 
     public Node getSelectedNode() {
@@ -220,7 +231,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         for (Vertex vertex : _vertices) {
             if (vertex.getNode().equals(node)) {
                 setSelected(vertex);
-                _parent.changedSelected(node);
+                _container.changedSelected(node);
                 break;
             }
         }
@@ -286,6 +297,11 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     }
 
 
+    protected void setName(String name) { _name = name; }
+
+    protected void setId(String id) { _id = id; }
+
+
     public JSONObject asJson() throws JSONException {
         JSONArray vertexArray = new JSONArray();
         for (Vertex vertex : _vertices) {
@@ -296,9 +312,28 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
             connectorArray.put(connector.asJson());
         }
         JSONObject json = new JSONObject();
+        json.put("name", _name);
+        json.put("id", _id);
         json.put("vertices", vertexArray);
         json.put("connectors", connectorArray);
         return json;
+    }
+
+
+    public Options getUserOptions() {
+        Options options = new Options();
+        options.addDefault("Workflow Name", _name);
+        return options;
+    }
+
+
+    public void setUserOption(Option option) {
+        if (option.key().equals("Workflow Name")) {
+            String newName = option.asString();
+            if (! newName.isEmpty()) {
+                setName(option.asString());
+            }
+        }
     }
     
 

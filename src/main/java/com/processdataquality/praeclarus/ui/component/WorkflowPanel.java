@@ -160,7 +160,12 @@ public class WorkflowPanel extends VerticalLayout
 
     public void showPluginProperties(Node selected) {
         PDQPlugin plugin = selected != null ? selected.getPlugin() : null;
-        _parent.getPropertiesPanel().setPlugin(plugin);
+        if (plugin != null) {
+            _parent.getPropertiesPanel().set(plugin);
+        }
+        else {
+            _parent.getPropertiesPanel().set(_workflow);
+        }
     }
 
 

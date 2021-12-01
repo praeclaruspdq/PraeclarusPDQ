@@ -58,7 +58,7 @@ public class Options extends HashMap<String, Option> {         // key is Option'
 
 
     public Option addDefault(String key, Object o) {
-        return add(new Option(key, o));
+        return addDefault(new Option(key, o));
     }
 
 

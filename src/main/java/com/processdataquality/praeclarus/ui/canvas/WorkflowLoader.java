@@ -45,10 +45,17 @@ public class WorkflowLoader {
        _workflow.setLoading(true);
         NodeUtil nodeUtil = new NodeUtil();
         JSONObject json = new JSONObject(jsonStr);
+        loadOptions(json);
         Map<Integer, Vertex> vertices = loadVertices(json.getJSONArray("vertices"), nodeUtil);
         loadConnectors(json.getJSONArray("connectors"), vertices);
         _workflow.setLoading(false);
         selectHeadVertex(vertices, nodeUtil);
+    }
+
+
+    private void loadOptions(JSONObject json) throws JSONException {
+        _workflow.setName(json.getString("name"));
+        _workflow.setId(json.getString("id"));
     }
 
 

@@ -36,6 +36,7 @@ public class MessageDialog extends Dialog {
     public MessageDialog(String title) {
         setWidth("300px");
         setModal(true);
+        setCloseOnOutsideClick(false);
         add(new Div(new H3(title)));
 //        _buttonBar.getStyle().set("background-color", "#F4F5F7");
         add(_text, _buttonBar);

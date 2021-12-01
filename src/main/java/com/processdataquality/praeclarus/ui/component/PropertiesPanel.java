@@ -19,6 +19,7 @@ package com.processdataquality.praeclarus.ui.component;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -28,8 +29,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  * @date 16/4/21
  */
 public class PropertiesPanel extends VerticalLayout {
-
-    private PDQPlugin _plugin;
+    
     private VerticalScrollLayout _form = null;
 
     public PropertiesPanel() {
@@ -38,33 +38,53 @@ public class PropertiesPanel extends VerticalLayout {
     }
 
 
-    public void setPlugin(PDQPlugin plugin) {
+    public void set(PDQPlugin plugin) {
         removeProperties();
-        _plugin = plugin;
         if (plugin != null) {
-            _form = createForm();
-            add(_form);
-            _form.setSpacing(false);
-            _form.setSizeFull();
+           setForm(createForm(plugin));
         }
     }
 
 
-    public void removeProperties() {
+    public void set(Workflow workflow) {
+        removeProperties();
+        setForm(createForm(workflow));
+    }
+
+
+    private void removeProperties() {
         if (_form != null) {
             remove(_form);
         }
     }
 
 
-    private VerticalScrollLayout createForm() {
+    private VerticalScrollLayout createForm(PDQPlugin plugin) {
         VerticalScrollLayout form = new VerticalScrollLayout();
-        Options options = _plugin.getOptions();
+        Options options = plugin.getOptions();
         for (Option option : options.values()) {
             PluginParameter param = new PluginParameter(option);
-            form.add(param.editor(_plugin));
+            form.add(param.editor(plugin));
         }
         return form;
+    }
+
+
+    private VerticalScrollLayout createForm(Workflow workflow) {
+        VerticalScrollLayout form = new VerticalScrollLayout();
+        Options options = workflow.getUserOptions();
+        for (Option option : options.values()) {
+            form.add(new WorkflowOptionEditor(workflow, option)) ;
+        }
+        return form;
+    }
+
+    
+    private void setForm(VerticalScrollLayout form) {
+        _form = form;
+        add(_form);
+        _form.setSpacing(false);
+        _form.setSizeFull();
     }
     
 }
