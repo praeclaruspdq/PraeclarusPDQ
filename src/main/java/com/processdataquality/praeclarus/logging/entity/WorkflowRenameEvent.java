@@ -14,7 +14,9 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.entity;
+
+import com.processdataquality.praeclarus.logging.LogConstant;
 
 import javax.persistence.Entity;
 

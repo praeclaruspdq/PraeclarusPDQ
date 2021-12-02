@@ -14,36 +14,19 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.repository;
 
-import javax.persistence.Entity;
+import com.processdataquality.praeclarus.logging.entity.WorkflowCreationEvent;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author Michael Adams
- * @date 30/11/21
+ * @date 1/12/21
  */
-@Entity
-public class WorkflowIOEvent extends AbstractLogEvent {
-
-
-    private String fileName;
-
-    protected WorkflowIOEvent() { }
-    
-    public WorkflowIOEvent(String user, LogConstant label, String fileName) {
-        super(user, label);
-        setFileName(fileName);
-    }
-
-
-    public String getFileName() { return fileName; }
-
-    public void setFileName(String reason) { this.fileName = reason; }
-
-
-    @Override
-    public String toString() {
-        return super.toString() + "; Source: " + fileName;
-    }
+@Repository
+public interface WorkflowCreationEventRepository
+        extends CrudRepository<WorkflowCreationEvent, Long> {
 
 }
+

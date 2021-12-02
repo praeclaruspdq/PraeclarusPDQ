@@ -14,21 +14,19 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.repository;
 
-import javax.persistence.Entity;
+import com.processdataquality.praeclarus.logging.entity.WorkflowIOEvent;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author Michael Adams
- * @date 30/11/21
+ * @date 1/12/21
  */
-@Entity
-public class NodeEvent extends AbstractLogEvent {
-    
-    protected NodeEvent() { }
-
-    public NodeEvent(String user, LogConstant label) {
-        super(user, label);
-    }
+@Repository
+public interface WorkflowIOEventRepository
+        extends CrudRepository<WorkflowIOEvent, Long> {
 
 }
+

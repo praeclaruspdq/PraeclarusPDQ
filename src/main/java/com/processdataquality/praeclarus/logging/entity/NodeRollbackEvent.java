@@ -14,8 +14,9 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.entity;
 
+import com.processdataquality.praeclarus.logging.LogConstant;
 import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
@@ -25,23 +26,17 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class NodeRunEvent extends AbstractLogEvent {
+public class NodeRollbackEvent extends AbstractLogEvent {
 
     private String nodeId;
     private String nodeName;
-    private String tableId;
-    private String commitId;
-    private String outcome;
 
-    protected NodeRunEvent() { }
+    protected NodeRollbackEvent() { }
 
-    public NodeRunEvent(String user, Node node, String outcome) {
-        super(user, LogConstant.NODE_RUN);
+    public NodeRollbackEvent(String user, Node node) {
+        super(user, LogConstant.NODE_ROLLBACK);
         setNodeId(node.getInternalID());
         setNodeName(node.getName());
-        setTableId(node.getTableID());
-        setCommitId(node.getCommitID());
-        setOutcome(outcome);
     }
 
 
@@ -55,24 +50,9 @@ public class NodeRunEvent extends AbstractLogEvent {
     public void setNodeName(String nodeName) { this.nodeName = nodeName; }
 
 
-    public String getTableId() { return tableId; }
-
-    public void setTableId(String tableId) { this.tableId = tableId; }
-
-
-    public String getCommitId() { return commitId; }
-
-    public void setCommitId(String commitId) { this.commitId = commitId; }
-
-
-    public String getOutcome() { return outcome; }
-
-    public void setOutcome(String outcome) { this.outcome = outcome; }
-
-
     @Override
     public String toString() {
-        return super.toString() + "; Node: " + nodeName + "; Result: " + outcome;
+        return super.toString() + "; Node: " + nodeName;
     }
     
 }

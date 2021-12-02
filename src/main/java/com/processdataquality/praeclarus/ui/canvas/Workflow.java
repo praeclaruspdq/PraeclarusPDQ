@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
+import com.processdataquality.praeclarus.logging.Logger;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeStateListener;
 import com.processdataquality.praeclarus.node.NodeUtil;
@@ -138,7 +139,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         try {
             loader.load(jsonStr);
             _container.getRunner().reset();
-  //          new Logger().workflowLoadEvent("user", "dummy");
+            Logger.workflowLoadEvent("user", "dummy");
         }
         catch (JSONException | IOException je) {
             Notification.show("Failed to load file: " + je.getMessage());

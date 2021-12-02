@@ -14,16 +14,23 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.entity;
 
-import org.springframework.data.repository.CrudRepository;
+import com.processdataquality.praeclarus.logging.LogConstant;
+
+import javax.persistence.Entity;
 
 /**
  * @author Michael Adams
- * @date 1/12/21
+ * @date 30/11/21
  */
-public interface WorklfowRenameEventRepository
-        extends CrudRepository<WorkflowRenameEvent, Long> {
+@Entity
+public class WorkflowCreationEvent extends AbstractLogEvent {
+
+    protected WorkflowCreationEvent() { }
+
+    public WorkflowCreationEvent(String user) {
+        super(user, LogConstant.WORKFLOW_CREATED);
+    }
 
 }
-

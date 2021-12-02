@@ -14,12 +14,11 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.processdataquality.praeclarus.logging.LogConstant;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -28,7 +27,8 @@ import java.time.format.DateTimeFormatter;
  * @date 30/11/21
  */
 @Entity
-abstract class AbstractLogEvent {
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
+public abstract class AbstractLogEvent {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)

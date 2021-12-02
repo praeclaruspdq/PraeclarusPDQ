@@ -14,16 +14,19 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.repository;
 
+import com.processdataquality.praeclarus.logging.entity.NodeEvent;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author Michael Adams
  * @date 1/12/21
  */
-public interface NodeChangeEventRepository
-        extends CrudRepository<NodeChangeEvent, Long> {
+@Repository
+public interface NodeEventRepository
+        extends CrudRepository<NodeEvent, Long> {
 
 }
 

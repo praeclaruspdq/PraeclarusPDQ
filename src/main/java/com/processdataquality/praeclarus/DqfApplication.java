@@ -19,8 +19,10 @@ package com.processdataquality.praeclarus;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
+@EnableJpaRepositories("com.processdataquality.praeclarus.logging.repository")
 //@ConfigurationPropertiesScan("com.processdataquality.praeclarus.config")
 public class DqfApplication extends SpringBootServletInitializer {
 

@@ -14,7 +14,9 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.entity;
+
+import com.processdataquality.praeclarus.logging.LogConstant;
 
 import javax.persistence.Entity;
 
@@ -23,34 +25,31 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class ConnectorEvent extends AbstractLogEvent {
+public class AuthenticationEvent extends AbstractLogEvent {
 
-    private String source;
-    private String target;
 
-    protected ConnectorEvent() { }
+    private String reason;
 
-    public ConnectorEvent(String user, LogConstant label, String source, String target) {
+    protected AuthenticationEvent() { }
+
+    public AuthenticationEvent(String user, LogConstant label) {
+        this(user, label, null);
+    }
+
+    public AuthenticationEvent(String user, LogConstant label, String reason) {
         super(user, label);
-        setSource(source);
-        setTarget(target);
+        setReason(reason);
     }
 
 
-    public String getSource() {return source; }
+    public String getReason() { return reason; }
 
-    public void setSource(String source) { this.source = source; }
-
-
-    public String getTarget() { return target; }
-
-    public void setTarget(String target) { this.target = target; }
+    public void setReason(String reason) { this.reason = reason; }
 
 
     @Override
     public String toString() {
-        return super.toString() + "; Source: " + source + ", Target: " + target;
+        return super.toString() + (reason != null ? "; Reason: " + reason : "");
     }
+
 }
-
-

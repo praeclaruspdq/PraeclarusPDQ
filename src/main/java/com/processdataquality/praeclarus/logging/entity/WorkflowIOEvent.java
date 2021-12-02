@@ -14,7 +14,9 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging;
+package com.processdataquality.praeclarus.logging.entity;
+
+import com.processdataquality.praeclarus.logging.LogConstant;
 
 import javax.persistence.Entity;
 
@@ -23,12 +25,27 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class WorkflowCreationEvent extends AbstractLogEvent {
+public class WorkflowIOEvent extends AbstractLogEvent {
 
-    protected WorkflowCreationEvent() { }
 
-    public WorkflowCreationEvent(String user) {
-        super(user, LogConstant.WORKFLOW_CREATED);
+    private String fileName;
+
+    protected WorkflowIOEvent() { }
+    
+    public WorkflowIOEvent(String user, LogConstant label, String fileName) {
+        super(user, label);
+        setFileName(fileName);
+    }
+
+
+    public String getFileName() { return fileName; }
+
+    public void setFileName(String reason) { this.fileName = reason; }
+
+
+    @Override
+    public String toString() {
+        return super.toString() + "; Source: " + fileName;
     }
 
 }
