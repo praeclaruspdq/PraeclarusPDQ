@@ -45,6 +45,7 @@ public class WriterNode extends Node {
         try {
             Table input = getInputs().get(0);     // a writer node has only one input
             ((DataWriter) getPlugin()).write(input);
+            setOutput(input);
         }
         catch (IOException ioException) {
             ioException.printStackTrace();

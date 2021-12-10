@@ -141,7 +141,7 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
             Table output = node.getOutput();
             if (output != null) {
                 Grid<Row> grid = tableToGrid(output);
-                setTitle(selectedVertex.getLabel());
+                setTitle(node.getLabel());
                 page.add(grid);
             }
             else {
@@ -193,8 +193,8 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
                         String prevDataset = getDatasetFromRepo(prevNode);
                         List<Table> diffList = new Differ().diff(dataset, prevDataset);
                         VerticalLayout outerLayout = new VerticalLayout();
-                        VerticalLayout prevLayout = createDiffTableLayout(diffList.get(0), prevNode.getName());
-                        VerticalLayout currLayout = createDiffTableLayout(diffList.get(1), node.getName());
+                        VerticalLayout prevLayout = createDiffTableLayout(diffList.get(0), prevNode.getLabel());
+                        VerticalLayout currLayout = createDiffTableLayout(diffList.get(1), node.getLabel());
                         outerLayout.add(prevLayout, currLayout);
                         outerLayout.setFlexGrow(1, prevLayout, currLayout);
                         page.add(outerLayout);

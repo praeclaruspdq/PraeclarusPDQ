@@ -49,7 +49,7 @@ public class Connector implements CanvasPrimitive {
      * @return the source Vertex
      */
     public Vertex getSource() {
-        return _source.getParent();
+        return _source.getVertex();
     }
 
 
@@ -57,7 +57,7 @@ public class Connector implements CanvasPrimitive {
      * @return the target Vertex
      */
     public Vertex getTarget() {
-        return _target.getParent();
+        return _target.getVertex();
     }
 
 

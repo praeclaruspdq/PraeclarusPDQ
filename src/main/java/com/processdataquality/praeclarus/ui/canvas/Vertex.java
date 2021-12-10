@@ -20,8 +20,6 @@ import com.processdataquality.praeclarus.node.Node;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * @author Michael Adams
  * @date 19/5/21
@@ -33,15 +31,11 @@ public class Vertex implements CanvasPrimitive {
     public static final double CORNER_RADIUS = 10;
     public static final double LINE_WIDTH = 1;
 
-    private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
-
     private final VertexStateIndicator _indicator = new VertexStateIndicator();
-    private final int _id;
     private final Node _node;
 
     private double _x;
     private double _y;
-    private String _label;
     private String _infoText;
     private Port _inPort;
     private Port _outPort;
@@ -49,15 +43,8 @@ public class Vertex implements CanvasPrimitive {
 
 
     public Vertex(double x, double y, Node node) {
-        this(x, y, node, ID_GENERATOR.incrementAndGet());
-    }
-
-
-    public Vertex(double x, double y, Node node, int id) {
         _x = x;
         _y = y;
-        _id = id;
-        _label = node.getName();
         _node = node;
         if (node.allowsInput()) {
             _inPort = new Port(this, Port.Style.INPUT);
@@ -72,12 +59,7 @@ public class Vertex implements CanvasPrimitive {
 
     public double y() { return  _y; }
 
-    public int getID() { return _id; }
-    
-
-    public void setLabel(String label) { _label = label; }
-
-    public String getLabel() { return _label; }
+    public String getID() { return _node.getInternalID(); }
 
 
     public Node getNode() { return _node; }
@@ -114,10 +96,8 @@ public class Vertex implements CanvasPrimitive {
 
     public JSONObject asJson() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("id", _id);
         json.put("x", _x);
         json.put("y", _y);
-        json.put("label", _label);
         json.put("node", _node.asJson());
         return json;
     }
@@ -190,7 +170,7 @@ public class Vertex implements CanvasPrimitive {
         ctx.font("14px Arial");
         ctx.beginPath();
         ctx.fillStyle(colour);
-        for (String word : _label.split(" ")) {
+        for (String word : _node.getLabel().split(" ")) {
 //            String temp = line + word + " ";
 ////            double metrics = ctx.measureText(temp);
 //            double tempWidth = 90; //metrics.width;
@@ -203,7 +183,7 @@ public class Vertex implements CanvasPrimitive {
 //                line = temp;
 //            }
 //        }
-            ctx.fillText(word, innerX, innerY, WIDTH - 20);
+            ctx.fillText(word, innerX, innerY, maxWidth);
             innerY+=lineHeight;
         }
         ctx.stroke();

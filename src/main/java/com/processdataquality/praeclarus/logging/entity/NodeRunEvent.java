@@ -26,10 +26,8 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class NodeRunEvent extends AbstractLogEvent {
+public class NodeRunEvent extends NodeEvent {
 
-    private String nodeId;
-    private String nodeName;
     private String tableId;
     private String commitId;
     private String outcome;
@@ -37,23 +35,11 @@ public class NodeRunEvent extends AbstractLogEvent {
     protected NodeRunEvent() { }
 
     public NodeRunEvent(String user, Node node, String outcome) {
-        super(user, LogConstant.NODE_RUN);
-        setNodeId(node.getInternalID());
-        setNodeName(node.getName());
+        super(user, LogConstant.NODE_RUN, node);
         setTableId(node.getTableID());
         setCommitId(node.getCommitID());
         setOutcome(outcome);
     }
-
-
-    public String getNodeId() { return nodeId; }
-
-    public void setNodeId(String nodeId) { this.nodeId = nodeId; }
-
-
-    public String getNodeName() { return nodeName; }
-
-    public void setNodeName(String nodeName) { this.nodeName = nodeName; }
 
 
     public String getTableId() { return tableId; }
@@ -73,7 +59,7 @@ public class NodeRunEvent extends AbstractLogEvent {
 
     @Override
     public String toString() {
-        return super.toString() + "; Node: " + nodeName + "; Result: " + outcome;
+        return super.toString() + "; Node: " + getNodeName() + "; Result: " + outcome;
     }
     
 }

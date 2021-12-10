@@ -16,28 +16,25 @@
 
 package com.processdataquality.praeclarus.logging.entity;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
-import com.processdataquality.praeclarus.node.Node;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * @author Michael Adams
- * @date 30/11/21
+ * @date 8/12/21
  */
 @Entity
-public class NodeRollbackEvent extends NodeEvent {
+public class NodeEntity {
+    @Id
+    @Column(nullable = false)
+    private Long id;
 
-    protected NodeRollbackEvent() { }
-
-    public NodeRollbackEvent(String user, Node node) {
-        super(user, LogConstant.NODE_ROLLBACK, node);
+    public Long getId() {
+        return id;
     }
 
-    
-    @Override
-    public String toString() {
-        return super.toString() + "; Node: " + getNodeName();
+    public void setId(Long id) {
+        this.id = id;
     }
-    
 }

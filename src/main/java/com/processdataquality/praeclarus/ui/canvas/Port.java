@@ -28,13 +28,13 @@ public class Port implements CanvasPrimitive {
 
     public static final double RADIUS = 6;                         // rendered size
 
-    private final Vertex parent;                                   // this port's owner
-    private final Style style;                                     // input or output
+    private final Vertex _vertex;                                   // this port's owner
+    private final Style _style;                                     // input or output
 
 
-    public Port(Vertex v, Style style) {
-        parent = v;
-        this.style = style;
+    public Port(Vertex vertex, Style style) {
+        _vertex = vertex;
+        _style = style;
     }
 
 
@@ -42,8 +42,8 @@ public class Port implements CanvasPrimitive {
      * @return the x-coord of this port's origin
      */
     public double x() {
-        double px = parent.x();
-        return style == Style.INPUT ? px : px + Vertex.WIDTH;
+        double px = _vertex.x();
+        return isInput() ? px : px + Vertex.WIDTH;
     }
 
 
@@ -51,33 +51,33 @@ public class Port implements CanvasPrimitive {
       * @return the y-coord of this port's origin
      */
     public double y() {
-        return parent.y() + Vertex.HEIGHT / 2 ;
+        return _vertex.y() + Vertex.HEIGHT / 2 ;
     }
 
 
     /**
      * @return the Vertex that 'owns' this port
      */
-    public Vertex getParent() { return parent; }
+    public Vertex getVertex() { return _vertex; }
 
 
     /**
      * @return true is this port is an input port
      */
-    public boolean isInput() { return style == Style.INPUT; }
+    public boolean isInput() { return _style == Style.INPUT; }
 
 
     /**
      * @return true is this port is an output port
      */
-    public boolean isOutput() { return style == Style.OUTPUT; }
+    public boolean isOutput() { return _style == Style.OUTPUT; }
 
 
     /**
      * @return the point where a connector (arc) may attach to this port
      */
     public Point getConnectPoint() {
-        double px = style == Style.INPUT ? x() - RADIUS : x() + RADIUS;
+        double px = isInput() ? x() - RADIUS : x() + RADIUS;
         return new Point(px, y());
     }
 
@@ -103,8 +103,8 @@ public class Port implements CanvasPrimitive {
     public void render(Context2D ctx, CanvasPrimitive selected) {
         String colour = "black";
         double rotation = Math.PI / 2;
-        double startAngle = (style == Style.INPUT ? 0 : Math.PI) + rotation;
-        double endAngle = (style == Style.INPUT ? Math.PI  : Math.PI * 2) + rotation;
+        double startAngle = (isInput() ? 0 : Math.PI) + rotation;
+        double endAngle = (isInput() ? Math.PI : Math.PI * 2) + rotation;
 
         ctx.beginPath();
         ctx.strokeStyle(colour);

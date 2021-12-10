@@ -17,9 +17,9 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.logging.Logger;
+import com.processdataquality.praeclarus.node.Network;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeStateListener;
-import com.processdataquality.praeclarus.node.NodeUtil;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
@@ -32,7 +32,6 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * @author Michael Adams
@@ -48,8 +47,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     private final Set<Connector> _connectors = new HashSet<>();
     private final Set<CanvasSelectionListener> _selectionListeners = new HashSet<>();
 
-    private String _name;
-    private String _id;
+    private Network _network;        // back end
     private ActiveLine activeLine;
     private CanvasPrimitive selected;
     private State state = State.NONE;
@@ -127,9 +125,9 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     @Override
     public void mouseDblClick(double x, double y) {
         mouseClick(x, y);
-        Vertex selectedVertex = getSelectedVertex();
-        if (selectedVertex != null) {
-            new VertexLabelDialog(this, selectedVertex).open();
+        Node node = getSelectedNode();
+        if (node != null) {
+            new VertexLabelDialog(this, node).open();
         }
     }
 
@@ -187,13 +185,18 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     public boolean hasChanges() { return _changed; }
 
 
-    public void clear() {
+    public void clear(Network network) {
         _vertices.clear();
         _connectors.clear();
-        _name = "New Workflow";
-        _id = UUID.randomUUID().toString();
+        _network = network;
         setChanged(false);
         render();
+    }
+
+    private void clear() {
+        Network network = new Network.Builder("user").name("New Workflow").build();
+        clear(network);
+        Logger.saveNetwork(network);
     }
 
 
@@ -201,6 +204,9 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         _loading = b;
         if (! _loading) render();
     }
+
+
+    public Network getNetwork() { return _network; }
 
 
     public boolean hasContent() {
@@ -253,6 +259,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     
     public void addVertex(Vertex vertex) {
         _vertices.add(vertex);
+        _network.addNode(vertex.getNode());
         setSelected(vertex);
         vertex.getNode().addStateListener(this);
         setChanged(true);
@@ -270,6 +277,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
             _vertices.remove(vertex);
             removeConnectors(vertex);
             vertex.getNode().removeStateListener(this);
+            _network.removeNode(vertex.getNode());
             setChanged(true);
         }
     }
@@ -279,7 +287,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         _connectors.add(c);
         Node source = c.getSource().getNode();
         Node target = c.getTarget().getNode();
-        new NodeUtil().connect(source, target);
+        source.connect(target);
         setChanged(true);
         render();
     }
@@ -288,9 +296,9 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     public boolean removeConnector(Connector c) {
         boolean success = _connectors.remove(c);
         if (success) {
-            Node previous = c.getSource().getNode();
-            Node next = c.getTarget().getNode();
-            new NodeUtil().disconnect(previous, next);
+            Node source = c.getSource().getNode();
+            Node target = c.getTarget().getNode();
+            source.disconnect(target);
             setChanged(true);
             render();
         }
@@ -298,9 +306,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     }
 
 
-    protected void setName(String name) { _name = name; }
-
-    protected void setId(String id) { _id = id; }
+    protected void setName(String name) { _network.updateName(name); }
 
 
     public JSONObject asJson() throws JSONException {
@@ -312,9 +318,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         for (Connector connector : _connectors) {
             connectorArray.put(connector.asJson());
         }
-        JSONObject json = new JSONObject();
-        json.put("name", _name);
-        json.put("id", _id);
+        JSONObject json = _network.asJson();
         json.put("vertices", vertexArray);
         json.put("connectors", connectorArray);
         return json;
@@ -323,7 +327,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
 
     public Options getUserOptions() {
         Options options = new Options();
-        options.addDefault("Workflow Name", _name);
+        options.addDefault("Workflow Name", _network.getName());
         return options;
     }
 

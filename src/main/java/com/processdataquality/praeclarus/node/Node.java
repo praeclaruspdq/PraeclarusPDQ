@@ -32,28 +32,30 @@ import java.util.Set;
 
 /**
  * A node in a workflow, representing a plugin. This class provides base functionality
- * to be used and/or extended by sub-classes.
+ * to be used and/or extended by subclasses.
  *
  * @author Michael Adams
  * @date 12/5/21
  */
 public abstract class Node {
 
-    private final PDQPlugin _plugin;
-    private final Set<Node> _next;      // set of immediate target nodes for this node
-    private final Set<Node> _previous;  // set of immediate source nodes for this node
-    private final String _internalID;   // a unique id for this node
+    private String _internalID;   // a unique id for this node
 
-    private final Set<NodeStateListener> _listeners;
-    private NodeState _state;
-
-    private Table _output;              // a table with the result of running this plugin
     private String _commitID;           // the commit version of the table in the repo
     private String _tableID;            // the file name of the table in the repo
+    private String _label;
 
+    private Set<Node> _next;      // set of immediate target nodes for this node
+    private Set<Node> _previous;  // set of immediate source nodes for this node
+
+    private PDQPlugin _plugin;
+    private Set<NodeStateListener> _listeners;
+    private NodeState _state;
+    private Table _output;    // a table with the result of running this plugin
     private NodeTask _preTask;          // optional code to run before plugin is run
     private NodeTask _postTask;         // optional code to run after plugin is run
 
+    protected Node() { }
 
     protected Node(PDQPlugin plugin, String id) {
         _plugin = plugin;
@@ -178,6 +180,26 @@ public abstract class Node {
 
 
     /**
+     * Connects this node to a target node
+     * @param target the target node of the directed connection
+     */
+    public void connect(Node target) {
+        addNext(target);
+        target.addPrevious(this);
+    }
+
+
+    /**
+     * Disconnects this node to from a target node
+     * @param target the target node of the directed connection
+     */
+    public void disconnect(Node target) {
+        removeNext(target);
+        target.removePrevious(this);
+    }
+
+
+    /**
      * @return true if this node has no predecessors
      */
     public boolean isHead() { return _previous.isEmpty(); }
@@ -214,10 +236,16 @@ public abstract class Node {
     /**
      * @return the plugin's name as supplied in its metadata
      */
-    public String getName() {
-        Plugin metaData = getPlugin().getClass().getAnnotation(Plugin.class);
-        return metaData != null ? metaData.name() : "unnamed";
+    public String getLabel() {
+        if (_label == null) {
+            Plugin metaData = getPlugin().getClass().getAnnotation(Plugin.class);
+            _label = metaData != null ? metaData.name() : "unnamed";
+        }
+        return _label;
     }
+
+
+    public void setLabel(String label) { _label = label; }
 
 
     /**
@@ -318,7 +346,7 @@ public abstract class Node {
 
 
     private String getCommitMessage() {
-        return "Node: " + getInternalID() + "; Plugin: " + getName() +
+        return "Node: " + getInternalID() + "; Plugin: " + getLabel() +
                 "; Plugin Class: " + getPlugin().getClass().getName();
     }
 
@@ -326,6 +354,7 @@ public abstract class Node {
     public JSONObject asJson() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("id", _internalID);
+        json.put("label", _label);
         if (_commitID != null) json.put("commitID", _commitID);
         if (_tableID != null) json.put("tableID", _tableID);
 

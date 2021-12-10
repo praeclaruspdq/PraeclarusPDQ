@@ -17,10 +17,10 @@
 package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.logging.Logger;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * @author Michael Adams
@@ -38,9 +38,6 @@ public abstract class AbstractLogEvent {
     private String user;
     private String label;
 
-    private static final DateTimeFormatter formatter =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-    
     public AbstractLogEvent() { }
 
     public AbstractLogEvent(String user, LogConstant label) {
@@ -70,7 +67,8 @@ public abstract class AbstractLogEvent {
 
     @Override
     public String toString() {
-        return getTimestamp().format(formatter) + "; User: " + getUser() + "; Event: " + getLabel();
+        return getTimestamp().format(Logger.dtFormatter) + "; User: " + getUser() +
+                "; Event: " + getLabel();
     }
 
 }

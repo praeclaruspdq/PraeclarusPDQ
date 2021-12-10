@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.ui.component;
 
 
-import com.processdataquality.praeclarus.ui.canvas.Vertex;
+import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -30,18 +30,18 @@ import com.vaadin.flow.component.textfield.TextField;
  */
 public class VertexLabelDialog extends Dialog {
 
-    private final TextField field = new TextField("Update Name");
+    private final TextField field = new TextField("Update Label");
 
-    public VertexLabelDialog(Workflow parent, Vertex vertex) {
+    public VertexLabelDialog(Workflow workflow, Node node) {
         setCloseOnOutsideClick(false);
         setModal(true);
-        field.setValue(vertex.getLabel());
+        field.setValue(node.getLabel());
         add(field);
 
         Button ok = new Button("OK", event -> {
-            vertex.setLabel(field.getValue());
-            parent.setChanged(true);
-            parent.render();
+            node.setLabel(field.getValue());
+            workflow.setChanged(true);
+            workflow.render();
             close();
         });
 

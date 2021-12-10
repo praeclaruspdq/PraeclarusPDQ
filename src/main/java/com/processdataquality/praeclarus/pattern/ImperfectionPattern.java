@@ -64,9 +64,9 @@ public interface ImperfectionPattern extends PDQPlugin {
 
 
     /**
-     * Updates the UI with any changes made in the front end
+     * Returns the UI updated with any changes made in the front end
      * @param ui the updated UI template
      */
-    void updateUI(PluginUI ui);
+    void setUI(PluginUI ui);
     
 }

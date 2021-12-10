@@ -27,10 +27,16 @@ import javax.persistence.Entity;
 @Entity
 public class WorkflowCreationEvent extends AbstractLogEvent {
 
+    private String workflowId;
+
     protected WorkflowCreationEvent() { }
 
-    public WorkflowCreationEvent(String user) {
+    public WorkflowCreationEvent(String user, String workflowId) {
         super(user, LogConstant.WORKFLOW_CREATED);
     }
+
+    public String getWorkflowId() { return workflowId; }
+
+    public void setWorkflowId(String workflowId) { this.workflowId = workflowId; }
 
 }

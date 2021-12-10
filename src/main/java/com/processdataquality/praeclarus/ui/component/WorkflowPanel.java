@@ -201,11 +201,6 @@ public class WorkflowPanel extends VerticalLayout
         Icon icon = VaadinIcon.TRASH.create();
         icon.setSize("24px");
         return new Button(icon, e -> {
-            CanvasPrimitive selected = _workflow.getSelected();
-            if (selected instanceof Vertex) {
-                Node node = ((Vertex) selected).getNode();
-                new NodeUtil().removeNode(node);
-            }
             _workflow.removeSelected();
             _saveButton.setEnabled(_workflow.hasContent());
         });

@@ -18,9 +18,13 @@ package com.processdataquality.praeclarus.logging;
 
 import com.processdataquality.praeclarus.logging.entity.*;
 import com.processdataquality.praeclarus.logging.repository.*;
+import com.processdataquality.praeclarus.node.Network;
 import com.processdataquality.praeclarus.node.Node;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 /**
  * @author Michael Adams
@@ -28,6 +32,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class Logger {
+
+    public static final DateTimeFormatter dtFormatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+
 
     private static AuthenticationEventRepository authenticationEventRepository;
     private static ConnectorEventRepository connectorEventRepository;
@@ -38,6 +46,8 @@ public class Logger {
     private static WorkflowCreationEventRepository workflowCreationEventRepository;
     private static WorkflowIOEventRepository workflowIOEventRepository;
     private static WorkflowRenameEventRepository workflowRenameEventRepository;
+    private static NetworkRepository networkRepository;
+//    private static NodeRepository nodeRepository;
 
 
     // Inject repositories
@@ -49,7 +59,8 @@ public class Logger {
                   NodeRunEventRepository nrRepo,
                   WorkflowCreationEventRepository wcRepo,
                   WorkflowIOEventRepository wioRepo,
-                  WorkflowRenameEventRepository wrRepo) {
+                  WorkflowRenameEventRepository wrRepo,
+                  NetworkRepository nwRepo) {
         authenticationEventRepository = authRepo;
         connectorEventRepository = connRepo;
         nodeChangeEventRepository = ncRepo;
@@ -59,6 +70,8 @@ public class Logger {
         workflowCreationEventRepository = wcRepo;
         workflowIOEventRepository = wioRepo;
         workflowRenameEventRepository = wrRepo;
+        networkRepository = nwRepo;
+//        nodeRepository = nodRepository;
     }
 
 
@@ -99,8 +112,8 @@ public class Logger {
     }
 
 
-    public String nodeChangeEvent(String user, String option, String oldValue, String newValue) {
-        NodeChangeEvent event = new NodeChangeEvent(user, option, oldValue, newValue);
+    public String nodeChangeEvent(String user, Node node, String option, String oldValue, String newValue) {
+        NodeChangeEvent event = new NodeChangeEvent(user, node, option, oldValue, newValue);
         return save(nodeChangeEventRepository, event);
     }
 
@@ -133,8 +146,8 @@ public class Logger {
     }
 
 
-    public static String workflowCreationEvent(String user) {
-        WorkflowCreationEvent event = new WorkflowCreationEvent(user);
+    public static String workflowCreationEvent(String user, String workflowId) {
+        WorkflowCreationEvent event = new WorkflowCreationEvent(user, workflowId);
         return save(workflowCreationEventRepository, event);
     }
 
@@ -159,6 +172,39 @@ public class Logger {
         WorkflowRenameEvent event = new WorkflowRenameEvent(user, oldName, newName);
         return save(workflowRenameEventRepository, event);
     }
+
+
+    public static void saveNetwork(Network network) {
+        networkRepository.save(network);
+    }
+
+
+    public static void saveNetworkIfNew(Network network) {
+        Optional<Network> optional = networkRepository.findById(network.getId());
+        if (! optional.isPresent()) {
+            saveNetwork(network);
+        }
+    }
+
+
+    public static Optional<Network> retrieveNetwork(String id) {
+        return networkRepository.findById(id);
+    }
+
+
+//    public static void saveNode(Node node) {
+//        nodeRepository.save(node);
+//    }
+
+
+//    public static void setNetworkContent(String id, String content) {
+//        Optional<NetworkEntity> optional = networkRepository.findById(id);
+//        optional.ifPresent(network -> {
+//            network.setContent(content);
+//            networkRepository.save(network);
+//        });
+//    }
+
 
 
     private static <T> String save(CrudRepository<T, Long> repo, T event) {

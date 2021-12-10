@@ -16,15 +16,19 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.node.NodeUtil;
+import com.processdataquality.praeclarus.logging.Logger;
+import com.processdataquality.praeclarus.node.Network;
 import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.NodeLoader;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -41,54 +45,76 @@ public class WorkflowLoader {
 
 
     public void load(String jsonStr) throws JSONException, IOException {
-       _workflow.clear();
-       _workflow.setLoading(true);
-        NodeUtil nodeUtil = new NodeUtil();
         JSONObject json = new JSONObject(jsonStr);
-        loadOptions(json);
-        Map<Integer, Vertex> vertices = loadVertices(json.getJSONArray("vertices"), nodeUtil);
+        Network network = loadNetwork(json, jsonStr);
+        _workflow.clear(network);
+        _workflow.setLoading(true);
+        Map<String, Vertex> vertices = loadVertices(json.getJSONArray("vertices"));
         loadConnectors(json.getJSONArray("connectors"), vertices);
         _workflow.setLoading(false);
-        selectHeadVertex(vertices, nodeUtil);
+        selectHeadVertex(vertices, network);
     }
 
 
-    private void loadOptions(JSONObject json) throws JSONException {
-        _workflow.setName(json.getString("name"));
-        _workflow.setId(json.getString("id"));
+    private Network loadNetwork(JSONObject json, String content) throws JSONException {
+
+        // check if this one is persisted
+        String id = json.getString("id");
+        Optional<Network> optional = Logger.retrieveNetwork(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+
+        // unknown to this deployment
+        Network.Builder builder = new Network.Builder(json.getString("creator"))
+                .id(id)
+                .name(json.getString("name"))
+                .owner(json.getString("owner"))
+                .creationTime(strToDateTime(json.getString("creationTime")))
+                .userContent(content);
+
+        String description = json.optString("description");
+        if (description != null) {
+            builder.description(description);
+        }
+
+        String lastSaved = json.optString("lastSavedTime");
+        if (lastSaved != null) {
+            builder.lastSavedTime(strToDateTime(lastSaved));
+        }
+        
+        return builder.build();
     }
 
 
-    private Map<Integer, Vertex> loadVertices(JSONArray array, NodeUtil nodeUtil)
+    private Map<String, Vertex> loadVertices(JSONArray array)
             throws JSONException, IOException {
-        Map<Integer, Vertex> vertexMap = new HashMap<>();
+        Map<String, Vertex> vertexMap = new HashMap<>();
+        NodeLoader nodeLoader = new NodeLoader();
         for (int i=0; i < array.length(); i++) {
             JSONObject json = array.getJSONObject(i);
-            int id = json.getInt("id");
             double x = json.getDouble("x");
             double y = json.getDouble("y");
-            String label = json.getString("label");
-            Node node = nodeUtil.fromJson(json.getJSONObject("node"));
+            Node node = nodeLoader.fromJson(json.getJSONObject("node"));
             if (node != null) {
-                Vertex vertex = new Vertex(x, y, node, id);
-                vertex.setLabel(label);
+                Vertex vertex = new Vertex(x, y, node);
                 _workflow.addVertex(vertex);
                 if (node.hasCompleted()) {
                     vertex.setRunState(VertexStateIndicator.State.COMPLETED);
                 }
-                vertexMap.put(id, vertex);
+                vertexMap.put(vertex.getID(), vertex);
             }
         }
         return vertexMap;
     }
 
 
-    private void loadConnectors(JSONArray array, Map<Integer, Vertex> vertices)
+    private void loadConnectors(JSONArray array, Map<String, Vertex> vertices)
             throws JSONException {
         for (int i=0; i < array.length(); i++) {
             JSONObject json = array.getJSONObject(i);
-            int sourceID = json.getInt("source");
-            int targetID = json.getInt("target");
+            String sourceID = json.getString("source");
+            String targetID = json.getString("target");
             Vertex source = vertices.get(sourceID);
             Vertex target = vertices.get(targetID);
             if (! (source == null || target == null)) {
@@ -100,14 +126,18 @@ public class WorkflowLoader {
     }
 
 
-    private void selectHeadVertex(Map<Integer, Vertex> vertices, NodeUtil nodeUtil) {
+    private void selectHeadVertex(Map<String, Vertex> vertices, Network network) {
         if (! vertices.isEmpty()) {
-            Vertex anyVertex = vertices.values().iterator().next();       // get any vertex
-            Set<Node> heads = nodeUtil.getHeads(anyVertex.getNode());
+            Set<Node> heads = network.getHeads();
             if (! heads.isEmpty()) {
                 _workflow.setSelectedNode(heads.iterator().next());       // set any head
             }
         }
+    }
+
+
+    private LocalDateTime strToDateTime(String s) {
+        return LocalDateTime.parse(s, Logger.dtFormatter);
     }
 
 }

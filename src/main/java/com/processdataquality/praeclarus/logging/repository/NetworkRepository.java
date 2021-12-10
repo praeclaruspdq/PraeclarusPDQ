@@ -14,30 +14,22 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging.entity;
+package com.processdataquality.praeclarus.logging.repository;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
-import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.Network;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-import javax.persistence.Entity;
+import java.util.List;
 
 /**
  * @author Michael Adams
- * @date 30/11/21
+ * @date 1/12/21
  */
-@Entity
-public class NodeRollbackEvent extends NodeEvent {
+@Repository
+public interface NetworkRepository extends CrudRepository<Network, String> {
 
-    protected NodeRollbackEvent() { }
+    List<Network> findByCreator(String creator);
 
-    public NodeRollbackEvent(String user, Node node) {
-        super(user, LogConstant.NODE_ROLLBACK, node);
-    }
-
-    
-    @Override
-    public String toString() {
-        return super.toString() + "; Node: " + getNodeName();
-    }
-    
 }
+

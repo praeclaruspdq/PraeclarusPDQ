@@ -25,7 +25,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-import java.io.IOException;
 import java.io.StringWriter;
 
 /**
@@ -76,9 +75,11 @@ public class FileSaveEditor extends AbstractFileEditor {
             _key = key;
         }
 
+
+        // called when writing is complete and ready to be sent to file
         @Override
-        public void close() throws IOException {
-            super.close();
+        public void flush() {
+            super.flush();
 
             UI.getCurrent().getPage().executeJs("writeFile" + "($0, $1)",
                     _key, this.toString());

@@ -227,7 +227,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
 
 
     @Override
-    public void updateUI(PluginUI ui) {
+    public void setUI(PluginUI ui) {
         _ui = ui;
     }
 }

@@ -92,7 +92,7 @@ public class PatternNode extends Node {
      * @param ui the updated UI
      */
     public void updateUI(PluginUI ui) {
-       ((ImperfectionPattern) getPlugin()).updateUI(ui);
+       ((ImperfectionPattern) getPlugin()).setUI(ui);
     }
 
 }

@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
 
@@ -25,7 +26,7 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class NodeChangeEvent extends AbstractLogEvent {
+public class NodeChangeEvent extends NodeEvent {
 
     private String option;
     private String oldValue;
@@ -33,8 +34,9 @@ public class NodeChangeEvent extends AbstractLogEvent {
 
     protected NodeChangeEvent() { }
 
-    public NodeChangeEvent(String user, String option, String oldValue, String newValue) {
-        super(user, LogConstant.NODE_CHANGED);
+    public NodeChangeEvent(String user, Node node, String option,
+                           String oldValue, String newValue) {
+        super(user, LogConstant.NODE_CHANGED, node);
         setOption(option);
         setOldValue(oldValue);
         setNewValue(newValue);
@@ -58,7 +60,7 @@ public class NodeChangeEvent extends AbstractLogEvent {
 
     @Override
     public String toString() {
-        return super.toString() + "; Option: " + option + "; Old Value: " + oldValue +
-                "; New Value: " + newValue;
+        return super.toString() + "; Option: " + getOption() + "; Old Value: " + getOldValue() +
+                "; New Value: " + getNewValue();
     }
 }

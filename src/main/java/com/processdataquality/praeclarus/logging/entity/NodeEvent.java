@@ -20,12 +20,15 @@ import com.processdataquality.praeclarus.logging.LogConstant;
 import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 /**
  * @author Michael Adams
  * @date 30/11/21
  */
 @Entity
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 public class NodeEvent extends AbstractLogEvent {
 
     private String nodeId;
@@ -36,7 +39,7 @@ public class NodeEvent extends AbstractLogEvent {
     public NodeEvent(String user, LogConstant label, Node node) {
         super(user, label);
         setNodeId(node.getInternalID());
-        setNodeName(node.getName());
+        setNodeName(node.getLabel());
     }
 
 
