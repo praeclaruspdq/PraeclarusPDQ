@@ -199,7 +199,7 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
                         outerLayout.setFlexGrow(1, prevLayout, currLayout);
                         page.add(outerLayout);
                     }
-                    else page.add(new Html("<p>The selected no has no previous nodes</p>"));
+                    else page.add(new Html("<p>The selected node has no previous nodes to compare to</p>"));
                 }
                 catch (IOException e) {
                     e.printStackTrace();
@@ -245,7 +245,7 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
     private Grid<Row> tableToGrid(Table table) {
         Grid<Row> grid = UiUtil.tableToGrid(table);
         UiUtil.removeTopMargin(grid);
-        grid.setHeight("150px");
+//        grid.setHeight("150px");
         return grid;
     }
 

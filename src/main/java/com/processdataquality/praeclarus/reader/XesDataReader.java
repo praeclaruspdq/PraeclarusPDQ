@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import org.deckfour.xes.in.XesXmlParser;
 import org.deckfour.xes.model.*;
@@ -55,7 +56,7 @@ public class XesDataReader extends AbstractDataReader {
     @Override
     public Options getOptions() {
         Options options = new Options();
-        options.addDefault("Source", "");
+        options.addDefault(new Option("Source", "", true));
         return options;
     }
 
@@ -78,8 +79,11 @@ public class XesDataReader extends AbstractDataReader {
 
     private Table createTable(List<XLog> logList) {
         List<Column<?>> columns = new ArrayList<>();
-        columns.add(StringColumn.create("Case ID"));
+        columns.add(StringColumn.create("case:id"));  // trace concept:name = case id
+
         for (XLog log : logList) {
+
+            // create a column for each global event attribute
             List<XAttribute> globalEventAttributes = log.getGlobalEventAttributes();
             for (XAttribute globalEventAttribute : globalEventAttributes) {
                 String key = globalEventAttribute.getKey();
@@ -91,7 +95,9 @@ public class XesDataReader extends AbstractDataReader {
                 }
             }
 
-//            List<XAttribute> globalTraceAttributes = log.getGlobalTraceAttributes();
+            // todo: not every event has an org entry, so column lens not equal
+
+            // fill column rows with trace attributes
             for (XTrace trace : log) {
                 XAttributeMap traceMap = trace.getAttributes();
 
@@ -99,10 +105,11 @@ public class XesDataReader extends AbstractDataReader {
                 for (XEvent event : trace) {
                     XAttributeMap map = event.getAttributes();
                     for (Column<?> column : columns) {
-                        if ("Case ID".equals(column.name())) {
+                        if ("case:id".equals(column.name())) {
                             ((StringColumn) column).append(caseID);
                             continue;
                         }
+                        
                         XAttribute attribute = map.get(column.name());
                         if (attribute instanceof XAttributeLiteral) {
                             ((StringColumn) column).append(((XAttributeLiteral) attribute).getValue());
@@ -113,6 +120,7 @@ public class XesDataReader extends AbstractDataReader {
                                     ZoneId.systemDefault());
                             ((DateTimeColumn) column).append(ldt);
                         }
+                        // any non-global event attributes are ignored
                     }
                 }
             }
@@ -127,7 +135,8 @@ public class XesDataReader extends AbstractDataReader {
         try {
             Table t = reader.read();
             System.out.println(t.structure());
-            System.out.println(t.first(5));
+            System.out.println();
+            System.out.println(t.first(50));
 
         }
         catch (IOException e) {

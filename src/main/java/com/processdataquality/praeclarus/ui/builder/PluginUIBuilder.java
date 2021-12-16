@@ -79,11 +79,14 @@ public class PluginUIBuilder {
 
     
     private Component buildContent(UIComponent component, Node node, PluginUIDialog dialog) {
+        if (component instanceof UIContainer) {
+            return buildLayout((UIContainer) component, node, dialog);
+        }
         if (component instanceof UIButton) {
             UIButton uib = (UIButton) component;
             return buildButton(uib, node, dialog);
         }
-        else if (component instanceof UITable) {
+        if (component instanceof UITable) {
             return buildGrid((UITable) component);
         }
         return null;

@@ -9,8 +9,9 @@
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>9</java.version>
         <vaadin.version>14.7.6</vaadin.version>
+        <log4j2.version>2.15.0</log4j2.version>
     </properties>
 
     <parent>
@@ -194,9 +195,9 @@
 
         <!-- XES -->
         <dependency>
-            <groupId>org.deckfour</groupId>
-            <artifactId>xes</artifactId>
-            <version>20181205</version>
+            <groupId>org.deckfour.xes</groupId>
+            <artifactId>OpenXES</artifactId>
+            <version>20211004</version>
         </dependency>
         <dependency>
             <groupId>org.deckfour</groupId>
@@ -208,10 +209,10 @@
             <artifactId>spex</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.google.code.gson</groupId>-->
+<!--            <artifactId>gson</artifactId>-->
+<!--        </dependency>-->
 
         <!-- JGit -->
         <dependency>

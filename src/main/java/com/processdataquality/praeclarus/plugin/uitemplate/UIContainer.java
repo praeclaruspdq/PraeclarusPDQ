@@ -23,7 +23,7 @@ import java.util.List;
  * @author Michael Adams
  * @date 1/11/21
  */
-public class UIContainer {
+public class UIContainer implements UIComponent {
 
     public enum Orientation {VERTICAL, HORIZONTAL}
 
