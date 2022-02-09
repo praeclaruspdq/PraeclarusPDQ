@@ -98,7 +98,7 @@ public class XesDataWriter extends AbstractDataWriter {
         xLog.getClassifiers().add(new XEventNameClassifier());
         xLog.getClassifiers().add(new XEventLifeTransClassifier());
         xLog.getClassifiers().add(new XEventResourceClassifier());
-        conceptExtension.assignName(xLog, table.name());            // todo: null?
+        conceptExtension.assignName(xLog, table.name());            
         lifeExtension.assignModel(xLog, XLifecycleExtension.VALUE_MODEL_STANDARD);
 
         xLog.getGlobalTraceAttributes().add(new XAttributeLiteralImpl(XConceptExtension.KEY_NAME, "UNKNOWN"));
@@ -110,14 +110,14 @@ public class XesDataWriter extends AbstractDataWriter {
         xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XOrganizationalExtension.KEY_RESOURCE, "UNKNOWN"));
 
         XTrace xTrace = null;
-        String currentCaseId = "";
+        String currentCaseId = null;
 
         for (int i=0; i<table.rowCount(); i++) {
             Row row = table.row(i);
             String caseId = row.getString("case:id");
 
             // start a new trace on case id change
-            if (!currentCaseId.equals(caseId)) {
+            if (currentCaseId == null || !currentCaseId.equals(caseId)) {
                 xTrace = xFactory.createTrace();
                 conceptExtension.assignName(xTrace, caseId);
                 xLog.add(xTrace);

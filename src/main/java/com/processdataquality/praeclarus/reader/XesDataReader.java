@@ -80,8 +80,9 @@ public class XesDataReader extends AbstractDataReader {
     private Table createTable(List<XLog> logList) {
         List<Column<?>> columns = new ArrayList<>();
         columns.add(StringColumn.create("case:id"));  // trace concept:name = case id
+        int rowCount = 0;
 
-        for (XLog log : logList) {
+        for (XLog log : logList) {                                 // will be only one
 
             // create a column for each global event attribute
             List<XAttribute> globalEventAttributes = log.getGlobalEventAttributes();
@@ -100,13 +101,15 @@ public class XesDataReader extends AbstractDataReader {
             // fill column rows with trace attributes
             for (XTrace trace : log) {
                 XAttributeMap traceMap = trace.getAttributes();
-
                 String caseID = ((XAttributeLiteral)traceMap.get("concept:name")).getValue();
+
+                // any non-global event attributes are ignored
                 for (XEvent event : trace) {
                     XAttributeMap map = event.getAttributes();
                     for (Column<?> column : columns) {
                         if ("case:id".equals(column.name())) {
                             ((StringColumn) column).append(caseID);
+                            rowCount = column.size();
                             continue;
                         }
                         
@@ -120,7 +123,13 @@ public class XesDataReader extends AbstractDataReader {
                                     ZoneId.systemDefault());
                             ((DateTimeColumn) column).append(ldt);
                         }
-                        // any non-global event attributes are ignored
+                    }
+
+                    // ensure all columns are of equal length after each event processed
+                    for (Column<?> column : columns) {
+                        if (column.size() < rowCount) {
+                            column.appendMissing();     
+                        }
                     }
                 }
             }
@@ -135,6 +144,7 @@ public class XesDataReader extends AbstractDataReader {
         try {
             Table t = reader.read();
             System.out.println(t.structure());
+            System.out.println(t.summary());
             System.out.println();
             System.out.println(t.first(50));
 
