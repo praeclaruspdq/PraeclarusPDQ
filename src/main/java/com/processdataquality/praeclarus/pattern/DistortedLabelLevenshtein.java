@@ -33,7 +33,7 @@ import tech.tablesaw.api.StringColumn;
         synopsis = "Calculates activity label similarity using Levenshtein Distance"
 )
 @Pattern(group = PatternGroup.DISTORTED_LABEL)
-public class DistortedLabelLevenshtein extends AbstractDistortedLabel {
+public class DistortedLabelLevenshtein extends AbstractImperfectLabel {
 
     private final LevenshteinDistance levenshtein =
             new LevenshteinDistance(getOptions().get("Threshold").asInt());

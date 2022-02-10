@@ -95,8 +95,23 @@ public class XesDataReader extends AbstractDataReader {
                     columns.add(StringColumn.create(key));
                 }
             }
-
-            // todo: not every event has an org entry, so column lens not equal
+            // --------------- added by Sareh
+            boolean timeColumn = false, orgColumn = false;
+            for (Column<?> column : columns) {
+            	if(column.name().startsWith("time")) {
+            		timeColumn = true;
+            	}else if (column.name().startsWith("org")) {
+            		orgColumn = true;
+            	}
+            }
+            if(!timeColumn) {
+            	columns.add(DateTimeColumn.create("time:timestamp"));
+            }
+            if(!orgColumn) {
+            	columns.add(StringColumn.create("org:resource"));
+            }
+            //---------------------------------
+            // TODO: not every event has an org entry, so column lens not equal
 
             // fill column rows with trace attributes
             for (XTrace trace : log) {

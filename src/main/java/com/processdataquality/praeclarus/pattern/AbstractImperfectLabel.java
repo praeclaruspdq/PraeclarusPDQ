@@ -29,14 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A base class for distorted label plugins
+ * A base class for imperfect label plugins
  * @author Michael Adams
  * @date 11/5/21
  */
-public abstract class AbstractDistortedLabel implements ImperfectionPattern {
+public abstract class AbstractImperfectLabel implements ImperfectionPattern {
 
     // The table that will contain the results of the pattern detection
-    private final Table _detected = createResultTable();
+    protected final Table _detected;
 
     // The set of parameters used by this plugin
     private Options _options;
@@ -45,7 +45,9 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
     private PluginUI _ui;
 
 
-    protected AbstractDistortedLabel() { }
+    protected AbstractImperfectLabel() {
+        _detected = createResultTable();
+    }
 
     // To be implemented by subclasses to detect distortion between two strings
     protected abstract void detect(StringColumn column, String s1, String s2);
@@ -168,7 +170,7 @@ public abstract class AbstractDistortedLabel implements ImperfectionPattern {
      * Creates the table that will receive the imperfect values detected
      * @return the empty table
      */
-    private Table createResultTable() {
+    protected Table createResultTable() {
         return Table.create("Result").addColumns(
                 StringColumn.create("Label1"),
                 IntColumn.create("Count1"),

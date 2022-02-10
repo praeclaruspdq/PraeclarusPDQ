@@ -33,7 +33,7 @@ import tech.tablesaw.api.StringColumn;
         synopsis = "Calculates activity label similarity using JaroWinkler Distance"
 )
 @Pattern(group = PatternGroup.DISTORTED_LABEL)
-public class DistortedLabelJaroWinkler extends AbstractDistortedLabel {
+public class DistortedLabelJaroWinkler extends AbstractImperfectLabel {
 
     private final JaroWinklerDistance jaroWinkler = new JaroWinklerDistance();
 
