@@ -108,16 +108,20 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     private void addButtons() {
         Icon runIcon = createIcon(VaadinIcon.PLAY, "green");
         _runButton = new Button(runIcon, e -> _runner.run(_selectedNode));
+        _runButton.getElement().setAttribute("title", "Run");
 
         Icon stepIcon = createIcon(VaadinIcon.STEP_FORWARD, "blue");
         _stepButton = new Button(stepIcon, e -> _runner.step(_selectedNode));
+        _stepButton.getElement().setAttribute("title", "Step fwd");
 
         Icon backIcon = createIcon(VaadinIcon.STEP_BACKWARD, "blue");
         _backButton = new Button(backIcon, e -> _runner.stepBack(_selectedNode));
-        
+        _backButton.getElement().setAttribute("title", "Step back");
+
         Icon stopIcon = createIcon(VaadinIcon.CLOSE_CIRCLE_O,"red");
         _stopButton = new Button(stopIcon, e -> _runner.reset());
-        
+        _stopButton.getElement().setAttribute("title", "Stop run");
+
         add(_runButton, _stepButton, _backButton, _stopButton);
     }
 

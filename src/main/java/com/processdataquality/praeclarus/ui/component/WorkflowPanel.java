@@ -200,17 +200,19 @@ public class WorkflowPanel extends VerticalLayout
     private Button createRemoveButton() {
         Icon icon = VaadinIcon.TRASH.create();
         icon.setSize("24px");
-        return new Button(icon, e -> {
+        Button removeButton = new Button(icon, e -> {
             _workflow.removeSelected();
             _saveButton.setEnabled(_workflow.hasContent());
         });
+        removeButton.getElement().setAttribute("title", "Remove node");
+        return removeButton;
     }
 
 
     private Button createLoadButton() {
         Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
         icon.setSize("24px");
-        return new Button(icon, e -> {
+        Button loadButton = new Button(icon, e -> {
             if (_workflow.hasChanges()) {
                 MessageDialog dialog = new MessageDialog(
                         "Save changes to existing workflow?");
@@ -225,13 +227,17 @@ public class WorkflowPanel extends VerticalLayout
                 _canvas.loadFromFile();
             }
         });
+        loadButton.getElement().setAttribute("title", "Load workflow");
+        return loadButton;
     }
 
 
     private Button createSaveButton() {
         Icon icon = VaadinIcon.DOWNLOAD.create();
         icon.setSize("24px");
-        return new Button(icon, e -> saveWorkflow());
+        Button saveButton = new Button(icon, e -> saveWorkflow());
+        saveButton.getElement().setAttribute("title", "Save workflow");
+        return saveButton;
     }
 
 
