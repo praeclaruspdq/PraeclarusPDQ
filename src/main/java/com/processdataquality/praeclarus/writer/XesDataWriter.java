@@ -19,6 +19,7 @@ package com.processdataquality.praeclarus.writer;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.classification.XEventResourceClassifier;
@@ -28,18 +29,26 @@ import org.deckfour.xes.extension.std.XOrganizationalExtension;
 import org.deckfour.xes.extension.std.XTimeExtension;
 import org.deckfour.xes.factory.XFactory;
 import org.deckfour.xes.factory.XFactoryNaiveImpl;
+import org.deckfour.xes.model.XAttribute;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
-import org.deckfour.xes.model.impl.XAttributeLiteralImpl;
-import org.deckfour.xes.model.impl.XAttributeTimestampImpl;
+import org.deckfour.xes.model.impl.*;
 import org.deckfour.xes.out.XesXmlSerializer;
+import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.columns.Column;
+import tech.tablesaw.columns.booleans.BooleanColumnType;
+import tech.tablesaw.columns.datetimes.DateTimeColumnType;
+import tech.tablesaw.columns.numbers.DoubleColumnType;
+import tech.tablesaw.columns.numbers.LongColumnType;
+import tech.tablesaw.columns.strings.StringColumnType;
 import tech.tablesaw.io.WriteOptions;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +82,7 @@ public class XesDataWriter extends AbstractDataWriter {
         _options.addDefault("Lifecycle column", "lifecycle:transition");
         _options.addDefault("Instance column", "concept:instance");
         _options.addDefault("Resource column", "org:resource");
+        _options.addDefault("Data column", "data");
         return _options;
     }
 
@@ -84,7 +94,7 @@ public class XesDataWriter extends AbstractDataWriter {
 
     private XLog createXLog(Table table) throws IOException {
         Map<String, String> colNames = mapColNames();
-        checkColumnNamesInTable(table, colNames);
+//        checkColumnNamesInTable(table, colNames);
         XFactory xFactory = new XFactoryNaiveImpl();
         XLog xLog = xFactory.createLog();
         XConceptExtension conceptExtension = XConceptExtension.instance();
@@ -123,30 +133,69 @@ public class XesDataWriter extends AbstractDataWriter {
                 xLog.add(xTrace);
                 currentCaseId = caseId;
             }
-
+                  
             // todo: ensure valid lifecycle value
             XEvent xEvent = xFactory.createEvent();
-            String name = getStringValue(row, colNames.get("concept:name"));
-            if (name != null) {
-                conceptExtension.assignName(xEvent, name);
-            }
-            String instance = getStringValue(row, colNames.get("concept:instance"));
-            if (instance != null) {
-                conceptExtension.assignInstance(xEvent, instance);
-            }
-            String transition = getStringValue(row, colNames.get("lifecycle:transition"));
-            if (transition != null) {
-                lifeExtension.assignTransition(xEvent, transition);
-            }
-            String resource = getStringValue(row, colNames.get("org:resource"));
-            if (resource != null) {
-                orgExtension.assignResource(xEvent, resource);
-            }
 
-            Timestamp timestamp = getTimeValue(row, colNames.get("time:timestamp"));
-            if (timestamp != null) {
-                timeExtension.assignTimestamp(xEvent,timestamp);
-            }
+            for (Column<?> col : table.columns()) {
+                String colName = col.name();
+                if ("case:id".equals(colName)) {
+                    continue;
+                }
+                XAttribute attribute = null;
+                ColumnType colType = col.type();
+                if ("data".equals(colName)) {
+                    addData(xEvent, getStringValue(row, colName));
+                    continue;
+                }
+
+                if (colType instanceof StringColumnType) {
+                    attribute = new XAttributeLiteralImpl(colName, getStringValue(row, colName));
+                }
+                else if (colType instanceof DateTimeColumnType) {
+                    attribute = new XAttributeTimestampImpl(colName, getTimeValue(row, colName));
+                }
+                else if (colType instanceof LongColumnType) {
+                    attribute = new XAttributeDiscreteImpl(colName, getLongValue(row, colName));
+                }
+                else if (colType instanceof DoubleColumnType) {
+                    attribute = new XAttributeContinuousImpl(colName, getDoubleValue(row, colName));
+                }
+                else if (colType instanceof BooleanColumnType) {
+                    attribute = new XAttributeBooleanImpl(colName,
+                            Boolean.TRUE.equals(getBooleanValue(row, colName)));
+                }
+                if (attribute != null) {
+                    xEvent.getAttributes().put(colName, attribute);
+                }
+             }
+
+
+
+
+//            String name = getStringValue(row, colNames.get("concept:name"));
+//            if (name != null) {
+//                conceptExtension.assignName(xEvent, name);
+//            }
+//            String instance = getStringValue(row, colNames.get("concept:instance"));
+//            if (instance != null) {
+//                conceptExtension.assignInstance(xEvent, instance);
+//            }
+//            String transition = getStringValue(row, colNames.get("lifecycle:transition"));
+//            if (transition != null) {
+//                lifeExtension.assignTransition(xEvent, transition);
+//            }
+//            String resource = getStringValue(row, colNames.get("org:resource"));
+//            if (resource != null) {
+//                orgExtension.assignResource(xEvent, resource);
+//            }
+//
+//            Timestamp timestamp = getTimeValue(row, colNames.get("time:timestamp"));
+//            if (timestamp != null) {
+//                timeExtension.assignTimestamp(xEvent,timestamp);
+//            }
+//
+//            addData(row, xEvent);
             
             xTrace.add(xEvent);
         }
@@ -155,21 +204,30 @@ public class XesDataWriter extends AbstractDataWriter {
 
 
     private String getStringValue(Row row, String colName) {
-        if (colName != null && row.columnNames().contains(colName)) {
-            return row.getString(colName);
-        }
-        return null;
+        return validColumn(row, colName) ? row.getString(colName) : null;
     }
 
 
     private Timestamp getTimeValue(Row row, String colName) {
-        if (colName != null && row.columnNames().contains(colName)) {
-            return Timestamp.valueOf(row.getDateTime(colName));
-        }
-        return null;
+        return validColumn(row, colName) ? Timestamp.valueOf(row.getDateTime(colName)) : null;
+    }
+
+    private long getLongValue(Row row, String colName) {
+        return validColumn(row, colName) ? row.getLong(colName) : -1;
+    }
+
+    private Double getDoubleValue(Row row, String colName) {
+        return validColumn(row, colName) ? row.getDouble(colName) : -1.0;
+    }
+
+    private Boolean getBooleanValue(Row row, String colName) {
+        return validColumn(row, colName) ? row.getBoolean(colName) : null;
     }
 
 
+    private boolean validColumn(Row row, String colName) {
+        return colName != null && row.columnNames().contains(colName);
+    }
     
     // check that used supplied col names match those in the table
     private void checkColumnNamesInTable(Table table, Map<String, String> nameMap) throws IOException {
@@ -194,6 +252,7 @@ public class XesDataWriter extends AbstractDataWriter {
         mapColName(map, "lifecycle:transition", "Lifecycle column");
         mapColName(map, "concept:instance", "Instance column");
         mapColName(map, "org:resource", "Resource column");
+        mapColName(map, "data", "Data column");
         return map;
     }
 
@@ -202,6 +261,41 @@ public class XesDataWriter extends AbstractDataWriter {
         String userValue = getOptions().get(optionKey).asString();
         if (! (userValue == null || userValue.isEmpty())) {
             map.put(key, userValue);
+        }
+    }
+
+
+    private void addData(XEvent event, String data) {
+        if (! (data == null || data.isEmpty())) {
+            for (String entry : data.split(";")) {
+                String[] parts = entry.split(",");
+                String type = parts[0];
+                String key = parts[1];
+                String value = parts[2];
+
+                XAttribute attribute = null;
+                if ("string".equals(type)) {
+                    attribute = new XAttributeLiteralImpl(key, value);
+                }
+                else if ("date".equals(type)) {
+                    LocalDateTime dateTime = LocalDateTime.parse(value);
+                    attribute = new XAttributeTimestampImpl(key, Timestamp.valueOf(dateTime));
+                }
+                else if ("long".equals(type)) {
+                    attribute = new XAttributeDiscreteImpl(key, NumberUtils.toLong(value));
+                }
+                else if ("double".equals(type)) {
+                    attribute = new XAttributeContinuousImpl(key, NumberUtils.toDouble(value));
+
+                }
+                else if ("boolean".equals(type)) {
+                    attribute = new XAttributeBooleanImpl(key, "TRUE".equalsIgnoreCase(value));
+
+                }
+                if (attribute != null) {
+                    event.getAttributes().put(key, attribute);
+                }
+            }
         }
     }
 

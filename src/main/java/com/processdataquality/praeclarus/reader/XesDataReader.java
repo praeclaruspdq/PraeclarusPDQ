@@ -19,11 +19,10 @@ package com.processdataquality.praeclarus.reader;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
+import org.apache.commons.lang3.StringUtils;
 import org.deckfour.xes.in.XesXmlParser;
 import org.deckfour.xes.model.*;
-import tech.tablesaw.api.DateTimeColumn;
-import tech.tablesaw.api.StringColumn;
-import tech.tablesaw.api.Table;
+import tech.tablesaw.api.*;
 import tech.tablesaw.columns.Column;
 import tech.tablesaw.io.ReadOptions;
 
@@ -31,9 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Michael Adams
@@ -47,6 +44,12 @@ import java.util.List;
 )
 public class XesDataReader extends AbstractDataReader {
 
+    private final Map<String, Column<?>> _columns = new HashMap<>();
+    private final StringColumn _dataColumn = StringColumn.create("data");
+    private boolean _dataColumnHasValues = false;
+    private boolean _globalsOnly = false;
+    private boolean _includeData = false;
+
 
     @Override
     public Table read() throws IOException {
@@ -55,9 +58,13 @@ public class XesDataReader extends AbstractDataReader {
 
     @Override
     public Options getOptions() {
-        Options options = new Options();
-        options.addDefault(new Option("Source", "", true));
-        return options;
+        if (_options == null) {
+            _options = new Options();
+            _options.addDefault(new Option("Globals Only", false));
+            _options.addDefault(new Option("Include Data", true));
+            _options.addDefault(new Option("Source", "", true));
+        }
+        return _options;
     }
 
     @Override
@@ -78,84 +85,186 @@ public class XesDataReader extends AbstractDataReader {
 
 
     private Table createTable(List<XLog> logList) {
-        List<Column<?>> columns = new ArrayList<>();
-        columns.add(StringColumn.create("case:id"));  // trace concept:name = case id
-        int rowCount = 0;
+        _globalsOnly = getOptions().get("Globals Only").asBoolean();
+        _includeData = getOptions().get("Include Data").asBoolean();
 
         for (XLog log : logList) {                                 // will be only one
-
-            // create a column for each global event attribute
-            List<XAttribute> globalEventAttributes = log.getGlobalEventAttributes();
-            for (XAttribute globalEventAttribute : globalEventAttributes) {
-                String key = globalEventAttribute.getKey();
-                if (key.startsWith("time")) {
-                    columns.add(DateTimeColumn.create(key));
-                }
-                else {
-                    columns.add(StringColumn.create(key));
-                }
+            if (_globalsOnly) {
+                addGlobalColumns(log);
             }
-            // --------------- added by Sareh
-            boolean timeColumn = false, orgColumn = false;
-            for (Column<?> column : columns) {
-            	if(column.name().startsWith("time")) {
-            		timeColumn = true;
-            	}else if (column.name().startsWith("org")) {
-            		orgColumn = true;
-            	}
-            }
-            if(!timeColumn) {
-            	columns.add(DateTimeColumn.create("time:timestamp"));
-            }
-            if(!orgColumn) {
-            	columns.add(StringColumn.create("org:resource"));
-            }
-            //---------------------------------
-            // TODO: not every event has an org entry, so column lens not equal
-
-            // fill column rows with trace attributes
-            for (XTrace trace : log) {
-                XAttributeMap traceMap = trace.getAttributes();
-                String caseID = ((XAttributeLiteral)traceMap.get("concept:name")).getValue();
-
-                // any non-global event attributes are ignored
-                for (XEvent event : trace) {
-                    XAttributeMap map = event.getAttributes();
-                    for (Column<?> column : columns) {
-                        if ("case:id".equals(column.name())) {
-                            ((StringColumn) column).append(caseID);
-                            rowCount = column.size();
-                            continue;
-                        }
-                        
-                        XAttribute attribute = map.get(column.name());
-                        if (attribute instanceof XAttributeLiteral) {
-                            ((StringColumn) column).append(((XAttributeLiteral) attribute).getValue());
-                        }
-                        else if (attribute instanceof XAttributeTimestamp) {
-                            Date date = ((XAttributeTimestamp) attribute).getValue();
-                            LocalDateTime ldt = LocalDateTime.ofInstant(date.toInstant(),
-                                    ZoneId.systemDefault());
-                            ((DateTimeColumn) column).append(ldt);
-                        }
-                    }
-
-                    // ensure all columns are of equal length after each event processed
-                    for (Column<?> column : columns) {
-                        if (column.size() < rowCount) {
-                            column.appendMissing();     
-                        }
-                    }
-                }
-            }
+            parseLog(log);
         }
-        return Table.create(columns);
+
+        List<Column<?>> columnList = new ArrayList<>(_columns.values());
+        if (_includeData && _dataColumnHasValues) {
+            padColumn(_dataColumn, getRowCount());
+            columnList.add(_dataColumn);
+        }
+
+        return Table.create(columnList);
     }
 
 
+    private void parseLog(XLog log) {
+        for (XTrace trace : log) {
+            parseTrace(trace);
+        }
+    }
+
+    private void parseTrace(XTrace trace) {
+        XAttributeMap traceMap = trace.getAttributes();
+        String caseID = ((XAttributeLiteral) traceMap.get("concept:name")).getValue();
+
+        for (XEvent event : trace) {
+            getStringColumn("case:id").append(caseID);
+            parseEvent(event);
+        }
+    }
+
+    // one row of table
+    private void parseEvent(XEvent event) {
+        StringBuilder data = new StringBuilder();
+        XAttributeMap map = event.getAttributes();
+        for (String key : map.keySet()) {
+            XAttribute attribute = map.get(key);
+            if (attribute.getExtension() == null) {
+                if (_includeData) {
+                    data.append(parseDataAttribute(attribute));
+                }
+            }
+            else if (_globalsOnly && ! _columns.containsKey(key)) {
+                 continue;
+            }
+            else if (attribute instanceof XAttributeLiteral) {
+                getStringColumn(key).append(((XAttributeLiteral) attribute).getValue());
+            }
+            else if (attribute instanceof XAttributeTimestamp) {
+                Date date = ((XAttributeTimestamp) attribute).getValue();
+                LocalDateTime ldt = LocalDateTime.ofInstant(date.toInstant(),
+                        ZoneId.systemDefault());
+                getDateTimeColumn(key).append(ldt);
+            }
+            else if (attribute instanceof XAttributeDiscrete) {
+                getLongColumn(key).append(((XAttributeDiscrete) attribute).getValue());
+            }
+            else if (attribute instanceof XAttributeContinuous) {
+                getDoubleColumn(key).append(((XAttributeContinuous) attribute).getValue());
+            }
+            else if (attribute instanceof XAttributeBoolean) {
+                getBooleanColumn(key).append(((XAttributeBoolean) attribute).getValue());
+            }
+        }
+        if (data.length() > 0) {
+            padColumn(_dataColumn, getRowCount() -1);
+            _dataColumn.append(data.toString());
+            _dataColumnHasValues = true;
+        }
+        padColumns(getRowCount());
+    }
+    
+
+    private String parseDataAttribute(XAttribute attribute) {
+        String key = attribute.getKey();
+        String value = attribute.toString();
+        String type = getAttributeType(attribute);
+        return StringUtils.joinWith(",", type, key, value) + ";";
+    }
+
+
+    private String getAttributeType(XAttribute attribute) {
+        if (attribute instanceof XAttributeLiteral) return "string";
+        if (attribute instanceof XAttributeTimestamp) return "date";
+        if (attribute instanceof XAttributeDiscrete) return "long";
+        if (attribute instanceof XAttributeContinuous) return "double";
+        if (attribute instanceof XAttributeBoolean) return "boolean";
+        return "string";  // default
+    }
+
+    // create a column for each global event attribute
+    private void addGlobalColumns(XLog log) {
+        for (XAttribute attribute : log.getGlobalEventAttributes()) {
+            String key = attribute.getKey();
+            if (attribute instanceof XAttributeLiteral) getStringColumn(key);
+            else if (attribute instanceof XAttributeTimestamp) getDateTimeColumn(key);
+            else if (attribute instanceof XAttributeDiscrete) getLongColumn(key);
+            else if (attribute instanceof XAttributeContinuous) getDoubleColumn(key);
+            else if (attribute instanceof XAttributeBoolean) getBooleanColumn(key);
+            else getStringColumn(key);  // default
+        }
+    }
+
+    private StringColumn getStringColumn(String name) {
+        StringColumn column = (StringColumn) _columns.get(name);
+        if (column == null) {
+            column = StringColumn.create(name);
+            addColumn(column);
+        }
+        return column;
+    }
+
+    private BooleanColumn getBooleanColumn(String name) {
+        BooleanColumn column = (BooleanColumn) _columns.get(name);
+        if (column == null) {
+            column = BooleanColumn.create(name);
+            addColumn(column);
+        }
+        return column;
+    }
+
+    private DateTimeColumn getDateTimeColumn(String name) {
+        DateTimeColumn column = (DateTimeColumn) _columns.get(name);
+        if (column == null) {
+            column = DateTimeColumn.create(name);
+            addColumn(column);
+        }
+        return column;
+    }
+
+    private LongColumn getLongColumn(String name) {
+        LongColumn column = (LongColumn) _columns.get(name);
+        if (column == null) {
+            column = LongColumn.create(name);
+            addColumn(column);
+        }
+        return column;
+    }
+
+    private DoubleColumn getDoubleColumn(String name) {
+        DoubleColumn column = (DoubleColumn) _columns.get(name);
+        if (column == null) {
+            column = DoubleColumn.create(name);
+            addColumn(column);
+        }
+        return column;
+    }
+
+    private void addColumn(Column<?> column) {
+        _columns.put(column.name(), column);
+        padColumn(column, getRowCount() - 1);
+    }
+
+    private int getRowCount() {
+        return getStringColumn("case:id").size();
+    }
+
+    private void padColumns(int count) {
+        for (Column<?> column : _columns.values()) {
+            if (column.size() < count) {
+                padColumn(column, count);
+            }
+        }
+    }
+
+    private void padColumn(Column<?> column, int count) {
+        for (int i = column.size(); i < count; i++) {
+            column.appendMissing();
+        }
+    }
+
+    
     public static void main(String[] args) {
         XesDataReader reader = new XesDataReader();
-        reader.setSource(new File("/Users/adamsmj/Downloads/Tutorial120.3.xes"));
+        reader.setSource(new File("/Users/adamsmj/Documents/Git/contributions/praeclarus/sareh220209/updates220214/reviewing.xes"));
         try {
             Table t = reader.read();
             System.out.println(t.structure());
