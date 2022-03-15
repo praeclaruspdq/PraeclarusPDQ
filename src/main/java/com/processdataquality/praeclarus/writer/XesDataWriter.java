@@ -51,6 +51,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -94,30 +95,11 @@ public class XesDataWriter extends AbstractDataWriter {
 
     private XLog createXLog(Table table) throws IOException {
         Map<String, String> colNames = mapColNames();
-//        checkColumnNamesInTable(table, colNames);
+        checkColumnNamesInTable(table, colNames);
         XFactory xFactory = new XFactoryNaiveImpl();
         XLog xLog = xFactory.createLog();
-        XConceptExtension conceptExtension = XConceptExtension.instance();
-        XLifecycleExtension lifeExtension = XLifecycleExtension.instance();
-        XTimeExtension timeExtension = XTimeExtension.instance();
-        XOrganizationalExtension orgExtension = XOrganizationalExtension.instance();
-        xLog.getExtensions().add(conceptExtension);
-        xLog.getExtensions().add(lifeExtension);
-        xLog.getExtensions().add(timeExtension);
-        xLog.getExtensions().add(orgExtension);
-        xLog.getClassifiers().add(new XEventNameClassifier());
-        xLog.getClassifiers().add(new XEventLifeTransClassifier());
-        xLog.getClassifiers().add(new XEventResourceClassifier());
-        conceptExtension.assignName(xLog, table.name());            
-        lifeExtension.assignModel(xLog, XLifecycleExtension.VALUE_MODEL_STANDARD);
-
-        xLog.getGlobalTraceAttributes().add(new XAttributeLiteralImpl(XConceptExtension.KEY_NAME, "UNKNOWN"));
-
-        xLog.getGlobalEventAttributes().add(new XAttributeTimestampImpl(XTimeExtension.KEY_TIMESTAMP, 0));
-        xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XConceptExtension.KEY_NAME, "UNKNOWN"));
-        xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XLifecycleExtension.KEY_TRANSITION, "UNKNOWN"));
-        xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XConceptExtension.KEY_INSTANCE, "UNKNOWN"));
-        xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XOrganizationalExtension.KEY_RESOURCE, "UNKNOWN"));
+        XConceptExtension conceptExtension = addExtensions(xLog, table.name());
+        addGlobals(xLog);
 
         XTrace xTrace = null;
         String currentCaseId = null;
@@ -133,73 +115,75 @@ public class XesDataWriter extends AbstractDataWriter {
                 xLog.add(xTrace);
                 currentCaseId = caseId;
             }
-                  
-            // todo: ensure valid lifecycle value
+
             XEvent xEvent = xFactory.createEvent();
-
-            for (Column<?> col : table.columns()) {
-                String colName = col.name();
-                if ("case:id".equals(colName)) {
-                    continue;
-                }
-                XAttribute attribute = null;
-                ColumnType colType = col.type();
-                if ("data".equals(colName)) {
-                    addData(xEvent, getStringValue(row, colName));
-                    continue;
-                }
-
-                if (colType instanceof StringColumnType) {
-                    attribute = new XAttributeLiteralImpl(colName, getStringValue(row, colName));
-                }
-                else if (colType instanceof DateTimeColumnType) {
-                    attribute = new XAttributeTimestampImpl(colName, getTimeValue(row, colName));
-                }
-                else if (colType instanceof LongColumnType) {
-                    attribute = new XAttributeDiscreteImpl(colName, getLongValue(row, colName));
-                }
-                else if (colType instanceof DoubleColumnType) {
-                    attribute = new XAttributeContinuousImpl(colName, getDoubleValue(row, colName));
-                }
-                else if (colType instanceof BooleanColumnType) {
-                    attribute = new XAttributeBooleanImpl(colName,
-                            Boolean.TRUE.equals(getBooleanValue(row, colName)));
-                }
-                if (attribute != null) {
-                    xEvent.getAttributes().put(colName, attribute);
-                }
-             }
-
-
-
-
-//            String name = getStringValue(row, colNames.get("concept:name"));
-//            if (name != null) {
-//                conceptExtension.assignName(xEvent, name);
-//            }
-//            String instance = getStringValue(row, colNames.get("concept:instance"));
-//            if (instance != null) {
-//                conceptExtension.assignInstance(xEvent, instance);
-//            }
-//            String transition = getStringValue(row, colNames.get("lifecycle:transition"));
-//            if (transition != null) {
-//                lifeExtension.assignTransition(xEvent, transition);
-//            }
-//            String resource = getStringValue(row, colNames.get("org:resource"));
-//            if (resource != null) {
-//                orgExtension.assignResource(xEvent, resource);
-//            }
-//
-//            Timestamp timestamp = getTimeValue(row, colNames.get("time:timestamp"));
-//            if (timestamp != null) {
-//                timeExtension.assignTimestamp(xEvent,timestamp);
-//            }
-//
-//            addData(row, xEvent);
-            
-            xTrace.add(xEvent);
+            xTrace.add(parseRow(xEvent, table.columns(), row));
         }
         return xLog;
+    }
+
+
+    private XEvent parseRow(XEvent xEvent, List<Column<?>> columns, Row row) {
+        for (Column<?> column : columns) {
+            String colName = column.name();
+            if ("case:id".equals(colName)) {
+                continue;
+            }
+            XAttribute attribute = null;
+            ColumnType colType = column.type();
+            if ("data".equals(colName)) {
+                addData(xEvent, getStringValue(row, colName));
+                continue;
+            }
+
+            if (colType instanceof StringColumnType) {
+                attribute = new XAttributeLiteralImpl(colName, getStringValue(row, colName));
+            }
+            else if (colType instanceof DateTimeColumnType) {
+                attribute = new XAttributeTimestampImpl(colName, getTimeValue(row, colName));
+            }
+            else if (colType instanceof LongColumnType) {
+                attribute = new XAttributeDiscreteImpl(colName, getLongValue(row, colName));
+            }
+            else if (colType instanceof DoubleColumnType) {
+                attribute = new XAttributeContinuousImpl(colName, getDoubleValue(row, colName));
+            }
+            else if (colType instanceof BooleanColumnType) {
+                attribute = new XAttributeBooleanImpl(colName,
+                        Boolean.TRUE.equals(getBooleanValue(row, colName)));
+            }
+            if (attribute != null) {
+                xEvent.getAttributes().put(colName, attribute);
+            }
+        }
+        return xEvent;
+    }
+
+
+    private XConceptExtension addExtensions(XLog xLog, String tableName) {
+        XConceptExtension conceptExtension = XConceptExtension.instance();
+        XLifecycleExtension lifeExtension = XLifecycleExtension.instance();
+        xLog.getExtensions().add(conceptExtension);
+        xLog.getExtensions().add(lifeExtension);
+        xLog.getExtensions().add(XTimeExtension.instance());
+        xLog.getExtensions().add(XOrganizationalExtension.instance());
+        xLog.getClassifiers().add(new XEventNameClassifier());
+        xLog.getClassifiers().add(new XEventLifeTransClassifier());
+        xLog.getClassifiers().add(new XEventResourceClassifier());
+        
+        conceptExtension.assignName(xLog, (tableName != null ? tableName : "UNKNOWN"));
+        lifeExtension.assignModel(xLog, XLifecycleExtension.VALUE_MODEL_STANDARD);
+        return conceptExtension;
+    }
+
+
+    private void addGlobals(XLog xLog) {
+        xLog.getGlobalTraceAttributes().add(new XAttributeLiteralImpl(XConceptExtension.KEY_NAME, "UNKNOWN"));
+        xLog.getGlobalEventAttributes().add(new XAttributeTimestampImpl(XTimeExtension.KEY_TIMESTAMP, 0));
+        xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XConceptExtension.KEY_NAME, "UNKNOWN"));
+        xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XLifecycleExtension.KEY_TRANSITION, "UNKNOWN"));
+        xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XConceptExtension.KEY_INSTANCE, "UNKNOWN"));
+        xLog.getGlobalEventAttributes().add(new XAttributeLiteralImpl(XOrganizationalExtension.KEY_RESOURCE, "UNKNOWN"));
     }
 
 
@@ -273,7 +257,7 @@ public class XesDataWriter extends AbstractDataWriter {
                 String key = parts[1];
                 String value = parts[2];
 
-                XAttribute attribute = null;
+                XAttribute attribute;
                 if ("string".equals(type)) {
                     attribute = new XAttributeLiteralImpl(key, value);
                 }
@@ -290,11 +274,12 @@ public class XesDataWriter extends AbstractDataWriter {
                 }
                 else if ("boolean".equals(type)) {
                     attribute = new XAttributeBooleanImpl(key, "TRUE".equalsIgnoreCase(value));
+                }
+                else {
+                    attribute = new XAttributeLiteralImpl(key, value);
+                }
 
-                }
-                if (attribute != null) {
-                    event.getAttributes().put(key, attribute);
-                }
+                event.getAttributes().put(key, attribute);
             }
         }
     }

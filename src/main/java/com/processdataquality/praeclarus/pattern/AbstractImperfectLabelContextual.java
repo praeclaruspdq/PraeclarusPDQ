@@ -16,11 +16,11 @@
 
 package com.processdataquality.praeclarus.pattern;
 
-import com.processdataquality.praeclarus.activitysimilaritymeasures.*;
-import com.processdataquality.praeclarus.logelements.Activity;
-import com.processdataquality.praeclarus.logelements.ParseTable;
-import com.processdataquality.praeclarus.math.Pair;
 import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.support.activitysimilaritymeasures.*;
+import com.processdataquality.praeclarus.support.logelements.Activity;
+import com.processdataquality.praeclarus.support.logelements.ParseTable;
+import com.processdataquality.praeclarus.support.math.Pair;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 

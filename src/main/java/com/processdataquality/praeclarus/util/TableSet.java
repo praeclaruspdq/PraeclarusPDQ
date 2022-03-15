@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.util;
+package com.processdataquality.praeclarus.util;
 
 import tech.tablesaw.api.Table;
 import tech.tablesaw.columns.Column;

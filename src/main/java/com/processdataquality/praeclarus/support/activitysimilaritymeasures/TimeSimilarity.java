@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.activitysimilaritymeasures;
+package com.processdataquality.praeclarus.support.activitysimilaritymeasures;
 
-import com.processdataquality.praeclarus.logelements.Activity;
+import com.processdataquality.praeclarus.support.logelements.Activity;
 
 import java.util.ArrayList;
 
