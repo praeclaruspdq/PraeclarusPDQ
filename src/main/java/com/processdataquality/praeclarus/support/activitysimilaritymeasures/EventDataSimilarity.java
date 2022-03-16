@@ -16,15 +16,14 @@
 
 package com.processdataquality.praeclarus.support.activitysimilaritymeasures;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-
-import com.processdataquality.praeclarus.logelements.*;
-import com.processdataquality.praeclarus.support.math.Pair;
 import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.logelements.ActivityData;
 import com.processdataquality.praeclarus.support.logelements.Event;
+import com.processdataquality.praeclarus.support.math.Pair;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * @author Sareh Sadeghianasl

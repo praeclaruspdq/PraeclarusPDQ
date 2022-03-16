@@ -29,7 +29,6 @@ import tech.tablesaw.api.Table;
  */
 public class PatternNode extends Node {
 
-
     private Table detected;                 // a table of pattern matches
 
 
@@ -84,6 +83,14 @@ public class PatternNode extends Node {
     public void reset() {
         super.reset();
         detected = null;
+    }
+
+
+    /**
+     * @return the table of detected results
+     */
+    public Table getDetected() {
+        return detected;
     }
 
 

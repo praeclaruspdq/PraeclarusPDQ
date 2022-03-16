@@ -16,11 +16,10 @@
 
 package com.processdataquality.praeclarus.support.activitysimilaritymeasures;
 
-import java.util.ArrayList;
-
-
 import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.math.ErrorFunction;
+
+import java.util.ArrayList;
 
 /**
  * @author Sareh Sadeghianasl

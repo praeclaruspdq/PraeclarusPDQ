@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.PatternNode;
 import com.processdataquality.praeclarus.repo.Differ;
 import com.processdataquality.praeclarus.repo.LogEntry;
 import com.processdataquality.praeclarus.repo.Repo;
@@ -52,7 +53,7 @@ import java.util.List;
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public class OutputPanel extends VerticalLayout implements CanvasSelectionListener {
 
-    private enum Page { OUTPUT, HISTORY, DIFF, NONE }
+    private enum Page { OUTPUT, HISTORY, DIFF, DETECTED, NONE }
     
     private final VerticalLayout title = new VerticalLayout();
     private final VerticalScrollLayout page = new VerticalScrollLayout();
@@ -75,6 +76,7 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
     @Override
     public void canvasSelectionChanged(CanvasPrimitive selected) {
         selectedVertex = (selected instanceof Vertex) ? (Vertex) selected : null;
+        enableDetectedButton();
         show();
     }
 
@@ -86,6 +88,8 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
                 "Log", new Icon(VaadinIcon.FILE_PROCESS), Page.HISTORY));
         buttonBar.add(createButton(
                 "Diff", new Icon(VaadinIcon.PLUS_MINUS), Page.DIFF));
+        buttonBar.add(createButton(
+                "Detected", new Icon(VaadinIcon.SEARCH), Page.DETECTED));
         return buttonBar;
     }
 
@@ -124,12 +128,25 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
     }
 
 
+    private void enableDetectedButton() {
+        if (selectedVertex != null) {
+            for (int i=0; i < buttonBar.getComponentCount(); i++) {
+                Component c = buttonBar.getComponentAt(i);
+                if ((c instanceof Button) && ((Button) c).getText().equals("Detected")) {
+                    ((Button) c).setEnabled(selectedVertex.getNode() instanceof PatternNode);
+                }
+            }
+        }
+    }
+
+
     private void show() {
         clearPage();      // there's been a selection change
         switch (currentPage) {
             case NONE: break;   // nothing to do
             case OUTPUT: showOutput(); break;
             case HISTORY: showHistory(); break;
+            case DETECTED: showDetected(); break;
             case DIFF: showDiff(); break;
         }
     }
@@ -138,14 +155,19 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
     private void showOutput() {
         if (selectedVertex != null) {
             Node node = selectedVertex.getNode();
-            Table output = node.getOutput();
-            if (output != null) {
-                Grid<Row> grid = tableToGrid(output);
-                setTitle(node.getLabel());
-                page.add(grid);
-            }
-            else {
-                page.add(new Html("<p>The selected node has not yet completed</p>"));
+            showTable(node.getOutput(), node.getLabel());
+        }
+        else {
+            page.add(new Html("<p>Select a completed node to show its output</p>"));
+        }
+    }
+
+
+    private void showDetected() {
+        if (selectedVertex != null) {
+            Node node = selectedVertex.getNode();
+            if (node instanceof PatternNode) {
+                showTable(((PatternNode) node).getDetected(), node.getLabel());
             }
         }
         else {
@@ -211,6 +233,18 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
         }
         else {
             page.add(new Html("<p>Select any completed node to show the dataset log</p>"));
+        }
+    }
+
+
+    private void showTable(Table table, String title) {
+        if (table != null) {
+            Grid<Row> grid = tableToGrid(table);
+            setTitle(title);
+            page.add(grid);
+        }
+        else {
+            page.add(new Html("<p>The selected node has not yet completed</p>"));
         }
     }
 
