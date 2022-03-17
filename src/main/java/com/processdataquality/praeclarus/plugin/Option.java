@@ -16,6 +16,8 @@
 
 package com.processdataquality.praeclarus.plugin;
 
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
+
 /**
  * A store for a single configuration option (i.e. a parameter) for a plugin
  * 
@@ -69,9 +71,9 @@ public class Option {
 
     // the remaining methods return the value cast to its actual type
 
-    public String asString() {
+    public String asString() throws InvalidParameterValueException {
         if (_value == null) {
-            throw new IllegalArgumentException("Value is missing");
+            throw new InvalidParameterValueException("Value is missing");
         }
         return String.valueOf(_value);
     }
@@ -79,7 +81,7 @@ public class Option {
 
     public int asInt() {
         if (! (_value instanceof Integer)) {
-            throw new IllegalArgumentException("Value is missing or not an Integer");
+            throw new InvalidParameterValueException("Value is missing or not an Integer");
         }
         return (int) _value;
     }
@@ -87,7 +89,7 @@ public class Option {
 
     public double asDouble() {
         if (! (_value instanceof Double)) {
-            throw new IllegalArgumentException("Value is missing or not a Double");
+            throw new InvalidParameterValueException("Value is missing or not a Double");
         }
         return (double) _value;
     }
@@ -95,7 +97,7 @@ public class Option {
 
     public boolean asBoolean() {
         if (! (_value instanceof Boolean)) {
-            throw new IllegalArgumentException("Value is missing or not a Boolean");
+            throw new InvalidParameterValueException("Value is missing or not a Boolean");
         }
         return (boolean) _value;
     }
@@ -110,7 +112,7 @@ public class Option {
                     return value.charAt(0);
                 }
             }
-            throw new IllegalArgumentException("Value is missing or not a char type");
+            throw new InvalidParameterValueException("Value is missing or not a char type");
         }
         return (char) _value;
     }
@@ -122,7 +124,7 @@ public class Option {
             return (T) _value;
         }
         catch (ClassCastException cce) {
-            throw new IllegalArgumentException(cce.getMessage());
+            throw new InvalidParameterValueException(cce.getMessage());
         }
     }
 

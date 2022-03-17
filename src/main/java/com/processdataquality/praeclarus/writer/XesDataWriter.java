@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.exception.InvalidParameterException;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -228,22 +229,28 @@ public class XesDataWriter extends AbstractDataWriter {
     }
 
 
-    private Map<String, String> mapColNames() {
+    private Map<String, String> mapColNames() throws IOException {
         Map<String, String> map = new HashMap<>();
-        mapColName(map, "case:id", "Case ID column");
-        mapColName(map, "concept:name", "Name column");
-        mapColName(map, "time:timestamp", "Time column");
-        mapColName(map, "lifecycle:transition", "Lifecycle column");
-        mapColName(map, "concept:instance", "Instance column");
-        mapColName(map, "org:resource", "Resource column");
-        mapColName(map, "data", "Data column");
+        try {
+            mapColName(map, "case:id", "Case ID column");
+            mapColName(map, "concept:name", "Name column");
+            mapColName(map, "time:timestamp", "Time column");
+            mapColName(map, "lifecycle:transition", "Lifecycle column");
+            mapColName(map, "concept:instance", "Instance column");
+            mapColName(map, "org:resource", "Resource column");
+            mapColName(map, "data", "Data column");
+        }
+        catch (InvalidParameterException ipe) {
+             throw new IOException(ipe.getMessage());
+        }
         return map;
     }
 
 
-    private void mapColName(Map<String, String> map, String key, String optionKey) {
-        String userValue = getOptions().get(optionKey).asString();
-        if (! (userValue == null || userValue.isEmpty())) {
+    private void mapColName(Map<String, String> map, String key, String optionKey)
+            throws InvalidParameterException {
+        String userValue = getOptions().getNotNull(optionKey).asString();
+        if (! userValue.isEmpty()) {
             map.put(key, userValue);
         }
     }

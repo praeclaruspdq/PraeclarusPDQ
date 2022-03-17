@@ -91,6 +91,7 @@ public class Vertex implements CanvasPrimitive {
         if (state == VertexStateIndicator.State.COMPLETED) {
             _infoText = getNode().getOutput().rowCount() + " rows";
         }
+        else _infoText = null;
     }
 
 

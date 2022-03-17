@@ -34,8 +34,22 @@ import java.util.List;
 public class UiUtil {
 
     public static void removeTopMargin(Component c) {
-        c.getElement().getStyle().set("margin-top", "0");
+        setStyle(c,"margin-top", "0");
     }
+
+    public static void removeTopPadding(Component c) {
+        setStyle(c,"padding-top", "0");
+    }
+
+    public static void removeBottomPadding(Component c) {
+        setStyle(c,"padding-bottom", "0");
+    }
+
+
+    public static void setStyle(Component c, String key, String value) {
+        c.getElement().getStyle().set(key, value);
+    }
+
 
 
     public static Grid<Row> tableToGrid(Table table) {
@@ -90,7 +104,7 @@ public class UiUtil {
         Table copy = table.copy();
         copy.clear();
         for (Row row : grid.asMultiSelect().getSelectedItems()) {
-            copy.addRow(row);
+            copy.addRow(row.getRowNumber(), table);
         }
         return copy;
     }
@@ -103,7 +117,7 @@ public class UiUtil {
         @SuppressWarnings("unchecked")
         ListDataProvider<Row> provider = (ListDataProvider<Row>) grid.getDataProvider();
         for (Row row : provider.getItems()) {
-            copy.addRow(row);
+            copy.addRow(row.getRowNumber(), table);
         }
         return copy;
     }

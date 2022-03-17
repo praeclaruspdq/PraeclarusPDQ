@@ -70,7 +70,7 @@ public abstract class Node {
     /**
      * Implemented by subclasses to run a plugin's algorithm
      */
-    public abstract void run();
+    public abstract void run() throws Exception;
 
 
     public void addStateListener(NodeStateListener listener) { _listeners.add(listener); }
@@ -80,7 +80,7 @@ public abstract class Node {
     }
 
 
-    protected void setState(NodeState state) {
+    protected void setState(NodeState state) throws Exception {
         if (_state != state) {
             _state = state;
             announceStateChange();
@@ -281,7 +281,7 @@ public abstract class Node {
     /**
      * Returns this node to its pre-run state
      */
-    public void reset() {
+    public void reset() throws Exception {
         clearOutput();
         setState(NodeState.UNSTARTED);
     }
@@ -364,8 +364,10 @@ public abstract class Node {
     }
 
 
-    private void announceStateChange() {
-        _listeners.forEach(l -> l.nodeStateChanged(this));
+    private void announceStateChange() throws Exception {
+        for (NodeStateListener listener : _listeners) {
+            listener.nodeStateChanged(this);
+        }
     }
 
 }

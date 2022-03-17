@@ -20,7 +20,6 @@ import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.reader.DataReader;
 import tech.tablesaw.api.Table;
 
-import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -41,16 +40,13 @@ public class ReaderNode extends Node {
      * node's output 
      */
     @Override
-    public void run() {
+    public void run() throws Exception {
         setState(NodeState.EXECUTING);
-        try {
-            Table table = ((DataReader) getPlugin()).read();
-            table.setName(UUID.randomUUID().toString());
-            setOutput(table);
-        }
-        catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
+
+        Table table = ((DataReader) getPlugin()).read();
+        table.setName(UUID.randomUUID().toString());
+        setOutput(table);
+
         setState(NodeState.COMPLETED);
     }
 

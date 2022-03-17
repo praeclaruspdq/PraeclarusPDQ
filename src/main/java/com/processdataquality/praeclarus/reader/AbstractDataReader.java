@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.reader;
 
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import org.apache.commons.io.input.ReaderInputStream;
@@ -37,7 +38,7 @@ public abstract class AbstractDataReader implements DataReader {
     protected Source _source;             // the data input source
 
     // each sub-class will have unique read options for data format etc.
-    protected abstract ReadOptions getReadOptions();
+    protected abstract ReadOptions getReadOptions() throws InvalidParameterValueException;
 
 
     /**
@@ -83,6 +84,9 @@ public abstract class AbstractDataReader implements DataReader {
 
     @Override
     public Source getSource() {
+        if (_source == null) {
+            throw new InvalidParameterValueException("Parameter 'Source' requires a value");
+        }
         return _source;
     }
 

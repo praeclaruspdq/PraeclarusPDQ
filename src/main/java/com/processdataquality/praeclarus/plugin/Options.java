@@ -16,6 +16,8 @@
 
 package com.processdataquality.praeclarus.plugin;
 
+import com.processdataquality.praeclarus.exception.InvalidParameterException;
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
@@ -67,6 +69,13 @@ public class Options extends HashMap<String, Option> {         // key is Option'
     }
 
 
+    public Option getNotNull(String key) throws InvalidParameterException {
+        Option option = super.get(key);
+        if (option != null) return option;
+        throw new InvalidParameterException("Missing parameter: " + key);
+    }
+
+
     public void init(Map<String, Object> map) {
          for (String key : map.keySet()) {
              addDefault(key, map.get(key));
@@ -97,7 +106,7 @@ public class Options extends HashMap<String, Option> {         // key is Option'
 
 
      // just a little test 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InvalidParameterValueException {
         Options o = new Options();
         o.add("one", "string");
         o.add("two", 3);

@@ -20,8 +20,6 @@ import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.writer.DataWriter;
 import tech.tablesaw.api.Table;
 
-import java.io.IOException;
-
 /**
  * A container node for a log data writer
  *
@@ -40,16 +38,13 @@ public class WriterNode extends Node {
      * defined in this node's plugin
      */
     @Override
-    public void run() {
+    public void run() throws Exception {
         setState(NodeState.EXECUTING);
-        try {
-            Table input = getInputs().get(0);     // a writer node has only one input
-            ((DataWriter) getPlugin()).write(input);
-            setOutput(input);
-        }
-        catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
+
+        Table input = getInputs().get(0);     // a writer node has only one input
+        ((DataWriter) getPlugin()).write(input);
+        setOutput(input);
+
         setState(NodeState.COMPLETED);
     }
     

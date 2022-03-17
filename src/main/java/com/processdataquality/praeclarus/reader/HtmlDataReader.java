@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.io.html.HtmlReadOptions;
 
@@ -42,7 +43,7 @@ public class HtmlDataReader extends AbstractDataReader {
     }
 
 
-    protected HtmlReadOptions getReadOptions() {
+    protected HtmlReadOptions getReadOptions() throws InvalidParameterValueException {
         return HtmlReadOptions.builder(getSource())
                 .missingValueIndicator(_options.get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))

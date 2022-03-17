@@ -42,7 +42,7 @@ public class PatternNode extends Node {
      * based on the current node state, using its defined algorithm
      */
     @Override
-    public void run() {
+    public void run() throws Exception {
         ImperfectionPattern imperfectionPattern = (ImperfectionPattern) getPlugin();
         Table master = getInputs().get(0);         // only one input
         if (getState() == NodeState.UNSTARTED && imperfectionPattern.canDetect()) {
@@ -80,7 +80,7 @@ public class PatternNode extends Node {
      * Sets this node back to its pre-run state
      */
     @Override
-    public void reset() {
+    public void reset() throws Exception {
         super.reset();
         detected = null;
     }

@@ -17,6 +17,9 @@
 package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.exception.InvalidParameterException;
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
+import com.processdataquality.praeclarus.exception.ParameterException;
 import com.processdataquality.praeclarus.plugin.Option;
 import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.plugin.uitemplate.*;
@@ -59,7 +62,7 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
      * @return a table where each row contains values detected using the pattern
      */
     @Override
-    public Table detect(Table table) {
+    public Table detect(Table table) throws ParameterException {
         StringColumn column = getSelectedColumn(table);
         List<String> tested = new ArrayList<>();    // cache of strings already tested
         List<String> compared = new ArrayList<>();  // cache of strings already compared to
@@ -85,7 +88,7 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
      * @return        a table of the original data with the repairs done
      */
     @Override
-    public Table repair(Table master) {
+    public Table repair(Table master) throws InvalidParameterValueException {
         String colName = _options.get("Column Name").asString();
         StringColumn repaired = (StringColumn) master.column(colName);
         for (Row row : getRepairs()) {
@@ -154,15 +157,16 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
      * @param table the table containing columns of data
      * @return the specified column
      */
-    protected StringColumn getSelectedColumn(Table table) {
-        Option option = _options.get("Column Name");
-        if (option != null) {
-            String colName = option.asString();
-            if (colName != null) {
-                return (StringColumn) table.column(colName);
-            }
+    protected StringColumn getSelectedColumn(Table table) throws InvalidParameterException {
+        Option option = _options.getNotNull("Column Name");
+        String colName = option.asString();
+        if (colName.isEmpty()) {
+            throw new InvalidParameterException("No column name specified");
         }
-        throw new IllegalArgumentException("A value must be provided for the 'Column Name' property");
+        if (table.columnNames().contains(colName)) {
+            return (StringColumn) table.column(colName);
+        }
+        throw new InvalidParameterException("No column named '" + colName + "' in table");
     }
 
 

@@ -147,7 +147,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
 
 
     @Override
-    public void nodeStateChanged(Node node) {
+    public void nodeStateChanged(Node node) throws Exception {
         switch (node.getState()) {
             case UNSTARTED:
                 changeStateIndicator(node, VertexStateIndicator.State.DORMANT);
@@ -336,7 +336,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         if (option.key().equals("Workflow Name")) {
             String newName = option.asString();
             if (! newName.isEmpty()) {
-                setName(option.asString());
+                setName(newName);
             }
         }
     }

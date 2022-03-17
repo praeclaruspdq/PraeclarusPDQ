@@ -18,6 +18,7 @@ package com.processdataquality.praeclarus.reader;
 
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
@@ -44,7 +45,7 @@ public class CsvDataReader extends AbstractDataReader {
     }
 
 
-    protected CsvReadOptions getReadOptions() {
+    protected CsvReadOptions getReadOptions() throws InvalidParameterValueException {
         CsvReadOptions.Builder builder = CsvReadOptions.builder(getSource());
         for (String key : _options.getChanges().keySet()) {
             switch (key) {

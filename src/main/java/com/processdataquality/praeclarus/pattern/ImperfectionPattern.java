@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.pattern;
 
+import com.processdataquality.praeclarus.exception.ParameterException;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import tech.tablesaw.api.Table;
@@ -31,7 +32,7 @@ public interface ImperfectionPattern extends PDQPlugin {
      * @param table a table containing values to check for the pattern
      * @return a table where each row contains values detected using the pattern
      */
-    Table detect(Table table);
+    Table detect(Table table) throws ParameterException;
 
 
     /**
@@ -39,7 +40,7 @@ public interface ImperfectionPattern extends PDQPlugin {
      * @param master the original table containing pattern instances
      * @return        a table of the original data with the repairs done
      */
-    Table repair(Table master);
+    Table repair(Table master) throws ParameterException;
 
 
     /**

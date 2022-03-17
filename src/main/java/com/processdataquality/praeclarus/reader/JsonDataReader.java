@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
 import tech.tablesaw.io.json.JsonReadOptions;
 
 /**
@@ -30,7 +31,7 @@ import tech.tablesaw.io.json.JsonReadOptions;
         synopsis = "Loads a log file formatted as JSON."
 )
 public class JsonDataReader extends AbstractDataReader {
-    protected JsonReadOptions getReadOptions() {
+    protected JsonReadOptions getReadOptions() throws InvalidParameterValueException {
         return JsonReadOptions.builder(getSource())
                 .missingValueIndicator(_options.get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))

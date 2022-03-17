@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.exception.NodeRunnerException;
 import com.processdataquality.praeclarus.node.*;
 import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
@@ -70,14 +71,21 @@ public class WorkflowPanel extends VerticalLayout
         
         VerticalLayout vl = new VerticalLayout();
         vl.add(new H4("Workflow"), _runnerButtons);
-        UiUtil.removeTopMargin(vl);
+        UiUtil.removeBottomPadding(vl);
+        
         add(vl, createCanvasContainer());
+        changedSelected(null);                     // init with default properties panel
     }
 
 
     @Override
-    public void pluginUICloseEvent(ButtonAction action, Node node) {
-        _runner.resume(node);          // action doesn't matter
+    public void pluginUICloseEvent(ButtonAction buttonAction, Node node) {
+        try {
+            _runner.action(NodeRunner.RunnerAction.RESUME, node);  // button action doesn't matter
+        }
+        catch (NodeRunnerException e) {
+            new ErrorMsg(e.getMessage()).open();
+        }
     }
     
 
@@ -141,7 +149,7 @@ public class WorkflowPanel extends VerticalLayout
 
         VerticalScrollLayout container = new VerticalScrollLayout();
         container.add(_canvas);
-        UiUtil.removeTopMargin(container);
+        UiUtil.removeTopPadding(container);
         return container;
     }
 
@@ -202,6 +210,7 @@ public class WorkflowPanel extends VerticalLayout
         icon.setSize("24px");
         Button removeButton = new Button(icon, e -> {
             _workflow.removeSelected();
+            changedSelected(null);
             _saveButton.setEnabled(_workflow.hasContent());
         });
         removeButton.getElement().setAttribute("title", "Remove node");

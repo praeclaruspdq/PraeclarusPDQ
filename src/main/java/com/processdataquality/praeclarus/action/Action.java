@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.action;
 
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import tech.tablesaw.api.Table;
 
@@ -27,5 +28,5 @@ import java.util.List;
  */
 public interface Action extends PDQPlugin {
 
-    Table run(List<Table> inputSet);
+    Table run(List<Table> inputSet) throws InvalidParameterValueException;
 }

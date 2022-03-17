@@ -46,7 +46,6 @@ public class MainView extends VerticalLayout {
         setId("mainview");
         _propsPanel = new PropertiesPanel();
         _workflowPanel = new WorkflowPanel(this);
-        add(getTitleImage());
         SplitLayout masterLayout = new SplitLayout();
         masterLayout.addToPrimary(leftPanel());
         masterLayout.addToSecondary(centrePanel());
@@ -70,7 +69,9 @@ public class MainView extends VerticalLayout {
     private SplitLayout leftPanel() {
         SplitLayout leftLayout = new SplitLayout();
         leftLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
-        leftLayout.addToPrimary(new PluginsPanel());
+
+        // title image added here to save wasted space across page top
+        leftLayout.addToPrimary(getTitleImage(), new PluginsPanel());
         leftLayout.addToSecondary(_propsPanel);
         leftLayout.setWidth("23%");
         leftLayout.addSplitterDragendListener(e -> _workflowPanel.onResize());

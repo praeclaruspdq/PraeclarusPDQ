@@ -28,6 +28,7 @@ import tech.tablesaw.io.ReadOptions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -76,6 +77,11 @@ public class XesDataReader extends AbstractDataReader {
 
     private List<XLog> parseInput() throws IOException {
         try {
+            InputStream is = getSourceAsInputStream();
+            if (is == null) {
+                throw new IOException("Failed to read: No XES input source specified");
+            }
+
             return new XesXmlParser().parse(getSourceAsInputStream());
         }
         catch (Exception e) {

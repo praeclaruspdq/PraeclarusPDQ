@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.action;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
 
@@ -39,7 +40,7 @@ public class InnerJoin implements Action {
     public InnerJoin() { }
 
     @Override
-    public Table run(List<Table> inputList) {
+    public Table run(List<Table> inputList) throws InvalidParameterValueException {
         if (inputList.size() < 2) {
             throw new IllegalArgumentException("This action requires at least two tables as input.");
         }

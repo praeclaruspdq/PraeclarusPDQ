@@ -17,6 +17,8 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.NodeRunner;
+import com.processdataquality.praeclarus.node.NodeRunnerListener;
 import com.processdataquality.praeclarus.node.PatternNode;
 import com.processdataquality.praeclarus.repo.Differ;
 import com.processdataquality.praeclarus.repo.LogEntry;
@@ -44,6 +46,7 @@ import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,22 +54,25 @@ import java.util.List;
  * @date 8/11/21
  */
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
-public class OutputPanel extends VerticalLayout implements CanvasSelectionListener {
+public class OutputPanel extends VerticalLayout
+        implements CanvasSelectionListener, NodeRunnerListener {
 
     private enum Page { OUTPUT, HISTORY, DIFF, DETECTED, NONE }
     
     private final VerticalLayout title = new VerticalLayout();
     private final VerticalScrollLayout page = new VerticalScrollLayout();
     private final HorizontalLayout buttonBar = new HorizontalLayout();
-
+    private final List<Button> buttons;
     private Page currentPage = Page.NONE;
     private Vertex selectedVertex;
 
     
     public OutputPanel(MainView parent) {
         parent.getWorkflowPanel().addVertexSelectionListener(this);
+        parent.getWorkflowPanel().getRunner().addListener(this);
         setId("OutputPanel");
         add(title, page, buttonsPanel());
+        buttons = getButtons();
         page.setSizeFull();
         setFlexGrow(1f, page);
         setMinHeight("200px");
@@ -76,31 +82,61 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
     @Override
     public void canvasSelectionChanged(CanvasPrimitive selected) {
         selectedVertex = (selected instanceof Vertex) ? (Vertex) selected : null;
-        enableDetectedButton();
+        enableButtons();
         show();
     }
 
-    
+
+    @Override
+    public void runnerStateChanged(NodeRunner.RunnerState newState) {
+        if (newState == NodeRunner.RunnerState.IDLE) {
+            enableButtons();
+        }
+    }
+
+
+    @Override
+    public void runnerNodePaused(Node node) { }
+
+
     private HorizontalLayout buttonsPanel() {
         buttonBar.add(createButton(
-                "Output", new Icon(VaadinIcon.DATABASE), Page.OUTPUT));
+                "Output", new Icon(VaadinIcon.DATABASE), Page.OUTPUT,
+                "View output of selected node"));
         buttonBar.add(createButton(
-                "Log", new Icon(VaadinIcon.FILE_PROCESS), Page.HISTORY));
+                "Log", new Icon(VaadinIcon.FILE_PROCESS), Page.HISTORY,
+                "Show log of changes to this dataset"));
         buttonBar.add(createButton(
-                "Diff", new Icon(VaadinIcon.PLUS_MINUS), Page.DIFF));
+                "Diff", new Icon(VaadinIcon.PLUS_MINUS), Page.DIFF,
+                "Show changes to dataset between this and previous node"));
         buttonBar.add(createButton(
-                "Detected", new Icon(VaadinIcon.SEARCH), Page.DETECTED));
+                "Detected", new Icon(VaadinIcon.SEARCH), Page.DETECTED,
+                "Show the pattern detection results"));
         return buttonBar;
     }
 
 
-    private Button createButton(String label, Icon icon, Page page) {
+    private Button createButton(String label, Icon icon, Page page, String tip) {
         icon.setSize("20px");
         Button b = new Button(label, icon, e -> buttonClick(e, page));
         b.addThemeVariants(ButtonVariant.LUMO_SMALL);
         b.setHeight("24px");
         b.setWidth("96px");
+        b.getElement().setAttribute("title", tip);
+        b.setEnabled(false);                                   // disabled to begin with
         return b;
+    }
+
+
+    private List<Button> getButtons() {
+        List<Button> buttons = new ArrayList<>();
+        for (int i=0; i < buttonBar.getComponentCount(); i++) {
+            Component c = buttonBar.getComponentAt(i);
+            if (c instanceof Button) {
+                buttons.add((Button) c);
+            }
+        }
+        return buttons;
     }
 
 
@@ -119,22 +155,24 @@ public class OutputPanel extends VerticalLayout implements CanvasSelectionListen
 
 
     private void deselectAllButtons() {
-        for (int i=0; i < buttonBar.getComponentCount(); i++) {
-            Component c = buttonBar.getComponentAt(i);
-            if (c instanceof Button) {
-                ((Button) c).removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            }
+        for (Button b : buttons) {
+            b.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         }
     }
 
 
-    private void enableDetectedButton() {
-        if (selectedVertex != null) {
-            for (int i=0; i < buttonBar.getComponentCount(); i++) {
-                Component c = buttonBar.getComponentAt(i);
-                if ((c instanceof Button) && ((Button) c).getText().equals("Detected")) {
-                    ((Button) c).setEnabled(selectedVertex.getNode() instanceof PatternNode);
-                }
+    private void enableButtons() {
+        boolean selectedNotNull = selectedVertex != null;
+        boolean hasOutput = selectedNotNull && selectedVertex.getNode().hasOutput();
+        for (Button b : buttons) {
+            switch (b.getText()) {
+                case "Output" :
+                case "Log" : b.setEnabled(hasOutput); break;
+                case "Diff" : b.setEnabled(hasOutput &&
+                        ! selectedVertex.getNode().getInputs().isEmpty()); break;
+                case "Detected" : b.setEnabled(selectedNotNull &&
+                         selectedVertex.getNode() instanceof PatternNode &&
+                        ((PatternNode) selectedVertex.getNode()).getDetected() != null); break;
             }
         }
     }

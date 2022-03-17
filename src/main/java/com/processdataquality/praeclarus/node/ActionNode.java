@@ -37,7 +37,7 @@ public class ActionNode extends Node {
      * result to the output table
      */
     @Override
-    public void run() {
+    public void run() throws Exception {
         setState(NodeState.EXECUTING);
         setOutput(((Action) getPlugin()).run(getInputs()));
         setState(NodeState.COMPLETED);

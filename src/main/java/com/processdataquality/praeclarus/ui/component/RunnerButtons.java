@@ -16,12 +16,13 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
-import com.processdataquality.praeclarus.ui.canvas.Vertex;
-import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
-import com.processdataquality.praeclarus.ui.util.UiUtil;
-import com.processdataquality.praeclarus.node.NodeRunner;
+import com.processdataquality.praeclarus.exception.NodeRunnerException;
 import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.NodeRunner;
+import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
+import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
+import com.processdataquality.praeclarus.ui.canvas.Vertex;
+import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
@@ -107,15 +108,15 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 
     private void addButtons() {
         Icon runIcon = createIcon(VaadinIcon.PLAY, "green");
-        _runButton = new Button(runIcon, e -> _runner.run(_selectedNode));
+        _runButton = new Button(runIcon, e -> action(NodeRunner.RunnerAction.RUN));
         _runButton.getElement().setAttribute("title", "Run");
 
         Icon stepIcon = createIcon(VaadinIcon.STEP_FORWARD, "blue");
-        _stepButton = new Button(stepIcon, e -> _runner.step(_selectedNode));
+        _stepButton = new Button(stepIcon, e -> action(NodeRunner.RunnerAction.STEP));
         _stepButton.getElement().setAttribute("title", "Step fwd");
 
         Icon backIcon = createIcon(VaadinIcon.STEP_BACKWARD, "blue");
-        _backButton = new Button(backIcon, e -> _runner.stepBack(_selectedNode));
+        _backButton = new Button(backIcon, e -> action(NodeRunner.RunnerAction.STEP_BACK));
         _backButton.getElement().setAttribute("title", "Step back");
 
         Icon stopIcon = createIcon(VaadinIcon.CLOSE_CIRCLE_O,"red");
@@ -142,5 +143,23 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     private boolean canStepBackSelectedNode() {
         return _selectedNode != null && _selectedNode.hasCompleted();
     }
-    
+
+
+    private void action(NodeRunner.RunnerAction runnerAction) {
+        try {
+            _runner.action(runnerAction, _selectedNode);
+        }
+        catch (NodeRunnerException e) {
+            try {
+                _selectedNode.reset();
+            }
+            catch (Exception ex) {
+                // unlike this will happen
+            }
+            _runner.reset();
+            String msg = "Error in node '" + _selectedNode.getLabel()  + "': " +  e.getMessage();
+            new ErrorMsg(msg).open();
+        }
+    }
+
 }

@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
 import com.processdataquality.praeclarus.plugin.Options;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.Source;
@@ -84,7 +85,7 @@ public class SqlDataReader implements DataReader {
     }
 
 
-    private ResultSet getResultSet() throws IOException {
+    private ResultSet getResultSet() throws IOException, InvalidParameterValueException {
         Connection connection = null;
         Statement statement = null;
         try {

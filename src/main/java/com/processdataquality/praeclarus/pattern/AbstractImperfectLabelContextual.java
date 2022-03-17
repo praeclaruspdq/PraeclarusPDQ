@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.pattern;
 
+import com.processdataquality.praeclarus.exception.InvalidParameterException;
 import com.processdataquality.praeclarus.plugin.Options;
 import com.processdataquality.praeclarus.support.activitysimilaritymeasures.*;
 import com.processdataquality.praeclarus.support.logelements.Activity;
@@ -62,7 +63,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 
 
 	@Override
-	public Table detect(Table table) {
+	public Table detect(Table table) throws InvalidParameterException {
 		detect(table, getSelectedColumn(table));
 		return _detected;
 	}
