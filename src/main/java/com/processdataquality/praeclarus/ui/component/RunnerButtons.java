@@ -47,10 +47,9 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 
     public RunnerButtons(NodeRunner runner) {
         _runner = runner;
-        addButtons();
         _state = NodeRunner.RunnerState.IDLE;
+        createButtons();
         UiUtil.removeTopMargin(this);
-        enable();
     }
 
 
@@ -79,17 +78,6 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
                 break;
             }
         }
-
-        // sets colour if enabled or gray if disabled
-        setIconColor(_runButton, "green");
-        setIconColor(_stepButton, "blue");
-        setIconColor(_backButton, "blue");
-        setIconColor(_stopButton, "red");
-    }
-
-
-    private void setIconColor(Button b, String color) {
-        ((Icon)b.getIcon()).setColor(b.isEnabled() ? color : "gray");
     }
 
 
@@ -106,32 +94,27 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     }
 
 
-    private void addButtons() {
-        Icon runIcon = createIcon(VaadinIcon.PLAY, "green");
-        _runButton = new Button(runIcon, e -> action(NodeRunner.RunnerAction.RUN));
-        _runButton.getElement().setAttribute("title", "Run");
-
-        Icon stepIcon = createIcon(VaadinIcon.STEP_FORWARD, "blue");
-        _stepButton = new Button(stepIcon, e -> action(NodeRunner.RunnerAction.STEP));
-        _stepButton.getElement().setAttribute("title", "Step fwd");
-
-        Icon backIcon = createIcon(VaadinIcon.STEP_BACKWARD, "blue");
-        _backButton = new Button(backIcon, e -> action(NodeRunner.RunnerAction.STEP_BACK));
-        _backButton.getElement().setAttribute("title", "Step back");
-
-        Icon stopIcon = createIcon(VaadinIcon.CLOSE_CIRCLE_O,"red");
-        _stopButton = new Button(stopIcon, e -> _runner.reset());
-        _stopButton.getElement().setAttribute("title", "Stop run");
+    private void createButtons() {
+        _runButton = createButton(VaadinIcon.PLAY,
+                NodeRunner.RunnerAction.RUN,"Run");
+        _stepButton = createButton(VaadinIcon.STEP_FORWARD,
+                NodeRunner.RunnerAction.STEP, "Step fwd");
+        _backButton = createButton(VaadinIcon.STEP_BACKWARD,
+                NodeRunner.RunnerAction.STEP_BACK, "Step back");
+        _stopButton = createButton(VaadinIcon.STOP,
+                NodeRunner.RunnerAction.STOP, "Stop");
 
         add(_runButton, _stepButton, _backButton, _stopButton);
     }
 
 
-    private Icon createIcon(VaadinIcon vIcon, String colour) {
-        Icon icon = vIcon.create();
-        icon.setSize("24px");
-        icon.setColor(colour);
-        return icon;
+    private Button createButton(VaadinIcon icon, NodeRunner.RunnerAction runnerAction,
+                                String tooltip)  {
+        Icon runIcon = UiUtil.createIcon(icon);
+        Button button = new Button(runIcon, e -> action(runnerAction));
+        UiUtil.setTooltip(button, tooltip);
+        button.setEnabled(false);
+        return button;
     }
 
 

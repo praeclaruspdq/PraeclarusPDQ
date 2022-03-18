@@ -121,7 +121,7 @@ public class OutputPanel extends VerticalLayout
         Button b = new Button(label, icon, e -> buttonClick(e, page));
         b.addThemeVariants(ButtonVariant.LUMO_SMALL);
         b.setHeight("24px");
-        b.setWidth("96px");
+        b.setWidth("120px");
         b.getElement().setAttribute("title", tip);
         b.setEnabled(false);                                   // disabled to begin with
         return b;

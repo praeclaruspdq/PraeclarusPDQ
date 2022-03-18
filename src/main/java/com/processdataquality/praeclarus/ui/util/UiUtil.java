@@ -19,6 +19,8 @@ package com.processdataquality.praeclarus.ui.util;
 import com.processdataquality.praeclarus.repo.LogEntry;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.Row;
@@ -32,6 +34,10 @@ import java.util.List;
  * @date 2/11/21
  */
 public class UiUtil {
+
+    public static final String VAADIN_BLUE = "2C68EC";
+    public static final String DISABLED_COLOUR = "BDC3CC";
+
 
     public static void removeTopMargin(Component c) {
         setStyle(c,"margin-top", "0");
@@ -50,6 +56,27 @@ public class UiUtil {
         c.getElement().getStyle().set(key, value);
     }
 
+
+    public static void setTooltip(Component c, String tip) {
+        setAttribute(c, "title", tip);
+    }
+
+
+    public static void setAttribute(Component c, String key, String value) {
+        c.getElement().setAttribute(key, value);
+    }
+
+
+    public static Icon createIcon(VaadinIcon vIcon) {
+        return createIcon(vIcon, VAADIN_BLUE);
+    }
+
+    public static Icon createIcon(VaadinIcon vIcon, String colour) {
+        Icon icon = vIcon.create();
+        icon.setSize("24px");
+        icon.setColor(colour);
+        return icon;
+    }
 
 
     public static Grid<Row> tableToGrid(Table table) {

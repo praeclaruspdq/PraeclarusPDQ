@@ -340,6 +340,18 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
             }
         }
     }
+
+
+    public void resetAll() {
+        _vertices.forEach(v -> {
+            try {
+                v.getNode().reset();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
     
 
     private void removeConnectors(Vertex vertex) {

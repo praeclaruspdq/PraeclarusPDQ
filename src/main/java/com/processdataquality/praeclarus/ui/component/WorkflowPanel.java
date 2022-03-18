@@ -57,6 +57,8 @@ public class WorkflowPanel extends VerticalLayout
 
     private Button _removeButton;
     private Button _saveButton;
+    private Button _resetButton;
+    private Button _loadButton;
 
 
     public WorkflowPanel(MainView parent) {
@@ -68,7 +70,7 @@ public class WorkflowPanel extends VerticalLayout
         _runnerButtons = initRunnerButtons();
         addVertexSelectionListener(_runnerButtons);
         _runner.addListener(this);
-        
+
         VerticalLayout vl = new VerticalLayout();
         vl.add(new H4("Workflow"), _runnerButtons);
         UiUtil.removeBottomPadding(vl);
@@ -92,6 +94,7 @@ public class WorkflowPanel extends VerticalLayout
     @Override
     public void runnerStateChanged(NodeRunner.RunnerState state) {
         _runnerButtons.setState(state);
+        enableButtons(state, _workflow.getSelectedVertex());
     }
 
 
@@ -119,11 +122,12 @@ public class WorkflowPanel extends VerticalLayout
     private RunnerButtons initRunnerButtons() {
         RunnerButtons buttons = new RunnerButtons(_runner);
         _removeButton = createRemoveButton();
-        _removeButton.setEnabled(false);
         _saveButton = createSaveButton();
-        _saveButton.setEnabled(false);
+        _resetButton = createResetButton();
+        _loadButton = createLoadButton();
+        buttons.addButton(_resetButton);
         buttons.addButton(_removeButton);
-        buttons.addButton(createLoadButton());
+        buttons.addButton(_loadButton);
         buttons.addButton(_saveButton);
         return buttons;
     }
@@ -161,8 +165,8 @@ public class WorkflowPanel extends VerticalLayout
 
 
     public void canvasSelectionChanged(CanvasPrimitive selected) {
-        _removeButton.setEnabled(selected instanceof Vertex);
-        _saveButton.setEnabled(_workflow.hasContent());
+        Vertex vertex = (selected instanceof Vertex) ? (Vertex) selected : null;
+        enableButtons(_runner.getState(), vertex);
     }
 
 
@@ -213,13 +217,14 @@ public class WorkflowPanel extends VerticalLayout
             changedSelected(null);
             _saveButton.setEnabled(_workflow.hasContent());
         });
-        removeButton.getElement().setAttribute("title", "Remove node");
+        UiUtil.setTooltip(removeButton, "Remove node");
+        removeButton.setEnabled(false);
         return removeButton;
     }
 
 
     private Button createLoadButton() {
-        Icon icon = VaadinIcon.FOLDER_OPEN_O.create();
+        Icon icon = UiUtil.createIcon(VaadinIcon.FOLDER_OPEN_O);
         icon.setSize("24px");
         Button loadButton = new Button(icon, e -> {
             if (_workflow.hasChanges()) {
@@ -236,17 +241,35 @@ public class WorkflowPanel extends VerticalLayout
                 _canvas.loadFromFile();
             }
         });
-        loadButton.getElement().setAttribute("title", "Load workflow");
+        UiUtil.setTooltip(loadButton, "Load workflow");
         return loadButton;
     }
 
 
     private Button createSaveButton() {
-        Icon icon = VaadinIcon.DOWNLOAD.create();
-        icon.setSize("24px");
+        Icon icon = UiUtil.createIcon(VaadinIcon.DOWNLOAD);
         Button saveButton = new Button(icon, e -> saveWorkflow());
-        saveButton.getElement().setAttribute("title", "Save workflow");
+        UiUtil.setTooltip(saveButton, "Save workflow");
+        saveButton.setEnabled(false);
         return saveButton;
+    }
+
+
+    private Button createResetButton() {
+        Icon icon = UiUtil.createIcon(VaadinIcon.FAST_BACKWARD);
+        Button resetButton = new Button(icon, e -> _workflow.resetAll());
+        resetButton.setEnabled(false);
+        UiUtil.setTooltip(resetButton, "Reset all");
+        return resetButton;
+    }
+
+
+    private void enableButtons(NodeRunner.RunnerState state, Vertex selected) {
+        boolean isIdle = state == NodeRunner.RunnerState.IDLE;
+        _removeButton.setEnabled(isIdle && selected != null);
+        _saveButton.setEnabled(isIdle && _workflow.hasContent());
+        _resetButton.setEnabled(isIdle && _workflow.hasContent());;
+        _loadButton.setEnabled(isIdle);
     }
 
 

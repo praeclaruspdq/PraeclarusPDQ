@@ -28,7 +28,7 @@ import java.util.Set;
 public class NodeRunner implements NodeStateListener {
 
     public enum RunnerState { RUNNING, STEPPING, IDLE }
-    public enum RunnerAction { RUN, STEP, STEP_BACK, RESUME }
+    public enum RunnerAction { RUN, STEP, STEP_BACK, RESUME, STOP }
 
     private RunnerState _runnerState = RunnerState.IDLE;
     private final Set<NodeRunnerListener> _listeners = new HashSet<>();
@@ -92,6 +92,7 @@ public class NodeRunner implements NodeStateListener {
             case STEP : step(node); break;
             case STEP_BACK : stepBack(node); break;
             case RESUME : resume(node); break;
+            case STOP : reset(); break;
         }
     }
 
