@@ -20,25 +20,25 @@ package com.processdataquality.praeclarus.exception;
  * @author Michael Adams
  * @date 17/3/2022
  */
-public class InvalidParameterValueException extends RuntimeException {
+public class InvalidOptionValueException extends RuntimeException {
 
-    public InvalidParameterValueException() {
+    public InvalidOptionValueException() {
     }
 
-    public InvalidParameterValueException(String message) {
+    public InvalidOptionValueException(String message) {
         super(message);
     }
 
-    public InvalidParameterValueException(String message, Throwable cause) {
+    public InvalidOptionValueException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public InvalidParameterValueException(Throwable cause) {
+    public InvalidOptionValueException(Throwable cause) {
         super(cause);
     }
 
-    public InvalidParameterValueException(String message, Throwable cause,
-                                          boolean enableSuppression, boolean writableStackTrace) {
+    public InvalidOptionValueException(String message, Throwable cause,
+                                       boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

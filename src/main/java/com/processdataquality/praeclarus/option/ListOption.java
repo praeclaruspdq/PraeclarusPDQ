@@ -14,31 +14,37 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.exception;
+package com.processdataquality.praeclarus.option;
+
+import java.util.List;
 
 /**
  * @author Michael Adams
- * @date 17/3/2022
+ * @date 25/3/2022
  */
-public class ReaderException extends Exception {
+public class ListOption<T> extends Option {
 
-    public ReaderException() {
+    private T _selected;
+    private boolean _readOnly;
+
+    public ListOption(String key, List<T> value) {
+        super(key, value);
     }
 
-    public ReaderException(String message) {
-        super(message);
-    }
 
-    public ReaderException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    public T getSelected() { return _selected; }
 
-    public ReaderException(Throwable cause) {
-        super(cause);
-    }
+    public void setSelected(T s) { _selected = s; }
 
-    public ReaderException(String message, Throwable cause,
-                           boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+
+    public boolean isReadOnly() { return _readOnly; }
+
+    public void setReadOnly(boolean ro) { _readOnly = ro; }
+
+
+    @SuppressWarnings("unchecked")
+    public List<T> value() {
+        return (List<T>) super.value();
     }
+    
 }

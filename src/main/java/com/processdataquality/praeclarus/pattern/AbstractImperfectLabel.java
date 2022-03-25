@@ -17,11 +17,11 @@
 package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.exception.InvalidParameterException;
-import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
-import com.processdataquality.praeclarus.exception.ParameterException;
-import com.processdataquality.praeclarus.plugin.Option;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.exception.InvalidOptionException;
+import com.processdataquality.praeclarus.exception.OptionException;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
+import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.option.OptionsUtils;
 import com.processdataquality.praeclarus.plugin.uitemplate.*;
 import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.Row;
@@ -62,7 +62,7 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
      * @return a table where each row contains values detected using the pattern
      */
     @Override
-    public Table detect(Table table) throws ParameterException {
+    public Table detect(Table table) throws OptionException {
         StringColumn column = getSelectedColumn(table);
         List<String> tested = new ArrayList<>();    // cache of strings already tested
         List<String> compared = new ArrayList<>();  // cache of strings already compared to
@@ -88,9 +88,9 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
      * @return        a table of the original data with the repairs done
      */
     @Override
-    public Table repair(Table master) throws InvalidParameterValueException {
-        String colName = _options.get("Column Name").asString();
-        StringColumn repaired = (StringColumn) master.column(colName);
+    public Table repair(Table master) throws InvalidOptionException {
+        String colName = OptionsUtils.getSelectedListValue(_options, "Column Name");
+        StringColumn repaired = getSelectedColumn(master, colName);
         for (Row row : getRepairs()) {
             repaired = repaired.replaceAll(
                     row.getString("Label2"), row.getString("Label1"));
@@ -137,7 +137,7 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.addDefault("Column Name", "");
+            _options.addDefault(new ColumnNameListOption("Column Name"));
         }
         return _options;
     }
@@ -157,18 +157,20 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
      * @param table the table containing columns of data
      * @return the specified column
      */
-    protected StringColumn getSelectedColumn(Table table) throws InvalidParameterException {
-        Option option = _options.getNotNull("Column Name");
-        String colName = option.asString();
-        if (colName.isEmpty()) {
-            throw new InvalidParameterException("No column name specified");
+    protected StringColumn getSelectedColumn(Table table, String selectedColName)
+            throws InvalidOptionException {
+        if (table.columnNames().contains(selectedColName)) {
+            return (StringColumn) table.column(selectedColName);
         }
-        if (table.columnNames().contains(colName)) {
-            return (StringColumn) table.column(colName);
-        }
-        throw new InvalidParameterException("No column named '" + colName + "' in table");
+        throw new InvalidOptionException("No column named '" + selectedColName + "' in input table");
     }
 
+
+    protected StringColumn getSelectedColumn(Table table) throws InvalidOptionException {
+        return getSelectedColumn(table,
+                OptionsUtils.getSelectedListValue(_options, "Column Name"));
+    }
+    
 
     /**
      * Creates the table that will receive the imperfect values detected

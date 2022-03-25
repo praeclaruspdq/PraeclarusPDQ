@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.plugin.Option;
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -60,7 +60,8 @@ public class WorkflowOptionEditor extends HorizontalLayout {
         field.setValue(value);
 
         field.addValueChangeListener(e -> {
-           workflow.setUserOption(new Option(option.key(), e.getValue()));
+            option.setValue(e.getValue());
+            workflow.setUserOption(option);
         });
         return field;
     }

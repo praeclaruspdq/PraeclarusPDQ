@@ -17,8 +17,8 @@
 package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
+import com.processdataquality.praeclarus.option.Options;
 import tech.tablesaw.io.fixed.FixedWidthReadOptions;
 
 /**
@@ -44,7 +44,7 @@ public class FixedWidthDataReader extends AbstractDataReader {
     }
 
     
-    protected FixedWidthReadOptions getReadOptions() throws InvalidParameterValueException {
+    protected FixedWidthReadOptions getReadOptions() throws InvalidOptionValueException {
         return FixedWidthReadOptions.builder(getSource())
                 .missingValueIndicator(_options.get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))

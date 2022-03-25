@@ -18,7 +18,7 @@ package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.option.Options;
 
 /**
  * @author Sareh Sadeghianasl
@@ -67,9 +67,9 @@ public class PollutedLabelContextual extends AbstractImperfectLabelContextual {
 	 * @return false
 	 */
 	
-//	@Override
-//	public boolean canRepair() {
-//		return false;
-//	}
+	@Override
+	public boolean canRepair() {
+		return false;
+	}
 
 }

@@ -20,24 +20,24 @@ package com.processdataquality.praeclarus.exception;
  * @author Michael Adams
  * @date 17/3/2022
  */
-public class ReaderException extends Exception {
+public class OptionException extends Exception {
 
-    public ReaderException() {
+    public OptionException() {
     }
 
-    public ReaderException(String message) {
+    public OptionException(String message) {
         super(message);
     }
 
-    public ReaderException(String message, Throwable cause) {
+    public OptionException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ReaderException(Throwable cause) {
+    public OptionException(Throwable cause) {
         super(cause);
     }
 
-    public ReaderException(String message, Throwable cause,
+    public OptionException(String message, Throwable cause,
                            boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

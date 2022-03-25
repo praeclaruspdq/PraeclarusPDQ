@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,17 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.plugin;
+package com.processdataquality.praeclarus.option;
 
-import com.processdataquality.praeclarus.exception.InvalidParameterException;
-import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
+import com.processdataquality.praeclarus.exception.InvalidOptionException;
+import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * An enclosed map of Options (i.e. a set of parameters) to configure a plugin.
@@ -41,14 +43,18 @@ public class Options extends HashMap<String, Option> {         // key is Option'
     public Options(Map<String, Object> defaults) { init(defaults); }
 
 
-    public Option add(String key, Object o) { return add(new Option(key, o)); }
-    
-    public Option set(String key, Object o) { return add(new Option(key, o)); }
+    public Option add(String key, Object o) {
+        Option option = new Option(key, o);
+        super.put(key, option);
+        return option;
+    }
 
 
-    public Option add(Option option) {
+
+
+    public Option update(Option option) {
         saveChanges(option);
-        return super.put(option.key(), option);
+        return super.put(option.key(), option);           // returns previous value
     }
 
     
@@ -60,19 +66,21 @@ public class Options extends HashMap<String, Option> {         // key is Option'
 
 
     public Option addDefault(String key, Object o) {
-        return addDefault(new Option(key, o));
+        Option option = new Option(key, o);
+        addDefault(option);
+        return option;
     }
 
 
     public Option addDefault(Option option) {
-        return super.put(option.key(), option);
+        return super.put(option.key(), option);              // returns previous value
     }
 
 
-    public Option getNotNull(String key) throws InvalidParameterException {
+    public Option getNotNull(String key) throws InvalidOptionException {
         Option option = super.get(key);
         if (option != null) return option;
-        throw new InvalidParameterException("Missing parameter: " + key);
+        throw new InvalidOptionException("Missing parameter: " + key);
     }
 
 
@@ -91,22 +99,27 @@ public class Options extends HashMap<String, Option> {         // key is Option'
     public JSONObject getChangesAsJson() throws JSONException {
         JSONObject json = new JSONObject();
         for (String key : changes.keySet()) {
-             json.put(key, changes.get(key).get());
+             json.put(key, changes.get(key).value());
         }
         return json;
+    }
+
+
+    public List<Option> sort() {
+        return values().stream().sorted().collect(Collectors.toList());
     }
     
 
     private void saveChanges(Option option) {
-         Object existing = get(option.key());
-         if (! (existing == null || existing.equals(option.get()))) {
+         Option existing = get(option.key());
+         if (! (existing == null || existing.equals(option.value()))) {
              changes.put(option.key(), option);
          }
      }
 
 
      // just a little test 
-    public static void main(String[] args) throws InvalidParameterValueException {
+    public static void main(String[] args) throws InvalidOptionValueException {
         Options o = new Options();
         o.add("one", "string");
         o.add("two", 3);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,24 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.action;
+package com.processdataquality.praeclarus.option;
 
-import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import tech.tablesaw.api.Table;
-
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Michael Adams
- * @date 21/5/21
+ * @date 25/3/2022
  */
-public interface Action extends PDQPlugin {
+public class ColumnNameListOption extends ListOption<String> {
 
-    Table run(List<Table> inputSet) throws InvalidOptionValueException;
+    public ColumnNameListOption(String key) {
+        this(key, Collections.emptyList());
+    }
+
+    public ColumnNameListOption(String key, List<String> value) {
+        super(key, value);
+        setReadOnly(true);
+    }
+
 }

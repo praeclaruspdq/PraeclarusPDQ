@@ -364,7 +364,7 @@ public abstract class Node {
     }
 
 
-    private void announceStateChange() throws Exception {
+    protected void announceStateChange() throws Exception {
         for (NodeStateListener listener : _listeners) {
             listener.nodeStateChanged(this);
         }

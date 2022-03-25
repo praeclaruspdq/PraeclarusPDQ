@@ -18,7 +18,7 @@ package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import tech.tablesaw.api.StringColumn;
 

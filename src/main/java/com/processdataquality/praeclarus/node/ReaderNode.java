@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.node;
 
+import com.processdataquality.praeclarus.exception.ReaderException;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.reader.DataReader;
 import tech.tablesaw.api.Table;
@@ -43,11 +44,25 @@ public class ReaderNode extends Node {
     public void run() throws Exception {
         setState(NodeState.EXECUTING);
 
-        Table table = ((DataReader) getPlugin()).read();
-        table.setName(UUID.randomUUID().toString());
-        setOutput(table);
+        try {
+            Table table = ((DataReader) getPlugin()).read();     // load from source
+            table.setName(UUID.randomUUID().toString());
+            setOutput(table);
+            setState(NodeState.COMPLETED);
+        }
+        catch (Exception e) {
 
-        setState(NodeState.COMPLETED);
+            // see if file was loaded previously, then stored
+            String tableID = getTableID();
+            if (! (tableID == null || tableID.isEmpty())) {
+                loadOutput(tableID);                             // load from repo
+
+                // setState not used here because loadOutput() above sets it to completed
+                announceStateChange();
+            }
+            else throw new ReaderException(e.getMessage(), e.getCause());
+        }
+
     }
 
 }

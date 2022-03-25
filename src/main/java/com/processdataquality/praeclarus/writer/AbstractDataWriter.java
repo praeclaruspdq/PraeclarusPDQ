@@ -16,7 +16,8 @@
 
 package com.processdataquality.praeclarus.writer;
 
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.option.FileOption;
+import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.io.output.WriterOutputStream;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.Destination;
@@ -37,7 +38,9 @@ public abstract class AbstractDataWriter implements DataWriter {
     protected final Options _options = new Options();
     protected Destination _destination;
 
-    protected AbstractDataWriter() { }
+    protected AbstractDataWriter() {
+        _options.addDefault(new FileOption("Destination", ""));
+    }
 
     // each sub-class will have unique read options for data format etc.
     protected abstract WriteOptions getWriteOptions() throws IOException;

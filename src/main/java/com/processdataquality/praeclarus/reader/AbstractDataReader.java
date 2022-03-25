@@ -16,9 +16,9 @@
 
 package com.processdataquality.praeclarus.reader;
 
-import com.processdataquality.praeclarus.exception.InvalidParameterValueException;
-import com.processdataquality.praeclarus.plugin.Option;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
+import com.processdataquality.praeclarus.option.FileOption;
+import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.io.input.ReaderInputStream;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.ReadOptions;
@@ -38,7 +38,7 @@ public abstract class AbstractDataReader implements DataReader {
     protected Source _source;             // the data input source
 
     // each sub-class will have unique read options for data format etc.
-    protected abstract ReadOptions getReadOptions() throws InvalidParameterValueException;
+    protected abstract ReadOptions getReadOptions() throws InvalidOptionValueException;
 
 
     /**
@@ -57,8 +57,7 @@ public abstract class AbstractDataReader implements DataReader {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options(new CommonReadOptions().toMap());
-            Option source = new Option("Source", "", true);
-            _options.addDefault(source);
+            _options.addDefault(new FileOption("Source", ""));
         }
         return _options;
     }
@@ -85,7 +84,7 @@ public abstract class AbstractDataReader implements DataReader {
     @Override
     public Source getSource() {
         if (_source == null) {
-            throw new InvalidParameterValueException("Parameter 'Source' requires a value");
+            throw new InvalidOptionValueException("Parameter 'Source' requires a value");
         }
         return _source;
     }

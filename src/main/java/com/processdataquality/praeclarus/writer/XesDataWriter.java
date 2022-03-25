@@ -17,9 +17,8 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.exception.InvalidParameterException;
-import com.processdataquality.praeclarus.plugin.Option;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.exception.InvalidOptionException;
+import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
@@ -77,7 +76,6 @@ public class XesDataWriter extends AbstractDataWriter {
 
     @Override
     public Options getOptions() {
-        _options.addDefault(new Option("Destination", "", true));
         _options.addDefault("Case ID column", "case:id");
         _options.addDefault("Name column", "concept:name");
         _options.addDefault("Time column", "time:timestamp");
@@ -240,7 +238,7 @@ public class XesDataWriter extends AbstractDataWriter {
             mapColName(map, "org:resource", "Resource column");
             mapColName(map, "data", "Data column");
         }
-        catch (InvalidParameterException ipe) {
+        catch (InvalidOptionException ipe) {
              throw new IOException(ipe.getMessage());
         }
         return map;
@@ -248,7 +246,7 @@ public class XesDataWriter extends AbstractDataWriter {
 
 
     private void mapColName(Map<String, String> map, String key, String optionKey)
-            throws InvalidParameterException {
+            throws InvalidOptionException {
         String userValue = getOptions().getNotNull(optionKey).asString();
         if (! userValue.isEmpty()) {
             map.put(key, userValue);

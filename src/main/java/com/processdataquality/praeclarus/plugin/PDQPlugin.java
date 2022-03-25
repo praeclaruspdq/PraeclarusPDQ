@@ -16,6 +16,8 @@
 
 package com.processdataquality.praeclarus.plugin;
 
+import com.processdataquality.praeclarus.option.Options;
+
 /**
  * The base interface for all plugins in the environment
  *

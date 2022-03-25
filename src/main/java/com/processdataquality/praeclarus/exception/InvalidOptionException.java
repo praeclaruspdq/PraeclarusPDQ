@@ -22,14 +22,14 @@ import java.security.PrivilegedActionException;
  * @author Michael Adams
  * @date 17/3/2022
  */
-public class InvalidParameterException extends ParameterException {
+public class InvalidOptionException extends OptionException {
 
     /**
      * Constructs a new exception with {@code null} as its detail message.
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      */
-    public InvalidParameterException() {
+    public InvalidOptionException() {
     }
 
     /**
@@ -40,7 +40,7 @@ public class InvalidParameterException extends ParameterException {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public InvalidParameterException(String message) {
+    public InvalidOptionException(String message) {
         super(message);
     }
 
@@ -58,7 +58,7 @@ public class InvalidParameterException extends ParameterException {
      *                unknown.)
      * @since 1.4
      */
-    public InvalidParameterException(String message, Throwable cause) {
+    public InvalidOptionException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -76,7 +76,7 @@ public class InvalidParameterException extends ParameterException {
      *              unknown.)
      * @since 1.4
      */
-    public InvalidParameterException(Throwable cause) {
+    public InvalidOptionException(Throwable cause) {
         super(cause);
     }
 
@@ -94,8 +94,8 @@ public class InvalidParameterException extends ParameterException {
      *                           be writable
      * @since 1.7
      */
-    public InvalidParameterException(String message, Throwable cause,
-                                     boolean enableSuppression, boolean writableStackTrace) {
+    public InvalidOptionException(String message, Throwable cause,
+                                  boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -16,11 +16,16 @@
 
 package com.processdataquality.praeclarus.ui.parameter;
 
-import com.processdataquality.praeclarus.plugin.Option;
+import com.google.common.collect.ImmutableList;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
+import com.processdataquality.praeclarus.option.FileOption;
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.ui.parameter.editor.*;
 import com.processdataquality.praeclarus.writer.DataWriter;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -28,7 +33,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
  */
 public class PluginParameter {
 
-    private Option _option;
+    private final Option _option;
     private boolean _updated = false;
 
     public PluginParameter(Option option) {
@@ -37,7 +42,7 @@ public class PluginParameter {
 
     public String getName() { return _option.key(); }
 
-    public Object getValue() { return _option.get(); }
+    public Object getValue() { return _option.value(); }
 
     public String getStringValue() { return String.valueOf(getValue()); }
 
@@ -48,8 +53,7 @@ public class PluginParameter {
 
 
     public void setValue(Object value) {
-        _option = new Option(_option.key(), value,
-                _option.getMandatoryErrorMessage(), _option.isForFile());
+        _option.setValue(value);
         _updated = true;
     }
 
@@ -58,7 +62,7 @@ public class PluginParameter {
     }
 
     public HorizontalLayout editor(PDQPlugin plugin) {
-        if (_option.isForFile()) {
+        if (_option instanceof FileOption) {
             if (plugin instanceof DataWriter) {
                 return new FileSaveEditor(plugin, this);
             }
@@ -66,8 +70,13 @@ public class PluginParameter {
                 return new FileOpenEditor(plugin, this);
             }
         }
-
-        if (getValue() instanceof Boolean) {
+        else if (_option instanceof ColumnNameListOption) {
+            List<String> values = ((ColumnNameListOption) _option).value();
+            if (! values.isEmpty()) {
+                return new ImmutableListEditor(plugin, this);
+            }
+        }
+        else if (getValue() instanceof Boolean) {
             return new BooleanEditor(plugin, this);
         }
 
@@ -83,8 +92,10 @@ public class PluginParameter {
         else if (getValue() instanceof String[]) {
             return new StringListEditor(plugin, this);
         }
-
-
+        else if (getValue() instanceof ImmutableList) {
+            return new ImmutableListEditor(plugin, this);
+        }
+        
         return new StringEditor(plugin, this);
     }
 

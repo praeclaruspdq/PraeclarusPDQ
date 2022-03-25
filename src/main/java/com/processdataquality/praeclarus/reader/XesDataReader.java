@@ -17,8 +17,8 @@
 package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.plugin.Option;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.option.FileOption;
+import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.lang3.StringUtils;
 import org.deckfour.xes.in.XesXmlParser;
 import org.deckfour.xes.model.*;
@@ -61,9 +61,9 @@ public class XesDataReader extends AbstractDataReader {
     public Options getOptions() {
         if (_options == null) {
             _options = new Options();
-            _options.addDefault(new Option("Globals Only", false));
-            _options.addDefault(new Option("Include Data", true));
-            _options.addDefault(new Option("Source", "", true));
+            _options.addDefault("Globals Only", false);
+            _options.addDefault("Include Data", true);
+            _options.addDefault(new FileOption("Source", ""));
         }
         return _options;
     }

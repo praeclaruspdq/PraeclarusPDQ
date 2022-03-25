@@ -45,8 +45,8 @@ public class ParseTable {
 	private ArrayList<String> ignoreAttrs;
 	private String selectedColumnName;
 
-	public ParseTable(Table table, String selectedColumnName) {
-		this.table = table.sortOn("case:id");
+	public ParseTable(Table table, String selectedColumnName, String sortColumnName) {
+		this.table = table.sortOn(sortColumnName);
 		this.selectedColumnName = selectedColumnName;
 		resources = new ArrayList<String>();
 		availableHours = new double[24];

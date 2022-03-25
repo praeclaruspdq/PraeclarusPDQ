@@ -14,31 +14,17 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.exception;
+package com.processdataquality.praeclarus.option;
 
 /**
+ * An option specifically for capturing file paths
  * @author Michael Adams
- * @date 17/3/2022
+ * @date 24/3/2022
  */
-public class ParameterException extends Exception {
+public class FileOption extends Option {
 
-    public ParameterException() {
+    public FileOption(String key, Object value) {
+        super(key, value);
     }
 
-    public ParameterException(String message) {
-        super(message);
-    }
-
-    public ParameterException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ParameterException(Throwable cause) {
-        super(cause);
-    }
-
-    public ParameterException(String message, Throwable cause,
-                              boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.plugin.Option;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.option.Option;
+import com.processdataquality.praeclarus.option.Options;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
@@ -62,7 +62,7 @@ public class PropertiesPanel extends VerticalLayout {
     private VerticalScrollLayout createForm(PDQPlugin plugin) {
         VerticalScrollLayout form = new VerticalScrollLayout();
         Options options = plugin.getOptions();
-        for (Option option : options.values()) {
+        for (Option option : options.sort()) {
             PluginParameter param = new PluginParameter(option);
             form.add(param.editor(plugin));
         }
@@ -73,7 +73,7 @@ public class PropertiesPanel extends VerticalLayout {
     private VerticalScrollLayout createForm(Workflow workflow) {
         VerticalScrollLayout form = new VerticalScrollLayout();
         Options options = workflow.getUserOptions();
-        for (Option option : options.values()) {
+        for (Option option : options.sort()) {
             form.add(new WorkflowOptionEditor(workflow, option)) ;
         }
         return form;

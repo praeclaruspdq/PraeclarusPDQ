@@ -16,8 +16,10 @@
 
 package com.processdataquality.praeclarus.pattern;
 
-import com.processdataquality.praeclarus.exception.InvalidParameterException;
-import com.processdataquality.praeclarus.plugin.Options;
+import com.processdataquality.praeclarus.exception.InvalidOptionException;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
+import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.option.OptionsUtils;
 import com.processdataquality.praeclarus.support.activitysimilaritymeasures.*;
 import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.logelements.ParseTable;
@@ -46,7 +48,9 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		Options options = super.getOptions();
 
 		// TODO define limit for each option
-
+		if (!options.containsKey("Sort Column")) {
+			options.addDefault(new ColumnNameListOption("Sort Column"));
+		}
 		if (!options.containsKey("Direct Control Flow Noise Threshold")) {
 			options.addDefault("Direct Control Flow Noise Threshold", 0.05);
 		}
@@ -63,8 +67,8 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 
 
 	@Override
-	public Table detect(Table table) throws InvalidParameterException {
-		detect(table, getSelectedColumn(table));
+	public Table detect(Table table) throws InvalidOptionException {
+		detect(table, getSelectedColumn(table), getSortColumnName(table));
 		return _detected;
 	}
 
@@ -121,8 +125,8 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 	}
 
 
-	protected void detect(Table table, StringColumn selectedColumn) {
-		ParseTable parser = new ParseTable(table, selectedColumn.name());
+	protected void detect(Table table, StringColumn selectedColumn, String sortColName) {
+		ParseTable parser = new ParseTable(table, selectedColumn.name(), sortColName);
 		parser.parse();
 		rs = new ResourceSimilarity(parser.getActivities()).getSimilarity();
 		ds = new DurationSimilarity(parser.getActivities()).getSimilarity();
@@ -155,6 +159,15 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 				}
 			}
 		}
+	}
+
+
+	protected String getSortColumnName(Table table) throws InvalidOptionException {
+		String colName = OptionsUtils.getSelectedListValue(getOptions(), "Sort Column");
+		if (table.columnNames().contains(colName)) {
+			throw new InvalidOptionException("No column named '" + colName + "' in table");
+		}
+		return colName;
 	}
 
 	/**

@@ -16,9 +16,13 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.google.common.collect.ImmutableList;
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
 import com.processdataquality.praeclarus.node.*;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
+import com.processdataquality.praeclarus.option.Option;
+import com.processdataquality.praeclarus.option.Options;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.PluginService;
 import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
@@ -37,7 +41,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.springframework.boot.configurationprocessor.json.JSONException;
+import tech.tablesaw.api.Table;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -173,6 +179,7 @@ public class WorkflowPanel extends VerticalLayout
     public void showPluginProperties(Node selected) {
         PDQPlugin plugin = selected != null ? selected.getPlugin() : null;
         if (plugin != null) {
+            addColumnListIfRequired(selected, plugin.getOptions());
             _parent.getPropertiesPanel().set(plugin);
         }
         else {
@@ -294,6 +301,26 @@ public class WorkflowPanel extends VerticalLayout
         }
         catch (JSONException je) {
             Notification.show("Failed to save file: " + je.getMessage());
+        }
+    }
+
+
+    // if there's inputs to this node, then get the list of column names
+    //  and create a list of items for each column name option
+    private void addColumnListIfRequired(Node node, Options options) {
+        List<Table> inputs = node.getInputs();
+        if (! inputs.isEmpty()) {
+            for (Option option : options.values()) {
+                if (option instanceof ColumnNameListOption) {
+                    List<String> colNames = new ArrayList<>();
+                    for (Table table : inputs) {
+                        colNames.addAll(table.columnNames());
+                    }
+                    if (! colNames.isEmpty()) {
+                        option.setValue(ImmutableList.copyOf(colNames));
+                    }
+                }
+            }
         }
     }
 
