@@ -16,22 +16,32 @@
 
 package com.processdataquality.praeclarus.option;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author Michael Adams
  * @date 25/3/2022
  */
-public class ColumnNameListOption extends ListOption<String> {
+public class ColumnNameListOption extends Option {
+
+    private String _selected;
 
     public ColumnNameListOption(String key) {
-        this(key, Collections.emptyList());
+        super(key, "");                               // String value by default
     }
 
-    public ColumnNameListOption(String key, List<String> value) {
-        super(key, value);
-        setReadOnly(true);
+
+    @Override
+    public Object value() {                 // value can be String or List<String>
+        return super.value() != null ? super.value() : "";
     }
 
+
+    public String getSelected() {
+        if (_selected != null) return _selected;
+        if (value() instanceof String) return (String) value();
+        return "" ;
+    }
+
+    public void setSelected(String selected) {
+        _selected = selected;
+    }
 }

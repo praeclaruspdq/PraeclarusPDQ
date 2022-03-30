@@ -43,9 +43,8 @@ public class DistortedLabelLevenshtein extends AbstractImperfectLabel {
 
     @Override
     protected void detect(StringColumn column, String s1, String s2) {
-        int threshold = getOptions().get("Threshold").asInt();
         int distance = levenshtein.apply(s1, s2);
-        if (distance > 0 && distance <= threshold) {
+        if (distance > 0) { //    && distance <= levenshtein.getThreshold()) {
             addResult(column, s1, s2);
         }
     }

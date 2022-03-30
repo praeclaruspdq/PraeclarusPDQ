@@ -71,8 +71,7 @@ public class PluginParameter {
             }
         }
         else if (_option instanceof ColumnNameListOption) {
-            List<String> values = ((ColumnNameListOption) _option).value();
-            if (! values.isEmpty()) {
+            if (getValue() instanceof List<?>) {
                 return new ImmutableListEditor(plugin, this);
             }
         }

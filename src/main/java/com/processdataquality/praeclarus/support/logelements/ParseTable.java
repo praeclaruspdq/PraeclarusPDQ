@@ -44,10 +44,12 @@ public class ParseTable {
 	private int uniqueID;
 	private ArrayList<String> ignoreAttrs;
 	private String selectedColumnName;
+	private String caseIdColumnName;
 
-	public ParseTable(Table table, String selectedColumnName, String sortColumnName) {
-		this.table = table.sortOn(sortColumnName);
+	public ParseTable(Table table, String selectedColumnName, String caseIdColumnName) {
+		this.table = table.sortOn(caseIdColumnName);
 		this.selectedColumnName = selectedColumnName;
+		this.caseIdColumnName = caseIdColumnName;
 		resources = new ArrayList<String>();
 		availableHours = new double[24];
 		availableDays = new double[7];
@@ -65,7 +67,7 @@ public class ParseTable {
 		String lifecycle = null;
 		String resource = null;
 		for (Row row : table) {
-			currentCaseID = row.getString("case:id");
+			currentCaseID = row.getString(caseIdColumnName);
 			if (!currentCaseID.equalsIgnoreCase(previousCaseID)) {
 				// new trace
 				if (!eventsPerTrace.isEmpty()) {

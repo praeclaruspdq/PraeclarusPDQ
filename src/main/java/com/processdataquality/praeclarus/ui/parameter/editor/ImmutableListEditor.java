@@ -16,12 +16,14 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
-import com.google.common.collect.ImmutableList;
-import com.processdataquality.praeclarus.option.ListOption;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.select.Select;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 /**
  * @author Michael Adams
@@ -37,20 +39,25 @@ public class ImmutableListEditor extends AbstractEditor {
     @Override
     @SuppressWarnings("unchecked")
     protected Component createField(PluginParameter param) {
-        
-        ImmutableList<String> items = (ImmutableList<String>) param.getValue();
+        List<String> items = (List<String>) param.getValue();
 
         Select<String> field = new Select<>();
         field.setItems(items);
         if (! items.isEmpty()) {
-            field.setValue(items.get(0));
-            ((ListOption<String>) param.getOption()).setSelected(items.get(0));
+            String selection = ((ColumnNameListOption) param.getOption()).getSelected();
+            if (!StringUtils.isEmpty(selection) && items.contains(selection)) {
+                field.setValue(selection);
+            }
+            else {
+                field.setValue(items.get(0));
+                ((ColumnNameListOption) param.getOption()).setSelected(items.get(0));
+            }
         }
         field.setWidth("75%");
 
         // user has chosen a value
         field.addValueChangeListener(e -> {
-            ((ListOption<String>) param.getOption()).setSelected(e.getValue());
+            ((ColumnNameListOption) param.getOption()).setSelected(e.getValue());
         });
         return field;
     }

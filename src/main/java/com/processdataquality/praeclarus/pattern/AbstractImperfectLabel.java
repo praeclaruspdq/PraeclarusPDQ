@@ -21,7 +21,6 @@ import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.OptionException;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.option.OptionsUtils;
 import com.processdataquality.praeclarus.plugin.uitemplate.*;
 import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.Row;
@@ -39,7 +38,7 @@ import java.util.List;
 public abstract class AbstractImperfectLabel implements ImperfectionPattern {
 
     // The table that will contain the results of the pattern detection
-    protected final Table _detected;
+    protected Table _detected;
 
     // The set of parameters used by this plugin
     private Options _options;
@@ -48,9 +47,7 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
     private PluginUI _ui;
 
 
-    protected AbstractImperfectLabel() {
-        _detected = createResultTable();
-    }
+    protected AbstractImperfectLabel() { }
 
     // To be implemented by subclasses to detect distortion between two strings
     protected abstract void detect(StringColumn column, String s1, String s2);
@@ -63,6 +60,7 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
      */
     @Override
     public Table detect(Table table) throws OptionException {
+        _detected = createResultTable();
         StringColumn column = getSelectedColumn(table);
         List<String> tested = new ArrayList<>();    // cache of strings already tested
         List<String> compared = new ArrayList<>();  // cache of strings already compared to
@@ -89,7 +87,7 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
      */
     @Override
     public Table repair(Table master) throws InvalidOptionException {
-        String colName = OptionsUtils.getSelectedListValue(_options, "Column Name");
+        String colName = getSelectedColumnNameValue("Column Name");
         StringColumn repaired = getSelectedColumn(master, colName);
         for (Row row : getRepairs()) {
             repaired = repaired.replaceAll(
@@ -167,10 +165,13 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
 
 
     protected StringColumn getSelectedColumn(Table table) throws InvalidOptionException {
-        return getSelectedColumn(table,
-                OptionsUtils.getSelectedListValue(_options, "Column Name"));
+        return getSelectedColumn(table,getSelectedColumnNameValue("Column Name"));
     }
     
+
+    protected String getSelectedColumnNameValue(String name) {
+         return ((ColumnNameListOption) getOptions().get(name)).getSelected();
+    }
 
     /**
      * Creates the table that will receive the imperfect values detected

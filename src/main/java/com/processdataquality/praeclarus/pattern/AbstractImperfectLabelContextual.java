@@ -19,7 +19,6 @@ package com.processdataquality.praeclarus.pattern;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.option.OptionsUtils;
 import com.processdataquality.praeclarus.support.activitysimilaritymeasures.*;
 import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.logelements.ParseTable;
@@ -163,8 +162,8 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 
 
 	protected String getSortColumnName(Table table) throws InvalidOptionException {
-		String colName = OptionsUtils.getSelectedListValue(getOptions(), "Sort Column");
-		if (table.columnNames().contains(colName)) {
+		String colName = getSelectedColumnNameValue("Sort Column");
+		if (! table.columnNames().contains(colName)) {
 			throw new InvalidOptionException("No column named '" + colName + "' in table");
 		}
 		return colName;

@@ -16,13 +16,12 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.google.common.collect.ImmutableList;
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
 import com.processdataquality.praeclarus.node.*;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
-import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.PluginService;
 import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
@@ -40,6 +39,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import tech.tablesaw.api.Table;
 
@@ -317,7 +317,11 @@ public class WorkflowPanel extends VerticalLayout
                         colNames.addAll(table.columnNames());
                     }
                     if (! colNames.isEmpty()) {
-                        option.setValue(ImmutableList.copyOf(colNames));
+                        String value = option.asString();    // get any current value
+                        option.setValue(colNames);
+                        if (!StringUtils.isEmpty(value) && colNames.contains(value)) {
+                            ((ColumnNameListOption) option).setSelected(value);
+                        }
                     }
                 }
             }

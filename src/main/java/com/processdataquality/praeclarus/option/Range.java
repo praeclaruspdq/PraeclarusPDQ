@@ -20,45 +20,48 @@ import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
 
 /**
  * @author Michael Adams
- * @date 25/3/2022
+ * @date 29/3/2022
  */
-public class LongOption extends Option {
+public class Range<T extends Number & Comparable<T>> {
 
-    private long _max = Long.MAX_VALUE;
-    private long _min = Long.MIN_VALUE;
-
-    public LongOption(String key, Long value) {
-        super(key, value);
-    }
+    private T _min;
+    private T _max;
+    private boolean _minSet = false;
+    private boolean _maxSet = false;
 
 
-    public void setMax(long max) { _max = max; }
+    public Range() { }
 
-    public void setMin(long min) { _min = min; }
-
-    public void setRange(long min, long max) {
+    public Range(T min, T max) {
         setMin(min);
         setMax(max);
     }
 
-    public long getMax() { return _max; }
 
-    public long getMin() { return _min; }
-
-
-    public void setValue(long value) throws InvalidOptionValueException {
-        if (value < _min) {
-            throw new InvalidOptionValueException("Value is less than minimum limit");
-        }
-        if (value > _max) {
-            throw new InvalidOptionValueException("Value is greater than maximum limit");
-        }
-        super.setValue(value);
+    public void setMin(T min) {
+        _min = min;
+        _minSet = true;
     }
 
-    @Override
-    public Long value() {
-        return (Long) super.value();
+
+    public void setMax(T max) {
+        _max = max;
+        _maxSet = true;
     }
-    
+
+
+    public void check(T val) {
+        if (_minSet && compare(val, _min) <= 0) {
+            throw new InvalidOptionValueException("Invalid value: less than lower constraint");
+        }
+        if (_maxSet && compare(val, _max) >= 0) {
+            throw new InvalidOptionValueException("Invalid value: exceeds upper constraint");
+        }
+    }
+
+
+    private int compare(T n1, T n2) {
+        return n1.compareTo(n2);
+    }
+
 }

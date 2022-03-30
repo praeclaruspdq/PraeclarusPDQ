@@ -23,7 +23,7 @@ package com.processdataquality.praeclarus.option;
  */
 public class FileOption extends Option {
 
-    public FileOption(String key, Object value) {
+    public FileOption(String key, String value) {
         super(key, value);
     }
 
