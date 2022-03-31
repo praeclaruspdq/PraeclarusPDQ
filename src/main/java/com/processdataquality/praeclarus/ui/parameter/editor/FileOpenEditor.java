@@ -16,12 +16,12 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.reader.AbstractDataReader;
 import com.processdataquality.praeclarus.ui.component.UploadDialog;
 import com.processdataquality.praeclarus.ui.component.UploadDialogCloseEvent;
 import com.processdataquality.praeclarus.ui.component.UploadDialogListener;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.icon.Icon;
@@ -36,8 +36,8 @@ public class FileOpenEditor extends AbstractFileEditor implements UploadDialogLi
 
     private final UploadDialog _uploadDialog;
 
-    public FileOpenEditor(PDQPlugin plugin, PluginParameter param) {
-        super(plugin, param);
+    public FileOpenEditor(PDQPlugin plugin, Option option) {
+        super(plugin, option);
         _uploadDialog = new UploadDialog(this, getFileDescriptors());
     }
 

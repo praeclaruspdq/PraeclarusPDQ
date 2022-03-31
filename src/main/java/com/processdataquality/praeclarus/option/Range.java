@@ -51,10 +51,10 @@ public class Range<T extends Number & Comparable<T>> {
 
 
     public void check(T val) {
-        if (_minSet && compare(val, _min) <= 0) {
+        if (_minSet && compare(val, _min) < 0) {
             throw new InvalidOptionValueException("Invalid value: less than lower constraint");
         }
-        if (_maxSet && compare(val, _max) >= 0) {
+        if (_maxSet && compare(val, _max) > 0) {
             throw new InvalidOptionValueException("Invalid value: exceeds upper constraint");
         }
     }
@@ -62,6 +62,12 @@ public class Range<T extends Number & Comparable<T>> {
 
     private int compare(T n1, T n2) {
         return n1.compareTo(n2);
+    }
+
+
+    public static void main(String[] args) {
+        Range<Double> r = new Range<>(0.05, 4.0);
+        r.check(4.0);
     }
 
 }

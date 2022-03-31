@@ -17,8 +17,8 @@
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -38,16 +38,15 @@ public abstract class AbstractFileEditor extends AbstractEditor {
     private static final AtomicInteger ID_SUFFIX = new AtomicInteger();
     private TextField _field;
 
-    public AbstractFileEditor(PDQPlugin plugin, PluginParameter param) {
-        super(plugin, param);
+    public AbstractFileEditor(PDQPlugin plugin, Option option) {
+        super(plugin, option);
         setId("filepropertyeditor" + ID_SUFFIX.getAndIncrement());
     }
 
 
     protected void setValue(Object value) {
-        getParam().setValue(value);
-        updateProperties(getParam());
-        _field.setValue(getParam().getStringValue());
+        updateOption(value);
+        _field.setValue(getOption().asString());
     }
 
 
@@ -63,8 +62,8 @@ public abstract class AbstractFileEditor extends AbstractEditor {
     }
 
 
-    protected HorizontalLayout createField(PluginParameter param) {
-        _field = initTextField(param);
+    protected HorizontalLayout createField() {
+        _field = initTextField();
 
         HorizontalLayout layout = new HorizontalLayout();
         layout.add(_field, createButton());

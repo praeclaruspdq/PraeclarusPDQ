@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
 
@@ -27,25 +27,24 @@ import com.vaadin.flow.component.combobox.ComboBox;
  */
 public class StringListEditor extends AbstractEditor {
 
-    public StringListEditor(PDQPlugin plugin, PluginParameter param) {
-         super(plugin, param);
+    public StringListEditor(PDQPlugin plugin, Option option) {
+         super(plugin, option);
      }
 
 
     @Override
-    protected Component createField(PluginParameter param) {
+    protected Component createField() {
         ComboBox<String> field = new ComboBox<>();
-        field.setItems((String[]) param.getValue());
+        field.setItems((String[]) getOption().value());
         field.setClearButtonVisible(true);
         field.setWidth("75%");
 
         // user had added a new value
         field.addCustomValueSetListener(e -> {
             String value = e.getDetail();
-            if (isValidValue((String[]) param.getValue(), value)) {
-                param.setValue(addItem(param, value));
-                updateProperties(param);
-                field.setItems((String[]) param.getValue());
+            if (isValidValue((String[]) getOption().value(), value)) {
+                updateOption(addItem(value));
+                field.setItems((String[]) getOption().value());
             }
         });
         return field;
@@ -61,8 +60,8 @@ public class StringListEditor extends AbstractEditor {
     }
 
 
-    private String[] addItem(PluginParameter param, String value) {
-        String[] items = (String[]) param.getValue();
+    private String[] addItem(String value) {
+        String[] items = (String[]) getOption().value();
         String[] newItems = new String[items.length + 1];
         System.arraycopy(items, 0, newItems, 0, items.length);
         newItems[items.length] = value;

@@ -56,9 +56,9 @@ public class Option implements Comparable<Option> {
     // the remaining methods return the value cast to its actual type
 
     public String asString() throws InvalidOptionValueException {
-        if (_value == null) {
-            throw new InvalidOptionValueException("Value is missing");
-        }
+//        if (_value == null) {
+//            throw new InvalidOptionValueException("Value is missing");
+//        }
         return String.valueOf(_value);
     }
 

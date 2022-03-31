@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.textfield.TextField;
 
 /**
@@ -27,13 +27,13 @@ import com.vaadin.flow.component.textfield.TextField;
 
 public class StringEditor extends AbstractEditor {
 
-    public StringEditor(PDQPlugin plugin, PluginParameter param) {
-        super(plugin, param);
+    public StringEditor(PDQPlugin plugin, Option option) {
+        super(plugin, option);
     }
 
 
-    protected TextField createField(PluginParameter param) {
-        TextField tf = initTextField(param);
+    protected TextField createField() {
+        TextField tf = initTextField();
         tf.setWidth("75%");
         return tf;
     }

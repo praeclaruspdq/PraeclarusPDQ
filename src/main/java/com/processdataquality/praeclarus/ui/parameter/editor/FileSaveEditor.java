@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.processdataquality.praeclarus.writer.AbstractDataWriter;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
@@ -33,8 +33,8 @@ import java.io.StringWriter;
  */
 public class FileSaveEditor extends AbstractFileEditor {
 
-    public FileSaveEditor(PDQPlugin plugin, PluginParameter param) {
-        super(plugin, param);
+    public FileSaveEditor(PDQPlugin plugin, Option option) {
+        super(plugin, option);
     }
 
 

@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.textfield.IntegerField;
 
 /**
@@ -27,22 +27,18 @@ import com.vaadin.flow.component.textfield.IntegerField;
 
 public class IntEditor extends AbstractEditor {
 
-    public IntEditor(PDQPlugin plugin, PluginParameter param) {
-        super(plugin, param);
+    public IntEditor(PDQPlugin plugin, Option option) {
+        super(plugin, option);
     }
 
 
-    protected IntegerField createField(PluginParameter param) {
+    protected IntegerField createField() {
         IntegerField field = new IntegerField();
         field.setHasControls(true);
         field.setWidth("75%");
-        field.setValue((int) param.getValue());
-        field.addValueChangeListener(e -> {
-            param.setValue(e.getValue());
-           updateProperties(param);
-        });
+        field.setValue(getOption().asInt());
+        field.addValueChangeListener(e -> updateOption(e.getValue()));
         return field;
     }
-
 
 }

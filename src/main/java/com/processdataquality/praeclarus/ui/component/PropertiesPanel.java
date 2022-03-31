@@ -20,7 +20,7 @@ import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
+import com.processdataquality.praeclarus.ui.parameter.EditorFactory;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -29,7 +29,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  * @date 16/4/21
  */
 public class PropertiesPanel extends VerticalLayout {
-    
+
+    private final EditorFactory _factory = new EditorFactory();
     private VerticalScrollLayout _form = null;
 
     public PropertiesPanel() {
@@ -63,8 +64,7 @@ public class PropertiesPanel extends VerticalLayout {
         VerticalScrollLayout form = new VerticalScrollLayout();
         Options options = plugin.getOptions();
         for (Option option : options.sort()) {
-            PluginParameter param = new PluginParameter(option);
-            form.add(param.editor(plugin));
+            form.add(_factory.create(plugin, option));
         }
         return form;
     }

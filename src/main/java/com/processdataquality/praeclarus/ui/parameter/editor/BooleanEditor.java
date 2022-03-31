@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.checkbox.Checkbox;
 
 /**
@@ -27,18 +27,15 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 
 public class BooleanEditor extends AbstractEditor {
 
-    public BooleanEditor(PDQPlugin plugin, PluginParameter param) {
-        super(plugin, param);
+    public BooleanEditor(PDQPlugin plugin, Option option) {
+        super(plugin, option);
     }
 
 
-    protected Checkbox createField(PluginParameter param) {
+    protected Checkbox createField() {
         Checkbox cb = new Checkbox();
-        cb.setValue((boolean) param.getValue());
-        cb.addValueChangeListener(e -> {
-            param.setValue(e.getValue());
-           updateProperties(param);
-        });
+        cb.setValue(getOption().asBoolean());
+        cb.addValueChangeListener(e -> updateOption(e.getValue()));
         return cb;
     }
 

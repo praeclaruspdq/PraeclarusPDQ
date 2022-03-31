@@ -16,15 +16,15 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.ui.parameter.PluginParameter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
 /**
- * An abstract class defining a single entry field for a property. Sub-classes define
+ * An abstract class defining a single entry field for a property. Subclasses define
  * what type of field to create.
  *
  * @author Michael Adams
@@ -32,54 +32,53 @@ import com.vaadin.flow.component.textfield.TextField;
  */
 public abstract class AbstractEditor extends HorizontalLayout {
 
-    private final PDQPlugin _plugin;         // the plugin this field is a property for
-    private final PluginParameter _param;
+    private final PDQPlugin _plugin;         // the plugin this field is an option for
+    private final Option _option;            // this field's underlying option
 
 
     // adds the label and field as a single component
-    public AbstractEditor(PDQPlugin plugin, PluginParameter param) {
+    public AbstractEditor(PDQPlugin plugin, Option option) {
         super();
         _plugin = plugin;
-        _param = param;
-        add(createLabel(param), createField(param));
+        _option = option;
+        add(createLabel(), createField());
         setWidth("100%");
         setMargin(false);
         getElement().getStyle().set("margin-top", "5px");
     }
 
     // to be implemented by sub-classes
-    protected abstract Component createField(PluginParameter param);
+    protected abstract Component createField();
 
 
-    private Label createLabel(PluginParameter param) {
-        Label l = new Label(param.getName());
+    private Label createLabel() {
+        Label l = new Label(_option.key());
         l.setWidth("25%");
         l.getElement().getStyle().set("font-size", "14px");
         return l;
     }
 
 
-    protected TextField initTextField(PluginParameter parameter) {
+    protected TextField initTextField() {
         TextField field = new TextField();
-        String value = parameter.getStringValue();
-        if (value == null || value.equals("null")) value = "";
+        
+        String value = _option.asString();
+        if (value.equals("null")) value = "";
         field.setValue(value);
 
-        field.addValueChangeListener(e -> {
-            parameter.setStringValue(e.getValue());
-           updateProperties(parameter);
-        });
+        field.addValueChangeListener(e -> updateOption(e.getValue()));
         return field;
     }
 
     
-    protected void updateProperties(PluginParameter parameter) {
-        _plugin.getOptions().update(parameter.getOption());
+    protected void updateOption(Object value) {
+        _option.setValue(value);
+        _plugin.getOptions().update(_option);
     }
 
 
     protected PDQPlugin getPlugin() { return _plugin; }
 
-    protected PluginParameter getParam() { return _param; }
+    protected Option getOption() { return _option; }
 
 }
