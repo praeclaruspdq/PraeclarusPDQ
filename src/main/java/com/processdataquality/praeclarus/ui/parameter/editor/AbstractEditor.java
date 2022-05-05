@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -32,14 +32,14 @@ import com.vaadin.flow.component.textfield.TextField;
  */
 public abstract class AbstractEditor extends HorizontalLayout {
 
-    private final PDQPlugin _plugin;         // the plugin this field is an option for
+    private final HasOptions _container;         // the plugin this field is an option for
     private final Option _option;            // this field's underlying option
 
 
     // adds the label and field as a single component
-    public AbstractEditor(PDQPlugin plugin, Option option) {
+    public AbstractEditor(HasOptions container, Option option) {
         super();
-        _plugin = plugin;
+        _container = container;
         _option = option;
         add(createLabel(), createField());
         setWidth("100%");
@@ -73,11 +73,11 @@ public abstract class AbstractEditor extends HorizontalLayout {
     
     protected void updateOption(Object value) {
         _option.setValue(value);
-        _plugin.getOptions().update(_option);
+        _container.getOptions().update(_option);
     }
 
 
-    protected PDQPlugin getPlugin() { return _plugin; }
+    protected HasOptions getContainer() { return _container; }
 
     protected Option getOption() { return _option; }
 

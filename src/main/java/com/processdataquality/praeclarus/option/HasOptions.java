@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,18 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging.entity;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+package com.processdataquality.praeclarus.option;
 
 /**
  * @author Michael Adams
- * @date 8/12/21
+ * @date 5/5/2022
  */
-@Entity
-public class NodeEntity {
-    @Id
-    @Column(nullable = false)
-    private Long id;
+public interface HasOptions {
 
-    public Long getId() {
-        return id;
-    }
+    /**
+     * @return A map of configuration parameters for plugins and other objects that
+     * have configurable parameters.
+     */
+    Options getOptions();
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

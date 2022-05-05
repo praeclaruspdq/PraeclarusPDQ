@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.writer.AbstractDataWriter;
@@ -33,8 +34,8 @@ import java.io.StringWriter;
  */
 public class FileSaveEditor extends AbstractFileEditor {
 
-    public FileSaveEditor(PDQPlugin plugin, Option option) {
-        super(plugin, option);
+    public FileSaveEditor(HasOptions container, Option option) {
+        super(container, option);
     }
 
 

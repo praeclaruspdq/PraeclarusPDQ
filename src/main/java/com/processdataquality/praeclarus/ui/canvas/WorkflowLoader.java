@@ -16,10 +16,11 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.logging.Logger;
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.node.Network;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeLoader;
+import com.processdataquality.praeclarus.repo.network.NetworkStore;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -60,7 +61,7 @@ public class WorkflowLoader {
 
         // check if this one is persisted
         String id = json.getString("id");
-        Optional<Network> optional = Logger.retrieveNetwork(id);
+        Optional<Network> optional = NetworkStore.get(id);
         if (optional.isPresent()) {
             return optional.get();
         }
@@ -137,7 +138,7 @@ public class WorkflowLoader {
 
 
     private LocalDateTime strToDateTime(String s) {
-        return LocalDateTime.parse(s, Logger.dtFormatter);
+        return LocalDateTime.parse(s, EventLogger.dtFormatter);
     }
 
 }

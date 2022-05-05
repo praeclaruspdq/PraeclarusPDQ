@@ -14,29 +14,25 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.parameter.editor;
+package com.processdataquality.praeclarus.ui.repo;
 
-import com.processdataquality.praeclarus.option.HasOptions;
-import com.processdataquality.praeclarus.option.Option;
-import com.vaadin.flow.component.checkbox.Checkbox;
+import com.processdataquality.praeclarus.node.Network;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author Michael Adams
- * @date 5/5/21
+ * @date 4/5/2022
  */
+@Repository
+public interface WorkflowRepository extends CrudRepository<StoredWorkflow, String> {
 
-public class BooleanEditor extends AbstractEditor {
+    List<Network> findByOwner(String owner);
 
-    public BooleanEditor(HasOptions container, Option option) {
-        super(container, option);
-    }
+    List<Network> findBySharedTrue();
 
-
-    protected Checkbox createField() {
-        Checkbox cb = new Checkbox();
-        cb.setValue(getOption().asBoolean());
-        cb.addValueChangeListener(e -> updateOption(e.getValue()));
-        return cb;
-    }
+    List<Network> findByOwnerAndSharedFalse(String owner);
 
 }

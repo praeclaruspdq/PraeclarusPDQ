@@ -14,29 +14,17 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.parameter.editor;
-
-import com.processdataquality.praeclarus.option.HasOptions;
-import com.processdataquality.praeclarus.option.Option;
-import com.vaadin.flow.component.checkbox.Checkbox;
+package com.processdataquality.praeclarus.option;
 
 /**
+ * An option specifically for capturing file paths
  * @author Michael Adams
- * @date 5/5/21
+ * @date 24/3/2022
  */
+public class MultiLineOption extends Option {
 
-public class BooleanEditor extends AbstractEditor {
-
-    public BooleanEditor(HasOptions container, Option option) {
-        super(container, option);
-    }
-
-
-    protected Checkbox createField() {
-        Checkbox cb = new Checkbox();
-        cb.setValue(getOption().asBoolean());
-        cb.addValueChangeListener(e -> updateOption(e.getValue()));
-        return cb;
+    public MultiLineOption(String key, String value) {
+        super(key, value);
     }
 
 }

@@ -16,10 +16,9 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
-import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.ui.parameter.EditorFactory;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -39,17 +38,11 @@ public class PropertiesPanel extends VerticalLayout {
     }
 
 
-    public void set(PDQPlugin plugin) {
+    public void set(HasOptions container) {
         removeProperties();
-        if (plugin != null) {
-           setForm(createForm(plugin));
+        if (container != null) {
+           setForm(createForm(container));
         }
-    }
-
-
-    public void set(Workflow workflow) {
-        removeProperties();
-        setForm(createForm(workflow));
     }
 
 
@@ -60,21 +53,11 @@ public class PropertiesPanel extends VerticalLayout {
     }
 
 
-    private VerticalScrollLayout createForm(PDQPlugin plugin) {
+    private VerticalScrollLayout createForm(HasOptions container) {
         VerticalScrollLayout form = new VerticalScrollLayout();
-        Options options = plugin.getOptions();
+        Options options = container.getOptions();
         for (Option option : options.sort()) {
-            form.add(_factory.create(plugin, option));
-        }
-        return form;
-    }
-
-
-    private VerticalScrollLayout createForm(Workflow workflow) {
-        VerticalScrollLayout form = new VerticalScrollLayout();
-        Options options = workflow.getUserOptions();
-        for (Option option : options.sort()) {
-            form.add(new WorkflowOptionEditor(workflow, option)) ;
+            form.add(_factory.create(container, option));
         }
         return form;
     }

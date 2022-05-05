@@ -16,10 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.parameter;
 
-import com.processdataquality.praeclarus.option.ColumnNameListOption;
-import com.processdataquality.praeclarus.option.FileOption;
-import com.processdataquality.praeclarus.option.Option;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.option.*;
 import com.processdataquality.praeclarus.ui.parameter.editor.*;
 import com.processdataquality.praeclarus.writer.DataWriter;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -32,36 +29,39 @@ import java.util.List;
  */
 public class EditorFactory {
 
-    public HorizontalLayout create(PDQPlugin plugin, Option option) {
+    public HorizontalLayout create(HasOptions container, Option option) {
         if (option instanceof FileOption) {
-            if (plugin instanceof DataWriter) {
-                return new FileSaveEditor(plugin, option);
+            if (container instanceof DataWriter) {
+                return new FileSaveEditor(container, option);
             }
             else {
-                return new FileOpenEditor(plugin, option);
+                return new FileOpenEditor(container, option);
             }
         }
         else if (option instanceof ColumnNameListOption) {
             if (option.value() instanceof List<?>) {
-                return new ImmutableListEditor(plugin, option);
+                return new ImmutableListEditor(container, option);
             }
         }
+        else if (option instanceof MultiLineOption) {
+           return new TextEditor(container, option);
+        }
         else if (option.value() instanceof Boolean) {
-            return new BooleanEditor(plugin, option);
+            return new BooleanEditor(container, option);
         }
         else if (option.value()instanceof Integer) {
-            return new IntEditor(plugin, option);
+            return new IntEditor(container, option);
         }
         else if (option.value() instanceof Double) {
-            return new NumberEditor(plugin, option);
+            return new NumberEditor(container, option);
         }
         else if (option.value() instanceof String[]) {
-            return new StringListEditor(plugin, option);
+            return new StringListEditor(container, option);
         }
         else if (option.value() instanceof List<?>) {
-            return new ImmutableListEditor(plugin, option);
+            return new ImmutableListEditor(container, option);
         }
 
-        return new StringEditor(plugin, option);
+        return new StringEditor(container, option);
     }
 }

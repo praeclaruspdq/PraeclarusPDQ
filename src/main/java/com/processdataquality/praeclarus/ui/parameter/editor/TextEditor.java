@@ -18,27 +18,33 @@ package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
-import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 /**
  * @author Michael Adams
  * @date 5/5/21
  */
 
-public class IntEditor extends AbstractEditor {
+public class TextEditor extends AbstractEditor {
 
-    public IntEditor(HasOptions container, Option option) {
+    public TextEditor(HasOptions container, Option option) {
         super(container, option);
     }
 
 
-    protected IntegerField createField() {
-        IntegerField field = new IntegerField();
-        field.setHasControls(true);
-        field.setWidth("75%");
-        field.setValue(getOption().asInt());
-        field.addValueChangeListener(e -> updateOption(e.getValue()));
-        return field;
+    protected TextArea createField() {
+        TextArea ta = new TextArea();
+        ta.setWidth("75%");
+
+        String value = getOption().asString();
+        if (value.equals("null")) value = "";
+        ta.setValue(value);
+
+        ta.setValueChangeMode(ValueChangeMode.ON_BLUR);
+        ta.addValueChangeListener(e -> updateOption(e.getValue()));
+
+        return ta;
     }
 
 }

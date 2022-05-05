@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.plugin;
 
-import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.option.HasOptions;
 
 /**
  * The base interface for all plugins in the environment
@@ -24,14 +24,8 @@ import com.processdataquality.praeclarus.option.Options;
  * @author Michael Adams
  * @date 6/4/21
  */
-public interface PDQPlugin {
+public interface PDQPlugin extends HasOptions {
     
-    /**
-     * @return A map of configuration parameters for the plugin.
-     */
-    Options getOptions();
-
-
     /**
      * @return the maximum number of plugins that can be connected as inputs to this
      * plugin (i.e. the threshold of allowable inputs for this plugin)

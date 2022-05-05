@@ -18,20 +18,18 @@ package com.processdataquality.praeclarus.logging;
 
 import com.processdataquality.praeclarus.logging.entity.*;
 import com.processdataquality.praeclarus.logging.repository.*;
-import com.processdataquality.praeclarus.node.Network;
 import com.processdataquality.praeclarus.node.Node;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 /**
  * @author Michael Adams
  * @date 1/12/21
  */
 @Component
-public class Logger {
+public class EventLogger {
 
     public static final DateTimeFormatter dtFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
@@ -46,21 +44,20 @@ public class Logger {
     private static WorkflowCreationEventRepository workflowCreationEventRepository;
     private static WorkflowIOEventRepository workflowIOEventRepository;
     private static WorkflowRenameEventRepository workflowRenameEventRepository;
-    private static NetworkRepository networkRepository;
-//    private static NodeRepository nodeRepository;
+
+
 
 
     // Inject repositories
-    public Logger(AuthenticationEventRepository authRepo,
-                  ConnectorEventRepository connRepo,
-                  NodeChangeEventRepository ncRepo,
-                  NodeEventRepository nRepo,
-                  NodeRollbackEventRepository nrbRepo,
-                  NodeRunEventRepository nrRepo,
-                  WorkflowCreationEventRepository wcRepo,
-                  WorkflowIOEventRepository wioRepo,
-                  WorkflowRenameEventRepository wrRepo,
-                  NetworkRepository nwRepo) {
+    public EventLogger(AuthenticationEventRepository authRepo,
+                       ConnectorEventRepository connRepo,
+                       NodeChangeEventRepository ncRepo,
+                       NodeEventRepository nRepo,
+                       NodeRollbackEventRepository nrbRepo,
+                       NodeRunEventRepository nrRepo,
+                       WorkflowCreationEventRepository wcRepo,
+                       WorkflowIOEventRepository wioRepo,
+                       WorkflowRenameEventRepository wrRepo) {
         authenticationEventRepository = authRepo;
         connectorEventRepository = connRepo;
         nodeChangeEventRepository = ncRepo;
@@ -70,8 +67,6 @@ public class Logger {
         workflowCreationEventRepository = wcRepo;
         workflowIOEventRepository = wioRepo;
         workflowRenameEventRepository = wrRepo;
-        networkRepository = nwRepo;
-//        nodeRepository = nodRepository;
     }
 
 
@@ -173,40 +168,7 @@ public class Logger {
         return save(workflowRenameEventRepository, event);
     }
 
-
-    public static void saveNetwork(Network network) {
-        networkRepository.save(network);
-    }
-
-
-    public static void saveNetworkIfNew(Network network) {
-        Optional<Network> optional = networkRepository.findById(network.getId());
-        if (! optional.isPresent()) {
-            saveNetwork(network);
-        }
-    }
-
-
-    public static Optional<Network> retrieveNetwork(String id) {
-        return networkRepository.findById(id);
-    }
-
-
-//    public static void saveNode(Node node) {
-//        nodeRepository.save(node);
-//    }
-
-
-//    public static void setNetworkContent(String id, String content) {
-//        Optional<NetworkEntity> optional = networkRepository.findById(id);
-//        optional.ifPresent(network -> {
-//            network.setContent(content);
-//            networkRepository.save(network);
-//        });
-//    }
-
-
-
+    
     private static <T> String save(CrudRepository<T, Long> repo, T event) {
         repo.save(event);
         return event.toString();

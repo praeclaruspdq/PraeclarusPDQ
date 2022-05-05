@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging.repository;
+package com.processdataquality.praeclarus.repo.network;
 
 import com.processdataquality.praeclarus.node.Network;
 import org.springframework.data.repository.CrudRepository;
@@ -29,7 +29,12 @@ import java.util.List;
 @Repository
 public interface NetworkRepository extends CrudRepository<Network, String> {
 
-    List<Network> findByCreator(String creator);
+    List<Network> findByOwner(String owner);
+
+    List<Network> findBySharedTrue();
+
+    List<Network> findByOwnerAndSharedFalse(String owner);
+
 
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
+import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.reader.AbstractDataReader;
 import com.processdataquality.praeclarus.ui.component.UploadDialog;
 import com.processdataquality.praeclarus.ui.component.UploadDialogCloseEvent;
@@ -36,8 +36,8 @@ public class FileOpenEditor extends AbstractFileEditor implements UploadDialogLi
 
     private final UploadDialog _uploadDialog;
 
-    public FileOpenEditor(PDQPlugin plugin, Option option) {
-        super(plugin, option);
+    public FileOpenEditor(HasOptions container, Option option) {
+        super(container, option);
         _uploadDialog = new UploadDialog(this, getFileDescriptors());
     }
 

@@ -16,10 +16,12 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.logging.Logger;
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.node.Network;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeStateListener;
+import com.processdataquality.praeclarus.option.HasOptions;
+import com.processdataquality.praeclarus.option.MultiLineOption;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
@@ -37,7 +39,7 @@ import java.util.Set;
  * @author Michael Adams
  * @date 19/5/21
  */
-public class Workflow implements CanvasEventListener, NodeStateListener {
+public class Workflow implements HasOptions, CanvasEventListener, NodeStateListener {
 
     private enum State { VERTEX_DRAG, ARC_DRAW, NONE }
 
@@ -47,6 +49,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     private final Set<Connector> _connectors = new HashSet<>();
     private final Set<CanvasSelectionListener> _selectionListeners = new HashSet<>();
 
+    private Options _options;
     private Network _network;        // back end
     private ActiveLine activeLine;
     private CanvasPrimitive selected;
@@ -59,6 +62,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         _container = container;
         _ctx = context;
         clear();
+        _options = initOptions();
     }
 
     @Override
@@ -137,7 +141,8 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         try {
             loader.load(jsonStr);
             _container.getRunner().reset();
-            Logger.workflowLoadEvent("user", "dummy");
+            _options = initOptions();
+            EventLogger.workflowLoadEvent("user", "dummy");
         }
         catch (JSONException | IOException je) {
             Notification.show("Failed to load file: " + je.getMessage());
@@ -196,7 +201,6 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     private void clear() {
         Network network = new Network.Builder("user").name("New Workflow").build();
         clear(network);
-        Logger.saveNetwork(network);
     }
 
 
@@ -310,6 +314,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
 
 
     public JSONObject asJson() throws JSONException {
+        setOptions();                                  // update user property changes
         JSONArray vertexArray = new JSONArray();
         for (Vertex vertex : _vertices) {
             vertexArray.put(vertex.asJson());
@@ -325,19 +330,33 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
     }
 
 
-    public Options getUserOptions() {
+    public Options getOptions() {
+         return _options;
+    }
+
+
+    private Options initOptions() {
         Options options = new Options();
         options.addDefault("Workflow Name", _network.getName());
+        options.addDefault("Public", _network.isShared());
+        options.addDefault(new MultiLineOption("Description", _network.getDescription()));
         return options;
     }
 
 
-    public void setUserOption(Option option) {
+    public void setOptions() {
+        for (Option option : _options.getChanges().values())
         if (option.key().equals("Workflow Name")) {
             String newName = option.asString();
             if (! newName.isEmpty()) {
                 setName(newName);
             }
+        }
+        else if (option.key().equals("Public")) {
+            _network.updateShared(option.asBoolean());
+        }
+        else if (option.key().equals("Description")) {
+            _network.updateDescription(option.asString());
         }
     }
 

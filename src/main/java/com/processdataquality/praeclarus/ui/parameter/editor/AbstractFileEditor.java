@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.vaadin.flow.component.button.Button;
@@ -38,8 +39,8 @@ public abstract class AbstractFileEditor extends AbstractEditor {
     private static final AtomicInteger ID_SUFFIX = new AtomicInteger();
     private TextField _field;
 
-    public AbstractFileEditor(PDQPlugin plugin, Option option) {
-        super(plugin, option);
+    public AbstractFileEditor(HasOptions container, Option option) {
+        super(container, option);
         setId("filepropertyeditor" + ID_SUFFIX.getAndIncrement());
     }
 
@@ -71,6 +72,9 @@ public abstract class AbstractFileEditor extends AbstractEditor {
         layout.setWidth("75%");
         return layout;
     }
+
+
+    protected PDQPlugin getPlugin() { return (PDQPlugin) getContainer(); }
 
     protected abstract Button createButton() ;
 

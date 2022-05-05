@@ -22,7 +22,12 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EnableJpaRepositories("com.processdataquality.praeclarus.logging.repository")
+//@EnableJpaRepositories
+@EnableJpaRepositories(basePackages = {
+        "com.processdataquality.praeclarus.logging.repository",
+        "com.processdataquality.praeclarus.repo.network",
+        "com.processdataquality.praeclarus.ui.repo"
+})
 //@ConfigurationPropertiesScan("com.processdataquality.praeclarus.config")
 public class DqfApplication extends SpringBootServletInitializer {
 

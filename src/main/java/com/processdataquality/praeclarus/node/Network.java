@@ -16,7 +16,8 @@
 
 package com.processdataquality.praeclarus.node;
 
-import com.processdataquality.praeclarus.logging.Logger;
+import com.processdataquality.praeclarus.logging.EventLogger;
+import com.processdataquality.praeclarus.repo.network.NetworkStore;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
@@ -46,8 +47,11 @@ public class Network {
     private LocalDateTime lastSavedTime;
     private String userContent;
 
+    private boolean shared;
+
     @Transient
     private final Set<Node> nodeSet = new HashSet<>();
+
 
 
     private Network(Builder builder) {
@@ -60,7 +64,7 @@ public class Network {
         lastSavedTime = builder.lastSavedTime;
         description = builder.description;
         userContent = builder.userContent;
-        Logger.saveNetworkIfNew(this);
+        NetworkStore.addIfNew(this);
     }
 
 
@@ -105,18 +109,23 @@ public class Network {
     }
 
 
+    public boolean isShared() { return shared; }
+
+    public void updateShared(boolean b) { shared = b; }
+
+    
     public JSONObject asJson() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("id", id);
         json.put("name", name);
         json.put("creator", creator);
         json.put("owner", owner);
-        json.put("creationTime", creationTime.format(Logger.dtFormatter));
+        json.put("creationTime", creationTime.format(EventLogger.dtFormatter));
         if (description != null) {
             json.put("description", description);
         }
         if (lastSavedTime != null) {
-            json.put("lastSavedTime", lastSavedTime.format(Logger.dtFormatter));
+            json.put("lastSavedTime", lastSavedTime.format(EventLogger.dtFormatter));
         }
         return json;
     }
@@ -124,7 +133,7 @@ public class Network {
 
     public void addNode(Node node) {
         nodeSet.add(node);
-    //    Logger.saveNode(node);
+    //    EventLogger.saveNode(node);
     }
 
 
@@ -149,7 +158,7 @@ public class Network {
 
 
     /**
-     * Gets each head node on each branch that eventually target a node
+     * Gets each head node on each branch that eventually targets a node
      * @param node the node to get the heads for
      * @return the Set of head nodes that lead to the node passed
      */
@@ -193,9 +202,10 @@ public class Network {
 
 
    private void save() {
-       Logger.saveNetwork(this);
+       NetworkStore.put(this);
    }
 
+   
     // these are only used by JPA
     protected Network() { }
     protected void setId(String id) { this.id = id; }
@@ -206,6 +216,7 @@ public class Network {
     protected void setOwner(String owner)  { this.owner = owner; }
     protected void setDescription(String description)  { this.description = description; }
     protected void setUserContent(String content) { userContent = content; }
+    protected void setShared(boolean b) { shared = b; }
 
 
    public static class Builder {
