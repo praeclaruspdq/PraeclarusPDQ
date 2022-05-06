@@ -26,6 +26,7 @@ import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
 import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
+import com.processdataquality.praeclarus.ui.repo.WorkflowStore;
 import com.vaadin.flow.component.notification.Notification;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -370,6 +371,12 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
                 e.printStackTrace();
             }
         });
+    }
+
+
+    public void store() throws JSONException {
+        WorkflowStore.save(this);
+        setChanged(false);
     }
     
 

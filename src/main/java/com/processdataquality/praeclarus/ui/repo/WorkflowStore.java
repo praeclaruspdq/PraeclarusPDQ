@@ -20,6 +20,9 @@ import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Michael Adams
  * @date 4/5/2022
@@ -34,19 +37,26 @@ public class WorkflowStore {
     }
 
 
-    public StoredWorkflow save(String id, String owner, boolean shared, String json) {
+    public static StoredWorkflow save(String id, String owner, boolean shared, String json) {
         return save(new StoredWorkflow(id, owner, shared, json));
     }
 
-    public StoredWorkflow save(Workflow workflow) throws JSONException {
+    public static List<StoredWorkflow> findall() {
+        List<StoredWorkflow> list = new ArrayList<>();
+        repository.findAll().forEach(list::add);
+        return list;
+    }
+
+    public static StoredWorkflow save(Workflow workflow) throws JSONException {
+        String json = workflow.asJson().toString();      // also triggers props update
         return save(new StoredWorkflow(
                 workflow.getNetwork().getId(),
                 workflow.getNetwork().getOwner(),
                 workflow.getNetwork().isShared(),
-                workflow.asJson().toString()));
+                json));
     }
 
-    public StoredWorkflow save(StoredWorkflow storedWorkflow) {
+    public static StoredWorkflow save(StoredWorkflow storedWorkflow) {
         return repository.save(storedWorkflow);
     }
 

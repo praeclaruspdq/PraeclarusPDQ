@@ -29,6 +29,7 @@ import java.util.List;
 @Repository
 public interface WorkflowRepository extends CrudRepository<StoredWorkflow, String> {
 
+
     List<Network> findByOwner(String owner);
 
     List<Network> findBySharedTrue();

@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.repo;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -30,6 +31,7 @@ public class StoredWorkflow {
     private String id;
     private String owner;
     private boolean shared;
+    @Column(length=102400)
     private String json;
 
     public StoredWorkflow() { }

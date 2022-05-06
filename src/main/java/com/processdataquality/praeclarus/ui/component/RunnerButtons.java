@@ -25,6 +25,7 @@ import com.processdataquality.praeclarus.ui.canvas.Vertex;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
@@ -84,6 +85,9 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     public void addButton(Button b) {
         add(b);
     }
+
+
+    public void addSeparator() { add(new Label("      "));}
 
 
     protected void setState(NodeRunner.RunnerState state) {
