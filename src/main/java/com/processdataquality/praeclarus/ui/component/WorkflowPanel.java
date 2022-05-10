@@ -37,7 +37,6 @@ import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -63,9 +62,9 @@ public class WorkflowPanel extends VerticalLayout
 
     private final Button _removeButton = createRemoveButton();
     private final Button _storeButton = createStoreButton();
-    private final Button _saveButton = createSaveButton();
+    private final Button _downloadButton = createDownloadButton();
     private final Button _resetButton = createResetButton();
-    private final Button _loadButton = createLoadButton();
+    private final Button _uploadButton = createUploadButton();
     private final Button _searchButton = createSearchButton();
 
 
@@ -136,8 +135,8 @@ public class WorkflowPanel extends VerticalLayout
         buttons.addButton(_searchButton);
         buttons.addButton(_storeButton);
         buttons.addSeparator();
-        buttons.addButton(_loadButton);
-        buttons.addButton(_saveButton);
+        buttons.addButton(_uploadButton);
+        buttons.addButton(_downloadButton);
         return buttons;
     }
 
@@ -225,7 +224,7 @@ public class WorkflowPanel extends VerticalLayout
         Button removeButton = new Button(icon, e -> {
             _workflow.removeSelected();
             changedSelected(null);
-            _saveButton.setEnabled(_workflow.hasContent());
+            _downloadButton.setEnabled(_workflow.hasContent());
         });
         UiUtil.setTooltip(removeButton, "Remove node");
         removeButton.setEnabled(false);
@@ -233,22 +232,22 @@ public class WorkflowPanel extends VerticalLayout
     }
 
 
-    private Button createLoadButton() {
+    private Button createUploadButton() {
         Icon icon = UiUtil.createIcon(VaadinIcon.FOLDER_OPEN_O);
         icon.setSize("24px");
         Button loadButton = new Button(icon, e -> {
             if (_workflow.hasChanges()) {
                 MessageDialog dialog = new MessageDialog(
                         "Save changes to existing workflow?");
-                dialog.setText("Click 'Save' to save changes, " +
+                dialog.setText("Click 'Save' to download changes, " +
                         "'Discard' to discard changes, 'Cancel' to keep working.");
-                dialog.addButton(new Button("Save", s -> saveThenLoadNewWorkflow()));
-                dialog.addButton(new Button("Discard", d -> _canvas.loadFromFile()));
-                dialog.addButton(new Button("Cancel"));
+                dialog.addConfirmButton(new Button("Save", s -> saveThenLoadNewWorkflow()));
+                dialog.addRejectButton(new Button("Discard", d -> loadFromFile()));
+                dialog.addCancelButton();
                 dialog.open();
             }
             else {
-                _canvas.loadFromFile();
+                loadFromFile();
             }
         });
         UiUtil.setTooltip(loadButton, "Upload workflow");
@@ -256,7 +255,7 @@ public class WorkflowPanel extends VerticalLayout
     }
 
 
-    private Button createSaveButton() {
+    private Button createDownloadButton() {
         Icon icon = UiUtil.createIcon(VaadinIcon.DOWNLOAD);
         Button saveButton = new Button(icon, e -> saveWorkflow());
         UiUtil.setTooltip(saveButton, "Download workflow");
@@ -296,13 +295,18 @@ public class WorkflowPanel extends VerticalLayout
         boolean isIdle = state == NodeRunner.RunnerState.IDLE;
         boolean hasContent = isIdle && _workflow.hasContent();
         _removeButton.setEnabled(isIdle && selected != null);
-        _saveButton.setEnabled(hasContent);
+        _downloadButton.setEnabled(hasContent);
         _searchButton.setEnabled(isIdle);
         _storeButton.setEnabled(hasContent);
         _resetButton.setEnabled(hasContent);
-        _loadButton.setEnabled(isIdle);
+        _uploadButton.setEnabled(isIdle);
     }
 
+
+    private void loadFromFile() {
+        _canvas.loadFromFile();
+        Announcement.success("Workflow successfully uploaded.");
+    }
 
     private boolean saveWorkflow() {
         try {
@@ -312,7 +316,7 @@ public class WorkflowPanel extends VerticalLayout
             return true;
         }
         catch (JSONException je) {
-            Notification.show("Failed to save file: " + je.getMessage());
+            Announcement.error("Failed to save file: " + je.getMessage());
         }
         return false;
     }
@@ -322,13 +326,13 @@ public class WorkflowPanel extends VerticalLayout
             _workflow.store();
         }
         catch (JSONException je) {
-            Notification.show("Failed to store file: " + je.getMessage());
+            Announcement.error("Failed to store file: " + je.getMessage());
         }
     }
 
 
     private void showStoredWorkflows() {
-        new StoredWorkflowsDialog().open();
+        new StoredWorkflowsDialog(_workflow).open();
     }
 
 
@@ -338,7 +342,7 @@ public class WorkflowPanel extends VerticalLayout
             _canvas.saveThenLoadFile(jsonStr);
         }
         catch (JSONException je) {
-            Notification.show("Failed to save file: " + je.getMessage());
+            Announcement.error("Failed to save file: " + je.getMessage());
         }
     }
 

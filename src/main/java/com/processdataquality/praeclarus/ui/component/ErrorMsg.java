@@ -35,6 +35,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 public class ErrorMsg extends Notification {
     
     public ErrorMsg(String msg) {
+        super();
         addThemeVariants(NotificationVariant.LUMO_ERROR);
         setPosition(Position.MIDDLE);
 
@@ -49,6 +50,12 @@ public class ErrorMsg extends Notification {
         HorizontalLayout layout = new HorizontalLayout(icon, text, closeButton);
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         add(layout);
+    }
+
+
+    public ErrorMsg(String msg, Position position) {
+        this(msg);
+        setPosition(position);
     }
 
 }

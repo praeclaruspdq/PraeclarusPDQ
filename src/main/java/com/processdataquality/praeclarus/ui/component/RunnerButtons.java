@@ -134,19 +134,28 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 
     private void action(NodeRunner.RunnerAction runnerAction) {
         try {
+            long start = System.currentTimeMillis();
             _runner.action(runnerAction, _selectedNode);
+            announceAction(runnerAction, start);
         }
         catch (NodeRunnerException e) {
             try {
                 _selectedNode.reset();
             }
             catch (Exception ex) {
-                // unlike this will happen
+                // unlikely this will happen
             }
             _runner.reset();
             String msg = "Error in node '" + _selectedNode.getLabel()  + "': " +  e.getMessage();
-            new ErrorMsg(msg).open();
+            Announcement.error(msg);
         }
+    }
+
+
+    private void announceAction(NodeRunner.RunnerAction runnerAction, long start) {
+        double duration = (System.currentTimeMillis() - start)/1000D;
+        String msg = String.format("%s completed in %.3f seconds.", runnerAction, duration);
+        Announcement.success(msg);
     }
 
 }

@@ -17,11 +17,14 @@
 package com.processdataquality.praeclarus.ui.component;
 
 
+import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
@@ -33,13 +36,32 @@ public class MessageDialog extends Dialog {
     private final HorizontalLayout _buttonBar = new HorizontalLayout();
     private final Div _text = new Div();
 
+    private Button _confirm;
+    private Button _reject;
+    private Button _cancel;
+
     public MessageDialog(String title) {
-        setWidth("300px");
+        setWidth("500px");
         setModal(true);
         setCloseOnOutsideClick(false);
-        add(new Div(new H3(title)));
-//        _buttonBar.getStyle().set("background-color", "#F4F5F7");
+        setHeader(title);
+        _buttonBar.getStyle().set("flex-wrap", "wrap");
+        _buttonBar.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         add(_text, _buttonBar);
+    }
+
+
+    public void open() {
+        initButtons();
+        super.open();
+    }
+
+
+    public void setHeader(String title) {
+        H3 header = new H3(title);
+        UiUtil.removeTopMargin(header);
+        UiUtil.setStyle(header, "margin-bottom", "20px");
+        add(new Div(header));
     }
 
 
@@ -52,4 +74,66 @@ public class MessageDialog extends Dialog {
         _buttonBar.add(b);
         b.addClickListener(e -> close());
     }
+
+
+    public Button addConfirmButton(Button b) {
+        b.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        b.addClickListener(e -> close());
+        _confirm = b;
+        return b;
+    }
+
+
+    public Button addConfirmButton(String text) {
+        return addConfirmButton(new Button(text));
+    }
+
+
+    public Button addConfirmButton() {
+        return addConfirmButton(new Button("Confirm"));
+    }
+
+    
+    public Button addRejectButton(Button b) {
+        b.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        b.addClickListener(e -> close());
+        _reject = b;
+        return b;
+    }
+
+
+    public Button addRejectButton(String text) {
+        return addRejectButton(new Button(text));
+    }
+
+
+    public Button addRejectButton() {
+        return addRejectButton(new Button("Reject"));
+    }
+
+
+    public Button  addCancelButton(Button b) {
+        b.getStyle().set("margin-inline-end", "auto");
+        b.addClickListener(e -> close());
+        _cancel = b;
+        return b;
+    }
+
+
+    public Button addCancelButton(String text) {
+        return addCancelButton(new Button(text));
+    }
+
+
+    public Button addCancelButton() {
+        return addCancelButton(new Button("Cancel"));
+    }
+
+
+    private void initButtons() {
+        if (_cancel != null) _buttonBar.add(_cancel);
+        if (_reject != null) _buttonBar.add(_reject);
+        if (_confirm != null) _buttonBar.add(_confirm);
+    }
+
 }

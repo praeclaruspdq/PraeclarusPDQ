@@ -16,9 +16,13 @@
 
 package com.processdataquality.praeclarus.ui.repo;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 /**
  * @author Michael Adams
@@ -33,6 +37,10 @@ public class StoredWorkflow {
     private boolean shared;
     @Column(length=102400)
     private String json;
+
+    @Transient
+    JSONObject jsonObject;
+
 
     public StoredWorkflow() { }
 
@@ -74,4 +82,43 @@ public class StoredWorkflow {
     protected void setId(String id) {
         this.id = id;
     }
+
+    public String getDescription() {
+        return parseString("description");
+    }
+
+    public String getName() {
+        return parseString("name");
+    }
+
+    public String getCreationTime() {
+        return parseString("creationTime");
+    }
+
+    public String getLastSavedTime() {
+        return parseString("lastSavedTime");
+    }
+
+
+    private String parseString(String field) {
+        try {
+            String value = getJsonObject().optString(field);
+            if (value != null) {
+                return value;
+            }
+        }
+        catch (JSONException e) {
+            //desc not found;
+        }
+        return "No " + field;
+    }
+
+
+    private JSONObject getJsonObject() throws JSONException {
+        if (jsonObject == null) {
+            jsonObject = new JSONObject(json);
+        }
+        return jsonObject;
+    }
+
 }

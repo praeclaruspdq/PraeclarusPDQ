@@ -24,10 +24,10 @@ import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.MultiLineOption;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.ui.component.Announcement;
 import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
 import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.processdataquality.praeclarus.ui.repo.WorkflowStore;
-import com.vaadin.flow.component.notification.Notification;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -111,7 +111,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
                     addConnector(new Connector(source, target));
                 }
                 else {
-                    Notification.show("Output port cannot be the target of a connection");
+                    Announcement.show("Output port cannot be the target of a connection");
                 }
             }
         }
@@ -146,7 +146,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
             EventLogger.workflowLoadEvent("user", "dummy");
         }
         catch (JSONException | IOException je) {
-            Notification.show("Failed to load file: " + je.getMessage());
+            Announcement.error("Failed to load file: " + je.getMessage());
             clear();
         }
     }
@@ -377,6 +377,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
     public void store() throws JSONException {
         WorkflowStore.save(this);
         setChanged(false);
+        Announcement.success("'" + getNetwork().getName() + "' successfully stored.");
     }
     
 

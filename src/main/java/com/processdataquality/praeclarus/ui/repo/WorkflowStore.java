@@ -47,6 +47,14 @@ public class WorkflowStore {
         return list;
     }
 
+    public static List<StoredWorkflow> findPrivate(String owner) {
+        return repository.findByOwnerAndSharedFalse(owner);
+    }
+
+    public static List<StoredWorkflow> findShared() {
+        return repository.findBySharedTrue();
+    }
+
     public static StoredWorkflow save(Workflow workflow) throws JSONException {
         String json = workflow.asJson().toString();      // also triggers props update
         return save(new StoredWorkflow(

@@ -16,7 +16,6 @@
 
 package com.processdataquality.praeclarus.ui.repo;
 
-import com.processdataquality.praeclarus.node.Network;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -30,10 +29,10 @@ import java.util.List;
 public interface WorkflowRepository extends CrudRepository<StoredWorkflow, String> {
 
 
-    List<Network> findByOwner(String owner);
+    List<StoredWorkflow> findByOwner(String owner);
 
-    List<Network> findBySharedTrue();
+    List<StoredWorkflow> findBySharedTrue();
 
-    List<Network> findByOwnerAndSharedFalse(String owner);
+    List<StoredWorkflow> findByOwnerAndSharedFalse(String owner);
 
 }
