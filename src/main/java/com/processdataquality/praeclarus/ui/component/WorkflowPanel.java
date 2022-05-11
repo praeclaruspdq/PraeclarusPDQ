@@ -28,7 +28,16 @@ import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
 import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.ui.canvas.*;
+import com.processdataquality.praeclarus.ui.component.announce.Announcement;
+import com.processdataquality.praeclarus.ui.component.announce.ErrorMsg;
+import com.processdataquality.praeclarus.ui.component.dialog.MessageDialog;
+import com.processdataquality.praeclarus.ui.component.dialog.StoredWorkflowsDialog;
+import com.processdataquality.praeclarus.ui.component.layout.VerticalScrollLayout;
+import com.processdataquality.praeclarus.ui.component.plugin.PluginUIDialog;
+import com.processdataquality.praeclarus.ui.component.plugin.PluginUIListener;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -66,6 +75,7 @@ public class WorkflowPanel extends VerticalLayout
     private final Button _resetButton = createResetButton();
     private final Button _uploadButton = createUploadButton();
     private final Button _searchButton = createSearchButton();
+    private final Button _clearButton = createClearButton();
 
 
     public WorkflowPanel(MainView parent) {
@@ -131,6 +141,8 @@ public class WorkflowPanel extends VerticalLayout
         buttons.addButton(_resetButton);
         buttons.addSeparator();
         buttons.addButton(_removeButton);
+        buttons.addSeparator();
+        buttons.addButton(_clearButton);
         buttons.addSeparator();
         buttons.addButton(_searchButton);
         buttons.addButton(_storeButton);
@@ -237,14 +249,8 @@ public class WorkflowPanel extends VerticalLayout
         icon.setSize("24px");
         Button loadButton = new Button(icon, e -> {
             if (_workflow.hasChanges()) {
-                MessageDialog dialog = new MessageDialog(
-                        "Save changes to existing workflow?");
-                dialog.setText("Click 'Save' to download changes, " +
-                        "'Discard' to discard changes, 'Cancel' to keep working.");
-                dialog.addConfirmButton(new Button("Save", s -> saveThenLoadNewWorkflow()));
-                dialog.addRejectButton(new Button("Discard", d -> loadFromFile()));
-                dialog.addCancelButton();
-                dialog.open();
+                handleExistingWorkflow(s -> { storeWorkflow(); loadFromFile(); },
+                        d -> loadFromFile());
             }
             else {
                 loadFromFile();
@@ -291,21 +297,51 @@ public class WorkflowPanel extends VerticalLayout
     }
 
 
+    private Button createClearButton() {
+        Icon icon = UiUtil.createIcon(VaadinIcon.REFRESH);
+        Button clearButton = new Button(icon, e -> {
+            if (_workflow.hasChanges()) {
+                handleExistingWorkflow(s -> { storeWorkflow(); _workflow.clear(); },
+                        d -> _workflow.clear());
+            }
+            else {
+                _workflow.clear();
+            }
+        });
+        UiUtil.setTooltip(clearButton, "Reset workflow canvas");
+        clearButton.setEnabled(false);
+        return clearButton;
+    }
+
+
     private void enableButtons(NodeRunner.RunnerState state, Vertex selected) {
         boolean isIdle = state == NodeRunner.RunnerState.IDLE;
-        boolean hasContent = isIdle && _workflow.hasContent();
+        boolean hasContent = isIdle && _workflow != null && _workflow.hasContent();
         _removeButton.setEnabled(isIdle && selected != null);
         _downloadButton.setEnabled(hasContent);
         _searchButton.setEnabled(isIdle);
         _storeButton.setEnabled(hasContent);
         _resetButton.setEnabled(hasContent);
         _uploadButton.setEnabled(isIdle);
+        _clearButton.setEnabled(hasContent);
     }
 
 
+    private void handleExistingWorkflow(
+            ComponentEventListener<ClickEvent<Button>> confirmListener,
+            ComponentEventListener<ClickEvent<Button>> rejectListener) {
+        MessageDialog dialog = new MessageDialog(
+                "Save changes to existing workflow?");
+        dialog.setText("Click 'Store' to save changes, " +
+                "'Discard' to discard changes, 'Cancel' to keep working.");
+        dialog.addConfirmButton(new Button("Store", confirmListener));
+        dialog.addRejectButton(new Button("Discard", rejectListener));
+        dialog.addCancelButton();
+        dialog.open();
+    }
+
     private void loadFromFile() {
         _canvas.loadFromFile();
-        Announcement.success("Workflow successfully uploaded.");
     }
 
     private boolean saveWorkflow() {

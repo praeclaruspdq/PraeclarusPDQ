@@ -24,8 +24,8 @@ import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.MultiLineOption;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.ui.component.Announcement;
-import com.processdataquality.praeclarus.ui.component.VertexLabelDialog;
+import com.processdataquality.praeclarus.ui.component.announce.Announcement;
+import com.processdataquality.praeclarus.ui.component.dialog.VertexLabelDialog;
 import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.processdataquality.praeclarus.ui.repo.WorkflowStore;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -143,6 +143,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
             loader.load(jsonStr);
             _container.getRunner().reset();
             _options = initOptions();
+            Announcement.success("Workflow successfully uploaded.");
             EventLogger.workflowLoadEvent("user", "dummy");
         }
         catch (JSONException | IOException je) {
@@ -196,10 +197,11 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
         _connectors.clear();
         _network = network;
         setChanged(false);
+        setSelected(null);
         render();
     }
 
-    private void clear() {
+    public void clear() {
         Network network = new Network.Builder("user").name("New Workflow").build();
         clear(network);
     }

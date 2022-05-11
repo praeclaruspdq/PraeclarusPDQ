@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,23 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component;
+package com.processdataquality.praeclarus.ui.component.dialog;
+
+import java.io.InputStream;
 
 /**
  * @author Michael Adams
  * @date 15/10/21
  */
-public interface UploadDialogListener {
+public class UploadDialogCloseEvent {
 
-    void dialogClosed(UploadDialogCloseEvent event);
+    public boolean successful;
+    public InputStream inputStream;
+    public String fileName;
+
+    public UploadDialogCloseEvent(boolean b, InputStream is, String fn) {
+        successful = b;
+        inputStream = is;
+        fileName = fn;
+    }
 }

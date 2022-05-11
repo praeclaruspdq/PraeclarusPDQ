@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component;
+package com.processdataquality.praeclarus.ui.component.announce;
 
 
 import com.vaadin.flow.component.Text;

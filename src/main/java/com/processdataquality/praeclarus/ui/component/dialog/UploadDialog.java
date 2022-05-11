@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component;
+package com.processdataquality.praeclarus.ui.component.dialog;
 
 
 import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
@@ -31,19 +29,23 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
  * @author Michael Adams
  * @date 27/5/21
  */
-public class UploadDialog extends Dialog {
-
+public class UploadDialog extends AbstractDialog {
 
     public UploadDialog(UploadDialogListener listener, String[] mimeDescriptors) {
+        super("Select File");
         MemoryBuffer buffer = new MemoryBuffer();
+
+        Button ok = new Button("OK", event -> {
+            listener.dialogClosed(new UploadDialogCloseEvent(true,
+                    buffer.getInputStream(), buffer.getFileName()));
+            close();
+        });
+        ok.setEnabled(false);
+        ok.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
         Upload upload = new Upload(buffer);
         Div outputMsg = new Div();
-        Button ok = new Button("OK");
-        H4 title = new H4("Select File");
-
-        setCloseOnOutsideClick(false);
-        setModal(true);
-
+        
         upload.setAcceptedFileTypes(mimeDescriptors);
         upload.addSucceededListener(event -> ok.setEnabled(true));
         
@@ -58,19 +60,13 @@ public class UploadDialog extends Dialog {
             ok.setEnabled(false);
         });
 
-        ok.setEnabled(false);
-        ok.addClickListener(event -> {
-            listener.dialogClosed(new UploadDialogCloseEvent(true,
-                    buffer.getInputStream(), buffer.getFileName()));
-            close();
-        });
-
         Button cancel = new Button("Cancel", event -> {
             listener.dialogClosed(new UploadDialogCloseEvent(false,null, null));
             close();
         });
 
-        add(title, upload, outputMsg, new HorizontalLayout(ok, cancel));
+        addComponent(upload, outputMsg);
+        getButtonBar().add(cancel, ok);
     }
 
 }

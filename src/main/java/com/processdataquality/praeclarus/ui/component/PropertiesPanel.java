@@ -19,6 +19,7 @@ package com.processdataquality.praeclarus.ui.component;
 import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.ui.component.layout.VerticalScrollLayout;
 import com.processdataquality.praeclarus.ui.parameter.EditorFactory;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

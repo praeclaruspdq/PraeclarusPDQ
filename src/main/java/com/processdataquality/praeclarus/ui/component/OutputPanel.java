@@ -27,6 +27,7 @@ import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
 import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
 import com.processdataquality.praeclarus.ui.canvas.Vertex;
+import com.processdataquality.praeclarus.ui.component.layout.VerticalScrollLayout;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;

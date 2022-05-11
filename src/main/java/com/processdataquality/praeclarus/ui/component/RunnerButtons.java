@@ -22,6 +22,7 @@ import com.processdataquality.praeclarus.node.NodeRunner;
 import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
 import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
 import com.processdataquality.praeclarus.ui.canvas.Vertex;
+import com.processdataquality.praeclarus.ui.component.announce.Announcement;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;

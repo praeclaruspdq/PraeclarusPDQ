@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,65 +14,31 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component;
+package com.processdataquality.praeclarus.ui.component.dialog;
 
 
-import com.processdataquality.praeclarus.ui.util.UiUtil;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 /**
  * @author Michael Adams
  * @date 25/11/21
  */
-public class MessageDialog extends Dialog {
-
-    private final HorizontalLayout _buttonBar = new HorizontalLayout();
-    private final Div _text = new Div();
+public class MessageDialog extends AbstractDialog {
 
     private Button _confirm;
     private Button _reject;
     private Button _cancel;
 
+
     public MessageDialog(String title) {
-        setWidth("500px");
-        setModal(true);
-        setCloseOnOutsideClick(false);
-        setHeader(title);
-        _buttonBar.getStyle().set("flex-wrap", "wrap");
-        _buttonBar.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        add(_text, _buttonBar);
+        super(title);
     }
 
 
     public void open() {
         initButtons();
         super.open();
-    }
-
-
-    public void setHeader(String title) {
-        H3 header = new H3(title);
-        UiUtil.removeTopMargin(header);
-        UiUtil.setStyle(header, "margin-bottom", "20px");
-        add(new Div(header));
-    }
-
-
-    public void setText(String text) {
-        _text.add(new Html("<p>" + text + "</p>"));
-    }
-
-
-    public void addButton(Button b) {
-        _buttonBar.add(b);
-        b.addClickListener(e -> close());
     }
 
 
@@ -131,9 +97,9 @@ public class MessageDialog extends Dialog {
 
 
     private void initButtons() {
-        if (_cancel != null) _buttonBar.add(_cancel);
-        if (_reject != null) _buttonBar.add(_reject);
-        if (_confirm != null) _buttonBar.add(_confirm);
+        if (_cancel != null) getButtonBar().add(_cancel);
+        if (_reject != null) getButtonBar().add(_reject);
+        if (_confirm != null) getButtonBar().add(_confirm);
     }
 
 }

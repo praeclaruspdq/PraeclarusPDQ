@@ -17,8 +17,8 @@
 package com.processdataquality.praeclarus.ui.builder;
 
 import com.processdataquality.praeclarus.plugin.uitemplate.*;
-import com.processdataquality.praeclarus.ui.component.PluginUIDialog;
-import com.processdataquality.praeclarus.ui.component.VerticalScrollLayout;
+import com.processdataquality.praeclarus.ui.component.plugin.PluginUIDialog;
+import com.processdataquality.praeclarus.ui.component.layout.VerticalScrollLayout;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.PatternNode;

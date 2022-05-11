@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,13 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component;
-
-import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
-import com.processdataquality.praeclarus.node.Node;
+package com.processdataquality.praeclarus.ui.component.dialog;
 
 /**
  * @author Michael Adams
- * @date 3/11/21
+ * @date 15/10/21
  */
-public interface PluginUIListener {
+public interface UploadDialogListener {
 
-    void pluginUICloseEvent(ButtonAction action, Node node);
-
+    void dialogClosed(UploadDialogCloseEvent event);
 }

@@ -69,5 +69,8 @@ public class WorkflowStore {
     }
 
 
+    public static void delete(StoredWorkflow storedWorkflow) {
+        repository.delete(storedWorkflow);
+    }
 
 }

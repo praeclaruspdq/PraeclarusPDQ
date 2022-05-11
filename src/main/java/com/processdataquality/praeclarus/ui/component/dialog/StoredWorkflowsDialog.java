@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component;
+package com.processdataquality.praeclarus.ui.component.dialog;
 
 
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
+import com.processdataquality.praeclarus.ui.component.announce.Announcement;
+import com.processdataquality.praeclarus.ui.component.layout.JustifiedButtonLayout;
 import com.processdataquality.praeclarus.ui.repo.StoredWorkflow;
 import com.processdataquality.praeclarus.ui.repo.WorkflowStore;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -45,14 +48,16 @@ public class StoredWorkflowsDialog extends Dialog {
     private static final String GRID_HEIGHT = "300px";
     private static final String DESC_HEIGHT = "85px";
 
-
+    private final Tabs tabs = createTabs();
     private final TextArea descArea = createDescArea();
     private final VerticalLayout gridContainer = new VerticalLayout();
     private Button loadBtn;
-    private final Grid<StoredWorkflow> privateGrid = createPrivateGrid();;
+    private Button deleteBtn;
+    private final Grid<StoredWorkflow> privateGrid = createPrivateGrid();
     private final Grid<StoredWorkflow> sharedGrid = createSharedGrid();
     private final Workflow parentWorkflow;
     private StoredWorkflow selectedWorkflow;
+
 
     public StoredWorkflowsDialog(Workflow workflow) {
         parentWorkflow = workflow;
@@ -60,23 +65,23 @@ public class StoredWorkflowsDialog extends Dialog {
         setModal(true);
         setWidth("820px");
         setHeight("600px");
-        add(new HorizontalLayout(leftPanel()));
+        add(new HorizontalLayout(createPanel()));
         add(createButtons());
     }
 
 
-    private VerticalLayout leftPanel() {
+    private VerticalLayout createPanel() {
         VerticalLayout layout = new VerticalLayout();
         layout.add(createHeader());
-        layout.add(createTabs());
+        layout.add(tabs);
         layout.add(initGridContainer());
         layout.add(descArea);
         return layout;
     }
 
 
-    private H4 createHeader() {
-        H4 header = new H4("Stored Workflows");
+    private H3 createHeader() {
+        H3 header = new H3("Stored Workflows");
         UiUtil.removeTopMargin(header);
         return header;
     }
@@ -112,6 +117,7 @@ public class StoredWorkflowsDialog extends Dialog {
         }
     }
 
+
     private Grid<StoredWorkflow> createPrivateGrid() {
         return createGrid(WorkflowStore.findPrivate("user"));
     }
@@ -124,10 +130,10 @@ public class StoredWorkflowsDialog extends Dialog {
 
     private Grid<StoredWorkflow> createGrid(List<StoredWorkflow> items) {
         Grid<StoredWorkflow> grid = new Grid<>(StoredWorkflow.class, false);
-        grid.addColumn(StoredWorkflow::getName).setHeader("Name");
-        grid.addColumn(StoredWorkflow::getOwner).setHeader("Owner");
-        grid.addColumn(StoredWorkflow::getCreationTime).setHeader("Created");
-        grid.addColumn(StoredWorkflow::getLastSavedTime).setHeader("Last Saved");
+        grid.addColumn(StoredWorkflow::getName).setHeader("Name").setSortable(true);
+        grid.addColumn(StoredWorkflow::getOwner).setHeader("Owner").setSortable(true);
+        grid.addColumn(StoredWorkflow::getCreationTime).setHeader("Created").setSortable(true);
+        grid.addColumn(StoredWorkflow::getLastSavedTime).setHeader("Last Saved").setSortable(true);
         grid.setItems(items);
         grid.setWidth(PANEL_WIDTH);
         grid.setHeight(GRID_HEIGHT);
@@ -138,12 +144,12 @@ public class StoredWorkflowsDialog extends Dialog {
                 selectedWorkflow = workflow.get();
                 String description = selectedWorkflow.getDescription();
                 descArea.setValue(description);
-                loadBtn.setEnabled(true);
+                enableButtons(true);
             }
             else {
                 selectedWorkflow = null;
                 descArea.setValue("");
-                loadBtn.setEnabled(false);
+                enableButtons(false);
             }
         });
 
@@ -160,19 +166,41 @@ public class StoredWorkflowsDialog extends Dialog {
         return ta;
     }
 
+
     private HorizontalLayout createButtons() {
         loadBtn = new Button("Load", event -> {
             load();
             close();
         });
+        loadBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         loadBtn.setEnabled(false);
 
-        HorizontalLayout layout = new HorizontalLayout(loadBtn,
-                new Button("Cancel", event -> close()));
+        deleteBtn = new Button("Delete", event -> {
+            deleteSelected();
+        });
+        deleteBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        deleteBtn.setEnabled(false);
+
+        Button closeBtn = new Button("Close", event -> close());
+        closeBtn.getStyle().set("margin-inline-end", "auto");
+
+        HorizontalLayout layout = new JustifiedButtonLayout(closeBtn, deleteBtn, loadBtn);
         layout.setPadding(true);
         return layout;
     }
 
+
+    private void enableButtons(boolean enable) {
+        loadBtn.setEnabled(enable);
+        deleteBtn.setEnabled(enable);
+    }
+
+
+    private void clearSelection() {
+        selectedWorkflow = null;
+        descArea.setValue("");
+        enableButtons(false);
+    }
 
     private void load() {
         if (parentWorkflow.hasChanges()) {
@@ -212,4 +240,27 @@ public class StoredWorkflowsDialog extends Dialog {
         Announcement.success("'" + selectedWorkflow.getName() + "' successfully loaded.");
     }
 
+    
+    private void deleteSelected() {
+        String confirmMsg = "Please confirm you want to delete the selected workflow from storage. " +
+                "This action cannot be undone.";
+        YesNoDialog dialog = new YesNoDialog("Confirm Delete?", confirmMsg);
+
+        dialog.getYesButton().addClickListener(e -> {
+            WorkflowStore.delete(selectedWorkflow);
+            getGridOnView().getListDataView().removeItem(selectedWorkflow);
+            clearSelection();
+        });
+        
+        dialog.open();
+    }
+
+
+    private Grid<StoredWorkflow> getGridOnView() {
+        if (tabs.getSelectedTab().getLabel().equals("Private")) {
+            return privateGrid;
+        }
+        else return sharedGrid;
+    }
+    
 }
