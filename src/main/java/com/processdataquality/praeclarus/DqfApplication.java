@@ -22,7 +22,6 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-//@EnableJpaRepositories
 @EnableJpaRepositories(basePackages = {
         "com.processdataquality.praeclarus.logging.repository",
         "com.processdataquality.praeclarus.repo.network",

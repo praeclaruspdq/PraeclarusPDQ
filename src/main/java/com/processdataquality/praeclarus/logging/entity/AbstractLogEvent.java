@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.logging.entity;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
 import com.processdataquality.praeclarus.logging.EventLogger;
+import com.processdataquality.praeclarus.logging.LogConstant;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -38,14 +38,15 @@ public abstract class AbstractLogEvent {
     private String user;
     private String label;
 
+
     public AbstractLogEvent() { }
 
-    public AbstractLogEvent(String user, LogConstant label) {
+    public AbstractLogEvent(String user, LogConstant constant) {
         setTimestamp(LocalDateTime.now());
         setUser(user);
-        setLabel(label.asString());
+        setLabel(constant.asString());
     }
-
+    
 
     public Long getId() { return id; }
 
@@ -53,6 +54,10 @@ public abstract class AbstractLogEvent {
     public LocalDateTime getTimestamp() { return timestamp; }
 
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+    public String getTimestampAsString() {
+        return getTimestamp().format(EventLogger.dtFormatter);
+    }
 
 
     public String getUser() { return user; }
@@ -65,10 +70,12 @@ public abstract class AbstractLogEvent {
     public void setLabel(String label) { this.label = label; }
 
 
+    public LogConstant getCategory() { return LogConstant.fromString(label); }
+
+
     @Override
     public String toString() {
-        return getTimestamp().format(EventLogger.dtFormatter) + "; User: " + getUser() +
-                "; Event: " + getLabel();
+        return getTimestampAsString() + "; User: " + getUser() + "; Event: " + getLabel();
     }
 
 }

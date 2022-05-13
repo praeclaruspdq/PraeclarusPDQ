@@ -133,7 +133,7 @@ public class Network {
 
     public void addNode(Node node) {
         nodeSet.add(node);
-    //    EventLogger.saveNode(node);
+        EventLogger.nodeAddedEvent("user", node);
     }
 
 
@@ -146,6 +146,7 @@ public class Network {
         node.previous().forEach(previous -> previous.removeNext(node));
         node.next().forEach(next -> next.removePrevious(node));
         nodeSet.remove(node);
+        EventLogger.nodeRemovedEvent("user", node);
     }
 
 

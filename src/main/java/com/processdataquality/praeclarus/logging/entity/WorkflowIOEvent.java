@@ -40,7 +40,7 @@ public class WorkflowIOEvent extends AbstractLogEvent {
 
     public String getFileName() { return fileName; }
 
-    public void setFileName(String reason) { this.fileName = reason; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
 
 
     @Override

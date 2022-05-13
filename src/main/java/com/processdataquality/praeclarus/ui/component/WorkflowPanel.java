@@ -44,7 +44,6 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -231,23 +230,18 @@ public class WorkflowPanel extends VerticalLayout
 
 
     private Button createRemoveButton() {
-        Icon icon = VaadinIcon.TRASH.create();
-        icon.setSize("24px");
-        Button removeButton = new Button(icon, e -> {
+        return UiUtil.createToolButton(VaadinIcon.TRASH, "Remove vertex",
+        false, e -> {
             _workflow.removeSelected();
             changedSelected(null);
             _downloadButton.setEnabled(_workflow.hasContent());
         });
-        UiUtil.setTooltip(removeButton, "Remove node");
-        removeButton.setEnabled(false);
-        return removeButton;
     }
 
 
     private Button createUploadButton() {
-        Icon icon = UiUtil.createIcon(VaadinIcon.FOLDER_OPEN_O);
-        icon.setSize("24px");
-        Button loadButton = new Button(icon, e -> {
+        return UiUtil.createToolButton(VaadinIcon.UPLOAD, "Upload workflow",
+                true, e -> {
             if (_workflow.hasChanges()) {
                 handleExistingWorkflow(s -> { storeWorkflow(); loadFromFile(); },
                         d -> loadFromFile());
@@ -256,50 +250,36 @@ public class WorkflowPanel extends VerticalLayout
                 loadFromFile();
             }
         });
-        UiUtil.setTooltip(loadButton, "Upload workflow");
-        return loadButton;
     }
 
 
     private Button createDownloadButton() {
-        Icon icon = UiUtil.createIcon(VaadinIcon.DOWNLOAD);
-        Button saveButton = new Button(icon, e -> saveWorkflow());
-        UiUtil.setTooltip(saveButton, "Download workflow");
-        saveButton.setEnabled(false);
-        return saveButton;
+        return UiUtil.createToolButton(VaadinIcon.DOWNLOAD, "Download workflow",
+                false, e -> downloadWorkflow());
     }
 
 
     private Button createResetButton() {
-        Icon icon = UiUtil.createIcon(VaadinIcon.FAST_BACKWARD);
-        Button resetButton = new Button(icon, e -> _workflow.resetAll());
-        resetButton.setEnabled(false);
-        UiUtil.setTooltip(resetButton, "Reset all");
-        return resetButton;
+        return UiUtil.createToolButton(VaadinIcon.FAST_BACKWARD, "Reset all",
+                false, e -> _workflow.resetAll());
     }
 
 
     private Button createStoreButton() {
-        Icon icon = UiUtil.createIcon(VaadinIcon.FILE_ADD);
-        Button storeButton = new Button(icon, e -> storeWorkflow());
-        UiUtil.setTooltip(storeButton, "Store workflow");
-        storeButton.setEnabled(false);
-        return storeButton;
+        return UiUtil.createToolButton(VaadinIcon.PLUS, "Store workflow",
+                false, e -> storeWorkflow());
     }
 
 
     private Button createSearchButton() {
-        Icon icon = UiUtil.createIcon(VaadinIcon.FILE_SEARCH);
-        Button storeButton = new Button(icon, e -> showStoredWorkflows());
-        UiUtil.setTooltip(storeButton, "Search stored workflows");
-        storeButton.setEnabled(true);
-        return storeButton;
+        return UiUtil.createToolButton(VaadinIcon.DATABASE, "Search stored workflows",
+                true, e -> showStoredWorkflows());
     }
 
 
     private Button createClearButton() {
-        Icon icon = UiUtil.createIcon(VaadinIcon.REFRESH);
-        Button clearButton = new Button(icon, e -> {
+        return UiUtil.createToolButton(VaadinIcon.SUN_O, "Reset workflow canvas",
+                false,  e -> {
             if (_workflow.hasChanges()) {
                 handleExistingWorkflow(s -> { storeWorkflow(); _workflow.clear(); },
                         d -> _workflow.clear());
@@ -307,10 +287,8 @@ public class WorkflowPanel extends VerticalLayout
             else {
                 _workflow.clear();
             }
+            changedSelected(null);
         });
-        UiUtil.setTooltip(clearButton, "Reset workflow canvas");
-        clearButton.setEnabled(false);
-        return clearButton;
     }
 
 
@@ -344,7 +322,7 @@ public class WorkflowPanel extends VerticalLayout
         _canvas.loadFromFile();
     }
 
-    private boolean saveWorkflow() {
+    private boolean downloadWorkflow() {
         try {
             String jsonStr = _workflow.asJson().toString(3);
             _canvas.saveToFile(jsonStr);

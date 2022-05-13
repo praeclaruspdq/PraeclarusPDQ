@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging.repository;
+package com.processdataquality.praeclarus.logging;
 
-import com.processdataquality.praeclarus.logging.entity.OptionChangeEvent;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import com.processdataquality.praeclarus.logging.entity.AbstractLogEvent;
 
 /**
  * @author Michael Adams
- * @date 1/12/21
+ * @date 13/5/2022
  */
-@Repository
-public interface NodeChangeEventRepository
-        extends CrudRepository<OptionChangeEvent, Long> {
+public interface LogEventListener {
 
+    void eventLogged(AbstractLogEvent event);
+    
 }
-

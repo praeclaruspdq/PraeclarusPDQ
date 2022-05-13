@@ -16,6 +16,10 @@
 
 package com.processdataquality.praeclarus.logging;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Michael Adams
  * @date 30/11/21
@@ -29,14 +33,16 @@ public enum LogConstant {
 
     // Workflow
     WORKFLOW_CREATED("Workflow created"),
+    WORKFLOW_UPLOADED("Workflow uploaded"),
+    WORKFLOW_DOWNLOADED("Workflow saved"),
     WORKFLOW_LOADED("Workflow loaded"),
-    WORKFLOW_SAVED("Workflow saved"),
+    WORKFLOW_STORED("Workflow stored"),
     WORKFLOW_RENAMED("Workflow renamed"),
 
     // Node
     NODE_ADDED("Node added"),
     NODE_REMOVED("Node removed"),
-    NODE_CHANGED("Node changed"),
+    NODE_OPTION_CHANGED("Node option changed"),
 
     // Connector
     CONNECTOR_ADDED("Connector added"),
@@ -50,9 +56,25 @@ public enum LogConstant {
     ;
 
     private final String _label;
+    private static final Map<String, LogConstant> _map;
 
-    LogConstant(String label) { _label = label; }
+    static {
+        Map<String, LogConstant> map = new HashMap<>();
+        for (LogConstant constant : LogConstant.values()) {
+            map.put(constant.asString(), constant);
+        }
+        _map = Collections.unmodifiableMap(map);
+    }
+
+
+    LogConstant(String label) {
+        _label = label;
+    }
 
     public String asString() { return _label; }
+
+    public static LogConstant fromString(String label) {
+        return _map.get(label);
+    }
 
 }

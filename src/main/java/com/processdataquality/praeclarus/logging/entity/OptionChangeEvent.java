@@ -26,17 +26,17 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class NodeChangeEvent extends NodeEvent {
+public class OptionChangeEvent extends NodeEvent {
 
     private String option;
     private String oldValue;
     private String newValue;
 
-    protected NodeChangeEvent() { }
+    protected OptionChangeEvent() { }
 
-    public NodeChangeEvent(String user, Node node, String option,
-                           String oldValue, String newValue) {
-        super(user, LogConstant.NODE_CHANGED, node);
+    public OptionChangeEvent(String user, Node node, String option,
+                             String oldValue, String newValue) {
+        super(user, LogConstant.NODE_OPTION_CHANGED, node);
         setOption(option);
         setOldValue(oldValue);
         setNewValue(newValue);

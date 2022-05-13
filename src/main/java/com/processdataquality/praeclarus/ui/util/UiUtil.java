@@ -17,7 +17,10 @@
 package com.processdataquality.praeclarus.ui.util;
 
 import com.processdataquality.praeclarus.repo.LogEntry;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -77,6 +80,17 @@ public class UiUtil {
         icon.setColor(colour);
         return icon;
     }
+
+
+    public static Button createToolButton(VaadinIcon vIcon, String tip, boolean enabled,
+                                          ComponentEventListener<ClickEvent<Button>> clickEvent) {
+        Icon icon = createIcon(vIcon);
+        Button button = new Button(icon, clickEvent);
+        button.setEnabled(enabled);
+        setTooltip(button, tip);
+        return button;
+    }
+
 
 
     public static Grid<Row> tableToGrid(Table table) {

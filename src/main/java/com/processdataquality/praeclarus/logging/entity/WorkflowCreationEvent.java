@@ -33,6 +33,7 @@ public class WorkflowCreationEvent extends AbstractLogEvent {
 
     public WorkflowCreationEvent(String user, String workflowId) {
         super(user, LogConstant.WORKFLOW_CREATED);
+        setWorkflowId(workflowId);
     }
 
     public String getWorkflowId() { return workflowId; }

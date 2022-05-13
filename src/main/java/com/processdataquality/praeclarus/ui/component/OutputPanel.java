@@ -43,6 +43,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.data.util.Pair;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 
@@ -58,11 +59,12 @@ import java.util.List;
 public class OutputPanel extends VerticalLayout
         implements CanvasSelectionListener, NodeRunnerListener {
 
-    private enum Page { OUTPUT, HISTORY, DIFF, DETECTED, NONE }
+    private enum Page { OUTPUT, HISTORY, DIFF, DETECTED, EVENTS, NONE }
     
     private final VerticalLayout title = new VerticalLayout();
     private final VerticalScrollLayout page = new VerticalScrollLayout();
     private final HorizontalLayout buttonBar = new HorizontalLayout();
+    private final EventsPanel eventsPanel = new EventsPanel();
     private final List<Button> buttons;
     private Page currentPage = Page.NONE;
     private Vertex selectedVertex;
@@ -101,8 +103,11 @@ public class OutputPanel extends VerticalLayout
 
 
     private HorizontalLayout buttonsPanel() {
+        buttonBar.setWidthFull();
+        buttonBar.getStyle().set("flex-wrap", "wrap-reverse");
+        buttonBar.setJustifyContentMode(JustifyContentMode.START);
         buttonBar.add(createButton(
-                "Output", new Icon(VaadinIcon.DATABASE), Page.OUTPUT,
+                "Output", new Icon(VaadinIcon.TABLE), Page.OUTPUT,
                 "View output of selected node"));
         buttonBar.add(createButton(
                 "Log", new Icon(VaadinIcon.FILE_PROCESS), Page.HISTORY,
@@ -113,7 +118,21 @@ public class OutputPanel extends VerticalLayout
         buttonBar.add(createButton(
                 "Detected", new Icon(VaadinIcon.SEARCH), Page.DETECTED,
                 "Show the pattern detection results"));
+        buttonBar.add(createButton(
+                "Events", new Icon(VaadinIcon.LINES_LIST), Page.EVENTS,
+                "Show all generated events", true,
+                Pair.of("margin-inline-start", "auto")));
         return buttonBar;
+    }
+
+    private Button createButton(String label, Icon icon, Page page, String tip,
+                                boolean enabled, Pair<String, String> style) {
+        Button button = createButton(label, icon, page, tip);
+        if (style != null) {
+            button.getStyle().set(style.getFirst(), style.getSecond());
+        }
+        button.setEnabled(enabled);
+        return button;
     }
 
 
@@ -174,6 +193,7 @@ public class OutputPanel extends VerticalLayout
                 case "Detected" : b.setEnabled(selectedNotNull &&
                          selectedVertex.getNode() instanceof PatternNode &&
                         ((PatternNode) selectedVertex.getNode()).getDetected() != null); break;
+                case "Events" : b.setEnabled(true);
             }
         }
     }
@@ -187,6 +207,7 @@ public class OutputPanel extends VerticalLayout
             case HISTORY: showHistory(); break;
             case DETECTED: showDetected(); break;
             case DIFF: showDiff(); break;
+            case EVENTS: showEvents(); break;
         }
     }
 
@@ -273,6 +294,11 @@ public class OutputPanel extends VerticalLayout
         else {
             page.add(new Html("<p>Select any completed node to show the dataset log</p>"));
         }
+    }
+
+
+    private void showEvents() {
+        page.add(eventsPanel);
     }
 
 
