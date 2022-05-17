@@ -17,10 +17,12 @@
 package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.logging.EventLogger;
-import com.processdataquality.praeclarus.repo.network.NetworkStore;
+import com.processdataquality.praeclarus.option.*;
+import com.processdataquality.praeclarus.repo.graph.GraphStore;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -35,7 +37,7 @@ import java.util.UUID;
  * @date 7/12/21
  */
 @Entity
-public class Network {
+public class Graph implements HasOptions, OptionValueChangeListener {
 
     @Id
     private String id;
@@ -45,6 +47,8 @@ public class Network {
     private String description;
     private LocalDateTime creationTime;
     private LocalDateTime lastSavedTime;
+
+    @Column(length=102400)
     private String userContent;
 
     private boolean shared;
@@ -52,21 +56,49 @@ public class Network {
     @Transient
     private final Set<Node> nodeSet = new HashSet<>();
 
+    @Transient
+    private Options _options;
 
 
-    private Network(Builder builder) {
+
+    private Graph(Builder builder) {
         creator = builder.creator;
         id = builder.id != null ? builder.id : UUID.randomUUID().toString();
-        name = builder.name != null ? builder.name : "New Network";
+        name = builder.name != null ? builder.name : "New Graph";
         owner = builder.owner != null ? builder.owner : creator;
         creationTime = builder.creationTime != null ? builder.creationTime :
                 LocalDateTime.now();
         lastSavedTime = builder.lastSavedTime;
         description = builder.description;
         userContent = builder.userContent;
-        NetworkStore.addIfNew(this);
+        _options = refreshOptions();
+        _options.setValueChangeListener(this);
+        EventLogger.graphCreatedEvent(this, "user");
+        GraphStore.addIfNew(this);
     }
 
+
+    public void connect(Node source, Node target) {
+        source.connect(target);
+        EventLogger.addConnectorEvent(this, "user", source, target);
+    }
+
+
+    public void disconnect(Node source, Node target) {
+        source.disconnect(target);
+        EventLogger.removeConnectorEvent(this, "user", source, target);
+    }
+
+
+    @Override
+    public Options getOptions() {
+        return _options;
+    }
+
+    @Override
+    public void optionValueChanged(Option option) {
+        updateOptionValue(option);
+    }
 
     public String getId() { return id; }
 
@@ -113,6 +145,9 @@ public class Network {
 
     public void updateShared(boolean b) { shared = b; }
 
+
+    public void updateLastSavedTime() { lastSavedTime = LocalDateTime.now(); }
+
     
     public JSONObject asJson() throws JSONException {
         JSONObject json = new JSONObject();
@@ -133,7 +168,7 @@ public class Network {
 
     public void addNode(Node node) {
         nodeSet.add(node);
-        EventLogger.nodeAddedEvent("user", node);
+        EventLogger.nodeAddedEvent(this, node, "user");
     }
 
 
@@ -146,7 +181,7 @@ public class Network {
         node.previous().forEach(previous -> previous.removeNext(node));
         node.next().forEach(next -> next.removePrevious(node));
         nodeSet.remove(node);
-        EventLogger.nodeRemovedEvent("user", node);
+        EventLogger.nodeRemovedEvent(this, node, "user");
     }
 
 
@@ -202,13 +237,38 @@ public class Network {
    }
 
 
+    public Options refreshOptions() {
+        Options options = new Options(getId(), getName());
+        options.addDefault("Name", getName());
+        options.addDefault("Public", isShared());
+        options.addDefault(new MultiLineOption("Description", getDescription()));
+        return options;
+    }
+
+
+    private void updateOptionValue(Option option) {
+        if (option.key().equals("Name")) {
+            String newName = option.asString();
+            if (!newName.isEmpty()) {
+                updateName(newName);
+            }
+        }
+        else if (option.key().equals("Public")) {
+            updateShared(option.asBoolean());
+        }
+        else if (option.key().equals("Description")) {
+            updateDescription(option.asString());
+        }
+    }
+
+
    private void save() {
-       NetworkStore.put(this);
+       GraphStore.put(this);
    }
 
    
     // these are only used by JPA
-    protected Network() { }
+    protected Graph() { }
     protected void setId(String id) { this.id = id; }
     protected void setCreator(String creator) { this.creator = creator; }
     protected void setCreationTime(LocalDateTime time) { creationTime = time; }
@@ -218,9 +278,9 @@ public class Network {
     protected void setDescription(String description)  { this.description = description; }
     protected void setUserContent(String content) { userContent = content; }
     protected void setShared(boolean b) { shared = b; }
+    
 
-
-   public static class Builder {
+    public static class Builder {
        private String id;
        private String name;
        private final String creator;
@@ -269,8 +329,8 @@ public class Network {
            return this;
        }
 
-       public Network build() {
-           return new Network(this);
+       public Graph build() {
+           return new Graph(this);
        }
 
    }

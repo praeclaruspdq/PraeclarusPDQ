@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,27 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging.repository;
+package com.processdataquality.praeclarus.repo.graph;
 
-import com.processdataquality.praeclarus.logging.entity.WorkflowRenameEvent;
+import com.processdataquality.praeclarus.node.Graph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author Michael Adams
  * @date 1/12/21
  */
 @Repository
-public interface WorkflowRenameEventRepository
-        extends CrudRepository<WorkflowRenameEvent, Long> {
+public interface GraphRepository extends CrudRepository<Graph, String> {
+
+    List<Graph> findByOwner(String owner);
+
+    List<Graph> findBySharedTrue();
+
+    List<Graph> findByOwnerAndSharedFalse(String owner);
+
 
 }
 

@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.node.Graph;
 import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
@@ -30,8 +31,8 @@ public class NodeRollbackEvent extends NodeEvent {
 
     protected NodeRollbackEvent() { }
 
-    public NodeRollbackEvent(String user, Node node) {
-        super(user, LogConstant.NODE_ROLLBACK, node);
+    public NodeRollbackEvent(Graph graph, String user, Node node) {
+        super(graph, node, LogConstant.NODE_ROLLBACK, user);
     }
 
     

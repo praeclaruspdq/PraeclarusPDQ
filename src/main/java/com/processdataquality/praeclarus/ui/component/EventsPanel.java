@@ -18,75 +18,88 @@ package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.logging.LogEventListener;
-import com.processdataquality.praeclarus.logging.entity.AbstractLogEvent;
-import com.processdataquality.praeclarus.logging.entity.ConnectorEvent;
-import com.processdataquality.praeclarus.logging.entity.OptionChangeEvent;
-import com.processdataquality.praeclarus.logging.entity.NodeEvent;
-import com.vaadin.flow.component.listbox.ListBox;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.processdataquality.praeclarus.logging.entity.*;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.textfield.TextArea;
 
-import java.util.ArrayList;
-import java.util.List;
+import static com.processdataquality.praeclarus.logging.LogConstant.CONNECTOR_ADDED;
 
 /**
  * @author Michael Adams
  * @date 13/5/2022
  */
-public class EventsPanel extends VerticalLayout implements LogEventListener {
-
-    private static final List<String> items = new ArrayList<>();
-    private static final ListBox<String> list = new ListBox<>();
+@CssImport("./styles/pdq-styles.css")
+public class EventsPanel extends Div implements LogEventListener {
+    
+    private static final TextArea ta = new TextArea();
 
     public EventsPanel() {
         super();
         EventLogger.addEventListener(this);
-        setPadding(false);
-//        H4 title = new H4("Events");
-//        UiUtil.removeTopMargin(title);
-//        add(title);
-        
-        list.setItems(items);
-        add(list);
-        list.setSizeFull();
+
+        add(ta);
+        ta.setWidthFull();
+        ta.setClearButtonVisible(true);
+        ta.setReadOnly(true);
+        ta.addClassName("readonly-text");               // remove dotted border
     }
 
 
     @Override
     public void eventLogged(AbstractLogEvent event) {
-        list.getListDataView().addItem(getEventLine(event));
+        ta.setValue(getEventLine(event) + "\n" + ta.getValue());
     }
 
 
     private String getEventLine(AbstractLogEvent event) {
         String line = event.getTimestampAsString() + " :- " + event.getLabel() + ", ";
         if (event instanceof ConnectorEvent) {
-            line += getConnectorInfo((ConnectorEvent) event);
-        }
-        else if (event instanceof OptionChangeEvent) {
-            line += getNodeChangeInfo((OptionChangeEvent) event);
+            line += formatConnectorEvent((ConnectorEvent) event);
         }
         else if (event instanceof NodeEvent) {
-            line += ((NodeEvent) event).getNodeName();
+            line += formatNodeEvent((NodeEvent) event);
+        }
+        else if (event instanceof AbstractGraphEvent) {
+            line += formatGraphEvent((AbstractGraphEvent) event);
+        }
+        else if (event instanceof OptionChangeEvent) {
+            line += formatOptionChangeEvent((OptionChangeEvent) event);
         }
 
         return line;
     }
 
 
-    private String getConnectorInfo(ConnectorEvent event) {
-        switch(event.getCategory()) {
-            case CONNECTOR_ADDED:  return event.getSource() + " --> " + event.getTarget();
-            case CONNECTOR_REMOVED: return event.getSource() + " -X- " + event.getTarget();
-            default: return "";
-        }
+    private String formatConnectorEvent(ConnectorEvent event) {
+        String joiner = event.getCategory() == CONNECTOR_ADDED ? "-->" :  "-X-";
+        return String.format("%s %s %s [%s, %s]",
+                event.getSourceLabel(), joiner, event.getTargetLabel(),
+                event.getGraphName(), event.getGraphID());
     }
 
 
-    private String getNodeChangeInfo(OptionChangeEvent event) {
-        return String.format("%s changed option value '%s' from [%s] to [%s]",
-                event.getNodeName(), event.getOption(),
+    private String formatOptionChangeEvent(OptionChangeEvent event) {
+        return String.format("%s [%s] option '%s' value '%s' --> '%s'",
+                event.getComponentLabel(), event.getComponentId(), event.getOptionName(),
                 event.getOldValue(), event.getNewValue());
     }
 
+
+    private String formatNodeEvent(NodeEvent event) {
+        return String.format("%s [%s], [%s, %s]",
+                event.getNodeName(), event.getNodeId(),
+                event.getGraphName(), event.getGraphID());
+    }
+
+
+    private String formatGraphCreatedEvent(GraphCreatedEvent event) {
+        return formatGraphEvent(event);
+    }
+
+
+    private String formatGraphEvent(AbstractGraphEvent event) {
+        return String.format("%s, [%s]", event.getGraphName(), event.getGraphID());
+    }
     
 }

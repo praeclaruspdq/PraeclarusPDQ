@@ -17,10 +17,11 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.logging.EventLogger;
-import com.processdataquality.praeclarus.node.Network;
+import com.processdataquality.praeclarus.node.Graph;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeLoader;
-import com.processdataquality.praeclarus.repo.network.NetworkStore;
+import com.processdataquality.praeclarus.repo.graph.GraphStore;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -47,27 +48,29 @@ public class WorkflowLoader {
 
     public void load(String jsonStr) throws JSONException, IOException {
         JSONObject json = new JSONObject(jsonStr);
-        Network network = loadNetwork(json, jsonStr);
-        _workflow.clear(network);
+        Graph graph = loadGraph(json, jsonStr);
+        _workflow.clear(graph);
         _workflow.setLoading(true);
         Map<String, Vertex> vertices = loadVertices(json.getJSONArray("vertices"));
         loadConnectors(json.getJSONArray("connectors"), vertices);
         _workflow.setLoading(false);
-        selectHeadVertex(vertices, network);
+        selectHeadVertex(vertices, graph);
     }
 
 
-    private Network loadNetwork(JSONObject json, String content) throws JSONException {
+    private Graph loadGraph(JSONObject json, String content) throws JSONException {
 
         // check if this one is persisted
         String id = json.getString("id");
-        Optional<Network> optional = NetworkStore.get(id);
+        Optional<Graph> optional = GraphStore.get(id);
         if (optional.isPresent()) {
-            return optional.get();
+            Graph graph = optional.get();
+            graph.refreshOptions();
+            return graph;
         }
 
         // unknown to this deployment
-        Network.Builder builder = new Network.Builder(json.getString("creator"))
+        Graph.Builder builder = new Graph.Builder(json.getString("creator"))
                 .id(id)
                 .name(json.getString("name"))
                 .owner(json.getString("owner"))
@@ -75,12 +78,12 @@ public class WorkflowLoader {
                 .userContent(content);
 
         String description = json.optString("description");
-        if (description != null) {
+        if (StringUtils.isNotEmpty(description)) {
             builder.description(description);
         }
 
         String lastSaved = json.optString("lastSavedTime");
-        if (lastSaved != null) {
+        if (StringUtils.isNotEmpty(lastSaved)) {
             builder.lastSavedTime(strToDateTime(lastSaved));
         }
         
@@ -127,9 +130,9 @@ public class WorkflowLoader {
     }
 
 
-    private void selectHeadVertex(Map<String, Vertex> vertices, Network network) {
+    private void selectHeadVertex(Map<String, Vertex> vertices, Graph graph) {
         if (! vertices.isEmpty()) {
-            Set<Node> heads = network.getHeads();
+            Set<Node> heads = graph.getHeads();
             if (! heads.isEmpty()) {
                 _workflow.setSelectedNode(heads.iterator().next());       // set any head
             }

@@ -46,8 +46,8 @@ public abstract class AbstractFileEditor extends AbstractEditor {
 
 
     protected void setValue(Object value) {
-        updateOption(value);
-        _field.setValue(getOption().asString());
+//        updateOption(value);
+        _field.setValue(String.valueOf(value));
     }
 
 

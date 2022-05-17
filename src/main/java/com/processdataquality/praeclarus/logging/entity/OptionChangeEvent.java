@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
-import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.option.Option;
 
 import javax.persistence.Entity;
 
@@ -26,26 +26,42 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class OptionChangeEvent extends NodeEvent {
+public class OptionChangeEvent extends AbstractLogEvent {
 
-    private String option;
+    private String componentId;
+    private String componentLabel;
+    private String optionName;
     private String oldValue;
     private String newValue;
 
     protected OptionChangeEvent() { }
 
-    public OptionChangeEvent(String user, Node node, String option,
-                             String oldValue, String newValue) {
-        super(user, LogConstant.NODE_OPTION_CHANGED, node);
-        setOption(option);
-        setOldValue(oldValue);
-        setNewValue(newValue);
+    public OptionChangeEvent(String componentId, String componentLabel, String user,
+                             Option option) {
+        super(user, LogConstant.OPTION_VALUE_CHANGED);
+        setComponentId(componentId);
+        setComponentLabel(componentLabel);
+        setOptionName(option.key());
+        setOldValue(String.valueOf(option.getPreviousValue()));
+        setNewValue(option.asString());
     }
 
 
-    public String getOption() { return option; }
+    public String getComponentId() { return componentId; }
 
-    public void setOption(String option) { this.option = option; }
+    public void setComponentId(String componentId) { this.componentId = componentId; }
+
+
+    public String getComponentLabel() { return componentLabel; }
+
+    public void setComponentLabel(String componentLabel) {
+        this.componentLabel = componentLabel;
+    }
+
+
+    public String getOptionName() { return optionName; }
+
+    public void setOptionName(String option) { this.optionName = option; }
 
 
     public String getOldValue() { return oldValue; }
@@ -60,7 +76,7 @@ public class OptionChangeEvent extends NodeEvent {
 
     @Override
     public String toString() {
-        return super.toString() + "; Option: " + getOption() + "; Old Value: " + getOldValue() +
-                "; New Value: " + getNewValue();
+        return super.toString() + "; Option: " + getOptionName() + ": " + getOldValue() +
+                " -->" + getNewValue();
     }
 }

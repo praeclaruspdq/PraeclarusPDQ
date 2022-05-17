@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.component.dialog;
 
 
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.ui.component.announce.Announcement;
 import com.processdataquality.praeclarus.ui.component.layout.JustifiedButtonLayout;
@@ -238,6 +239,7 @@ public class StoredWorkflowsDialog extends Dialog {
     private void loadSelected() {
         parentWorkflow.fileLoaded(selectedWorkflow.getJson());
         Announcement.success("'" + selectedWorkflow.getName() + "' successfully loaded.");
+        EventLogger.graphLoadEvent(parentWorkflow.getGraph(), "user");
     }
 
     
@@ -249,6 +251,8 @@ public class StoredWorkflowsDialog extends Dialog {
         dialog.getYesButton().addClickListener(e -> {
             WorkflowStore.delete(selectedWorkflow);
             getGridOnView().getListDataView().removeItem(selectedWorkflow);
+            EventLogger.graphDiscardedEvent(selectedWorkflow.getId(),
+                    selectedWorkflow.getName(), "user");
             clearSelection();
         });
         

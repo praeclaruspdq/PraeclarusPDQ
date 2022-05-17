@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
 import com.processdataquality.praeclarus.node.Graph;
-import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
@@ -29,32 +28,40 @@ import javax.persistence.InheritanceType;
  * @date 30/11/21
  */
 @Entity
-@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
-public class NodeEvent extends AbstractGraphEvent {
+@Inheritance(strategy= InheritanceType.TABLE_PER_CLASS)
+public class AbstractGraphEvent extends AbstractLogEvent {
 
-    private String nodeId;
-    private String nodeName;
-    
-    protected NodeEvent() { }
+    private String graphID;
+    private String graphName;
 
-    public NodeEvent(Graph graph, Node node, LogConstant label, String user) {
-        super(graph, user, label);
-        setNodeId(node.getInternalID());
-        setNodeName(node.getLabel());
+    protected AbstractGraphEvent() { }
+
+    public AbstractGraphEvent(Graph graph, String user, LogConstant label) {
+        this(graph.getId(), graph.getName(), user, label);
     }
 
 
-    public String getNodeId() { return nodeId; }
+    public AbstractGraphEvent(String id, String name, String user, LogConstant label) {
+         super(user, label);
+         setGraphID(id);
+         setGraphName(name);
+     }
 
-    public void setNodeId(String nodeId) { this.nodeId = nodeId; }
+
+    public String getGraphID() { return graphID; }
+
+    public void setGraphID(String graphID) { this.graphID = graphID; }
 
 
-    public String getNodeName() { return nodeName; }
+    public String getGraphName() { return graphName; }
 
-    public void setNodeName(String nodeName) { this.nodeName = nodeName; }
+    public void setGraphName(String graphName) { this.graphName = graphName; }
+
 
     @Override
     public String toString() {
-        return super.toString() + "; " + nodeName + " [" + nodeId + "]";
+        return super.toString() + "; " + graphName + " [" + graphID + "]";
     }
 }
+
+

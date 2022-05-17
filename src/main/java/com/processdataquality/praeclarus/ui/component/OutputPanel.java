@@ -36,6 +36,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.icon.Icon;
@@ -61,7 +62,7 @@ public class OutputPanel extends VerticalLayout
 
     private enum Page { OUTPUT, HISTORY, DIFF, DETECTED, EVENTS, NONE }
     
-    private final VerticalLayout title = new VerticalLayout();
+    private final Div title = new Div();
     private final VerticalScrollLayout page = new VerticalScrollLayout();
     private final HorizontalLayout buttonBar = new HorizontalLayout();
     private final EventsPanel eventsPanel = new EventsPanel();

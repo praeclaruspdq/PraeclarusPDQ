@@ -14,27 +14,13 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.repo.network;
-
-import com.processdataquality.praeclarus.node.Network;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
+package com.processdataquality.praeclarus.option;
 
 /**
  * @author Michael Adams
- * @date 1/12/21
+ * @date 17/5/2022
  */
-@Repository
-public interface NetworkRepository extends CrudRepository<Network, String> {
+public interface OptionValueChangeListener {
 
-    List<Network> findByOwner(String owner);
-
-    List<Network> findBySharedTrue();
-
-    List<Network> findByOwnerAndSharedFalse(String owner);
-
-
+    void optionValueChanged(Option option);
 }
-

@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.node.Graph;
 import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
@@ -34,8 +35,8 @@ public class NodeRunEvent extends NodeEvent {
 
     protected NodeRunEvent() { }
 
-    public NodeRunEvent(String user, Node node, String outcome) {
-        super(user, LogConstant.NODE_RUN, node);
+    public NodeRunEvent(Graph graph, String user, Node node, String outcome) {
+        super(graph, node, LogConstant.NODE_RUN, user);
         setTableId(node.getTableID());
         setCommitId(node.getCommitID());
         setOutcome(outcome);
@@ -59,7 +60,7 @@ public class NodeRunEvent extends NodeEvent {
 
     @Override
     public String toString() {
-        return super.toString() + "; Node: " + getNodeName() + "; Result: " + outcome;
+        return super.toString() + "; Result: " + outcome;
     }
     
 }

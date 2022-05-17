@@ -17,16 +17,12 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.logging.EventLogger;
-import com.processdataquality.praeclarus.node.Network;
+import com.processdataquality.praeclarus.node.Graph;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeStateListener;
-import com.processdataquality.praeclarus.option.HasOptions;
-import com.processdataquality.praeclarus.option.MultiLineOption;
-import com.processdataquality.praeclarus.option.Option;
-import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.processdataquality.praeclarus.ui.component.announce.Announcement;
 import com.processdataquality.praeclarus.ui.component.dialog.VertexLabelDialog;
-import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.processdataquality.praeclarus.ui.repo.WorkflowStore;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -40,7 +36,7 @@ import java.util.Set;
  * @author Michael Adams
  * @date 19/5/21
  */
-public class Workflow implements HasOptions, CanvasEventListener, NodeStateListener {
+public class Workflow implements CanvasEventListener, NodeStateListener {
 
     private enum State { VERTEX_DRAG, ARC_DRAW, NONE }
 
@@ -50,8 +46,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
     private final Set<Connector> _connectors = new HashSet<>();
     private final Set<CanvasSelectionListener> _selectionListeners = new HashSet<>();
 
-    private Options _options;
-    private Network _network;        // back end
+    private Graph _graph;        // back end
     private ActiveLine activeLine;
     private CanvasPrimitive selected;
     private State state = State.NONE;
@@ -63,7 +58,6 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
         _container = container;
         _ctx = context;
         clear();
-        _options = initOptions();
     }
 
     @Override
@@ -142,9 +136,8 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
         try {
             loader.load(jsonStr);
             _container.getRunner().reset();
-            _options = initOptions();
             Announcement.success("Workflow successfully uploaded.");
-            EventLogger.workflowLoadEvent("user", "dummy");
+            EventLogger.graphUploadEvent(getGraph(), "user");
         }
         catch (JSONException | IOException je) {
             Announcement.error("Failed to load file: " + je.getMessage());
@@ -192,18 +185,18 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
     public boolean hasChanges() { return _changed; }
 
 
-    public void clear(Network network) {
+    public void clear(Graph graph) {
         _vertices.clear();
         _connectors.clear();
-        _network = network;
+        _graph = graph;
         setChanged(false);
         setSelected(null);
         render();
     }
 
     public void clear() {
-        Network network = new Network.Builder("user").name("New Workflow").build();
-        clear(network);
+        Graph graph = new Graph.Builder("user").name("New Workflow").build();
+        clear(graph);
     }
 
 
@@ -213,7 +206,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
     }
 
 
-    public Network getNetwork() { return _network; }
+    public Graph getGraph() { return _graph; }
 
 
     public boolean hasContent() {
@@ -266,7 +259,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
     
     public void addVertex(Vertex vertex) {
         _vertices.add(vertex);
-        _network.addNode(vertex.getNode());
+        _graph.addNode(vertex.getNode());
         setSelected(vertex);
         vertex.getNode().addStateListener(this);
         setChanged(true);
@@ -284,7 +277,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
             _vertices.remove(vertex);
             removeConnectors(vertex);
             vertex.getNode().removeStateListener(this);
-            _network.removeNode(vertex.getNode());
+            _graph.removeNode(vertex.getNode());
             setChanged(true);
         }
     }
@@ -294,7 +287,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
         _connectors.add(c);
         Node source = c.getSource().getNode();
         Node target = c.getTarget().getNode();
-        source.connect(target);
+        _graph.connect(source, target);
         setChanged(true);
         render();
     }
@@ -305,7 +298,7 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
         if (success) {
             Node source = c.getSource().getNode();
             Node target = c.getTarget().getNode();
-            source.disconnect(target);
+            _graph.disconnect(source, target);
             setChanged(true);
             render();
         }
@@ -313,11 +306,10 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
     }
 
 
-    protected void setName(String name) { _network.updateName(name); }
+    protected void setName(String name) { _graph.updateName(name); }
 
 
     public JSONObject asJson() throws JSONException {
-        setOptions();                                  // update user property changes
         JSONArray vertexArray = new JSONArray();
         for (Vertex vertex : _vertices) {
             vertexArray.put(vertex.asJson());
@@ -326,41 +318,10 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
         for (Connector connector : _connectors) {
             connectorArray.put(connector.asJson());
         }
-        JSONObject json = _network.asJson();
+        JSONObject json = _graph.asJson();
         json.put("vertices", vertexArray);
         json.put("connectors", connectorArray);
         return json;
-    }
-
-
-    public Options getOptions() {
-         return _options;
-    }
-
-
-    private Options initOptions() {
-        Options options = new Options();
-        options.addDefault("Workflow Name", _network.getName());
-        options.addDefault("Public", _network.isShared());
-        options.addDefault(new MultiLineOption("Description", _network.getDescription()));
-        return options;
-    }
-
-
-    public void setOptions() {
-        for (Option option : _options.getChanges().values())
-        if (option.key().equals("Workflow Name")) {
-            String newName = option.asString();
-            if (! newName.isEmpty()) {
-                setName(newName);
-            }
-        }
-        else if (option.key().equals("Public")) {
-            _network.updateShared(option.asBoolean());
-        }
-        else if (option.key().equals("Description")) {
-            _network.updateDescription(option.asString());
-        }
     }
 
 
@@ -379,7 +340,8 @@ public class Workflow implements HasOptions, CanvasEventListener, NodeStateListe
     public void store() throws JSONException {
         WorkflowStore.save(this);
         setChanged(false);
-        Announcement.success("'" + getNetwork().getName() + "' successfully stored.");
+        EventLogger.graphStoreEvent(getGraph(), "user");
+        Announcement.success("'" + getGraph().getName() + "' successfully stored.");
     }
     
 

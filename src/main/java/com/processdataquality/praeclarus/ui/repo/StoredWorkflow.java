@@ -35,6 +35,7 @@ public class StoredWorkflow {
     private String id;
     private String owner;
     private boolean shared;
+
     @Column(length=102400)
     private String json;
 

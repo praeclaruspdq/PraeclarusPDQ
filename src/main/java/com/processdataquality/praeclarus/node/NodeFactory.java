@@ -40,19 +40,24 @@ public class NodeFactory {
 
     // called when restoring a node in a saved workflow
     public static Node create(PDQPlugin plugin, String id) {
+        plugin.getOptions().setID(id);
+        Node node = null;
         if (plugin instanceof DataReader) {
-            return new ReaderNode(plugin, id);
+            node = new ReaderNode(plugin, id);
         }
         if (plugin instanceof DataWriter) {
-            return new WriterNode(plugin, id);
+            node = new WriterNode(plugin, id);
         }
         if (plugin instanceof ImperfectionPattern) {
-            return new PatternNode(plugin, id);
+            node = new PatternNode(plugin, id);
         }
         if (plugin instanceof Action) {
-             return new ActionNode(plugin, id);
-         }
+            node = new ActionNode(plugin, id);
+        }
 
-        return null;
+        if (node != null) {
+            plugin.getOptions().setLabel(node.getLabel());
+        }
+        return node;
     }
 }

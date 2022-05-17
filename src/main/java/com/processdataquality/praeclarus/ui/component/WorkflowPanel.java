@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.node.*;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.Option;
@@ -184,8 +185,7 @@ public class WorkflowPanel extends VerticalLayout
 
 
     public void canvasSelectionChanged(CanvasPrimitive selected) {
-        Vertex vertex = (selected instanceof Vertex) ? (Vertex) selected : null;
-        enableButtons(_runner.getState(), vertex);
+        enableButtons(_runner.getState(), selected);
     }
 
 
@@ -196,7 +196,7 @@ public class WorkflowPanel extends VerticalLayout
             _parent.getPropertiesPanel().set(plugin);
         }
         else {
-            _parent.getPropertiesPanel().set(_workflow);
+            _parent.getPropertiesPanel().set(_workflow.getGraph());
         }
     }
 
@@ -292,7 +292,7 @@ public class WorkflowPanel extends VerticalLayout
     }
 
 
-    private void enableButtons(NodeRunner.RunnerState state, Vertex selected) {
+    private void enableButtons(NodeRunner.RunnerState state, CanvasPrimitive selected) {
         boolean isIdle = state == NodeRunner.RunnerState.IDLE;
         boolean hasContent = isIdle && _workflow != null && _workflow.hasContent();
         _removeButton.setEnabled(isIdle && selected != null);
@@ -324,9 +324,11 @@ public class WorkflowPanel extends VerticalLayout
 
     private boolean downloadWorkflow() {
         try {
+            _workflow.getGraph().updateLastSavedTime();
             String jsonStr = _workflow.asJson().toString(3);
             _canvas.saveToFile(jsonStr);
             _workflow.setChanged(false);
+            EventLogger.graphDownloadEvent(_workflow.getGraph(), "user");
             return true;
         }
         catch (JSONException je) {

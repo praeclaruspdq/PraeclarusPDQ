@@ -14,9 +14,9 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.repo.network;
+package com.processdataquality.praeclarus.repo.graph;
 
-import com.processdataquality.praeclarus.node.Network;
+import com.processdataquality.praeclarus.node.Graph;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -28,50 +28,50 @@ import java.util.Optional;
  * @date 27/4/2022
  */
 @Component
-public class NetworkStore {
+public class GraphStore {
 
-    private static NetworkRepository repository;
+    private static GraphRepository repository;
 
-    public NetworkStore(NetworkRepository repo) {
+    public GraphStore(GraphRepository repo) {
         repository = repo;
     }
 
 
-    public static Optional<Network> get(String id) {
+    public static Optional<Graph> get(String id) {
         return repository.findById(id);
     }
 
 
-    public static List<Network> getAll() {
-        List<Network> list = new ArrayList<>();
+    public static List<Graph> getAll() {
+        List<Graph> list = new ArrayList<>();
         repository.findAll().forEach(list::add);
         return list;
     }
 
 
-    public static List<Network> getAllPublic() {
+    public static List<Graph> getAllPublic() {
         return repository.findBySharedTrue();
     }
 
 
-    public static List<Network> getAllByOwner(String owner) {
+    public static List<Graph> getAllByOwner(String owner) {
         return repository.findByOwner(owner);
     }
 
 
-    public static List<Network> getAllByOwnerNotPublic(String owner) {
+    public static List<Graph> getAllByOwnerNotPublic(String owner) {
         return repository.findByOwnerAndSharedFalse(owner);
     }
  
 
-    public static void put(Network network) {
-        repository.save(network);
+    public static void put(Graph graph) {
+        repository.save(graph);
     }
 
 
-    public static void addIfNew(Network network) {
-        if (! repository.existsById(network.getId())) {
-            put(network);
+    public static void addIfNew(Graph graph) {
+        if (! repository.existsById(graph.getId())) {
+            put(graph);
         }
     }
     

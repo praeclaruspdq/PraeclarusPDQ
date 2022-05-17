@@ -31,6 +31,7 @@ public class Option implements Comparable<Option> {
 
     private final String _key;            // the option's name
     private Object _value;                // the option's value
+    private Object _prevValue;                // the option's former value
     private boolean _mandatory;
 
 
@@ -50,7 +51,13 @@ public class Option implements Comparable<Option> {
 
     public Object value() { return _value; }
 
-    public void setValue(Object v) { _value = v; }
+    public void setValue(Object v) {
+        _prevValue = _value;
+        _value = v;
+    }
+
+
+    public Object getPreviousValue() { return _prevValue; }
 
 
     // the remaining methods return the value cast to its actual type

@@ -17,6 +17,8 @@
 package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
 
@@ -25,33 +27,49 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class ConnectorEvent extends AbstractLogEvent {
+public class ConnectorEvent extends AbstractGraphEvent {
 
-    private String source;
-    private String target;
+    private String sourceID;
+    private String sourceLabel;
+    private String targetID;
+    private String targetLabel;
 
     protected ConnectorEvent() { }
 
-    public ConnectorEvent(String user, LogConstant label, String source, String target) {
-        super(user, label);
-        setSource(source);
-        setTarget(target);
+    public ConnectorEvent(Graph graph, String user, LogConstant label, Node source, Node target) {
+        super(graph, user, label);
+        setGraphID(graph.getId());
+        setGraphName(graph.getName());
+        setSourceID(source.getInternalID());
+        setSourceLabel(source.getLabel());
+        setTargetID(target.getInternalID());
+        setTargetLabel(target.getLabel());
     }
 
 
-    public String getSource() {return source; }
+    public String getSourceID() { return sourceID;}
 
-    public void setSource(String source) { this.source = source; }
+    public void setSourceID(String sourceID) { this.sourceID = sourceID; }
 
 
-    public String getTarget() { return target; }
+    public String getSourceLabel() {return sourceLabel; }
 
-    public void setTarget(String target) { this.target = target; }
+    public void setSourceLabel(String source) { this.sourceLabel = source; }
+
+
+    public String getTargetID() { return targetID; }
+
+    public void setTargetID(String targetID) { this.targetID = targetID; }
+    
+
+    public String getTargetLabel() { return targetLabel; }
+
+    public void setTargetLabel(String target) { this.targetLabel = target; }
 
 
     @Override
     public String toString() {
-        return super.toString() + "; Source: " + source + ", Target: " + target;
+        return super.toString() + "; Source: " + sourceLabel + ", Target: " + targetLabel;
     }
 }
 

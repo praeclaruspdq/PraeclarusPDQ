@@ -56,11 +56,12 @@ public class WorkflowStore {
     }
 
     public static StoredWorkflow save(Workflow workflow) throws JSONException {
+        workflow.getGraph().updateLastSavedTime();
         String json = workflow.asJson().toString();      // also triggers props update
         return save(new StoredWorkflow(
-                workflow.getNetwork().getId(),
-                workflow.getNetwork().getOwner(),
-                workflow.getNetwork().isShared(),
+                workflow.getGraph().getId(),
+                workflow.getGraph().getOwner(),
+                workflow.getGraph().isShared(),
                 json));
     }
 

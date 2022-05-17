@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.node.Graph;
 
 import javax.persistence.Entity;
 
@@ -25,33 +26,23 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class WorkflowRenameEvent extends AbstractLogEvent {
+public class GraphIOEvent extends AbstractGraphEvent {
 
-    private String oldName;
-    private String newName;
 
-    protected WorkflowRenameEvent() { }
-
-    public WorkflowRenameEvent(String user, String oldName, String newName) {
-        super(user, LogConstant.WORKFLOW_RENAMED);
-        setOldName(oldName);
-        setNewName(newName);
+    protected GraphIOEvent() { }
+    
+    public GraphIOEvent(Graph graph, String user, LogConstant label) {
+        super(graph, user, label);
     }
 
-
-    public String getOldName() { return oldName; }
-
-    public void setOldName(String reason) { this.oldName = reason; }
-
-
-    public String getNewName() { return newName; }
-
-    public void setNewName(String newName) { this.newName = newName; }
+    public GraphIOEvent(String id, String name, String user, LogConstant label) {
+        super(id, name, user, label);
+    }
 
 
     @Override
     public String toString() {
-        return super.toString() + " From: " + oldName + ", To: " + newName;
+        return super.toString() ;
     }
 
 }

@@ -18,7 +18,9 @@ package com.processdataquality.praeclarus.logging;
 
 import com.processdataquality.praeclarus.logging.entity.*;
 import com.processdataquality.praeclarus.logging.repository.*;
+import com.processdataquality.praeclarus.node.Graph;
 import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.option.Option;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +48,6 @@ public class EventLogger {
     private static NodeRunEventRepository nodeRunEventRepository;
     private static WorkflowCreationEventRepository workflowCreationEventRepository;
     private static WorkflowIOEventRepository workflowIOEventRepository;
-    private static WorkflowRenameEventRepository workflowRenameEventRepository;
 
     
     // Inject repositories
@@ -57,8 +58,7 @@ public class EventLogger {
                        NodeRollbackEventRepository nrbRepo,
                        NodeRunEventRepository nrRepo,
                        WorkflowCreationEventRepository wcRepo,
-                       WorkflowIOEventRepository wioRepo,
-                       WorkflowRenameEventRepository wrRepo) {
+                       WorkflowIOEventRepository wioRepo) {
         authenticationEventRepository = authRepo;
         connectorEventRepository = connRepo;
         nodeChangeEventRepository = ncRepo;
@@ -67,7 +67,6 @@ public class EventLogger {
         nodeRunEventRepository = nrRepo;
         workflowCreationEventRepository = wcRepo;
         workflowIOEventRepository = wioRepo;
-        workflowRenameEventRepository = wrRepo;
     }
 
 
@@ -102,84 +101,104 @@ public class EventLogger {
     }
 
 
-    public static void addConnectorEvent(String user, String source, String target) {
-        connectorEvent(user, LogConstant.CONNECTOR_ADDED, source, target);
+    public static void addConnectorEvent(Graph graph, String user, Node source, Node target) {
+        connectorEvent(graph, user, LogConstant.CONNECTOR_ADDED, source, target);
     }
 
 
-    public static void removeConnectorEvent(String user, String source, String target) {
-        connectorEvent(user, LogConstant.CONNECTOR_REMOVED, source, target);
+    public static void removeConnectorEvent(Graph graph, String user, Node source, Node target) {
+        connectorEvent(graph, user, LogConstant.CONNECTOR_REMOVED, source, target);
     }
 
 
-    public static void connectorEvent(String user, LogConstant constant, String source, String target) {
-        ConnectorEvent event = new ConnectorEvent(user, constant, source, target);
+    public static void connectorEvent(Graph graph, String user, LogConstant constant,
+                                      Node source, Node target) {
+        ConnectorEvent event = new ConnectorEvent(graph, user, constant, source, target);
         save(connectorEventRepository, event);
     }
 
 
-    public static void optionChangeEvent(String user, Node node, String option,
-                                         String oldValue, String newValue) {
-        OptionChangeEvent event = new OptionChangeEvent(user, node, option,
-                oldValue, newValue);
+    public static void optionChangeEvent(Graph graph, String user, Option option) {
+        optionChangeEvent(graph.getId(), graph.getName(), user, option);
+    }
+
+
+    public static void optionChangeEvent(Node node, String user, Option option) {
+        optionChangeEvent(node.getInternalID(), node.getLabel(), user, option);
+    }
+
+
+    public static void optionChangeEvent(String compId, String compName, String user,
+                                         Option option) {
+        OptionChangeEvent event = new OptionChangeEvent(compId, compName, user,
+                option);
         save(nodeChangeEventRepository, event);
     }
 
 
-
-    public static void nodeAddedEvent(String user, Node node) {
-        nodeEvent(user, LogConstant.NODE_ADDED, node);
+    public static void nodeAddedEvent(Graph graph, Node node, String user) {
+        nodeEvent(graph, node, LogConstant.NODE_ADDED, user);
     }
 
 
-    public static void nodeRemovedEvent(String user, Node node) {
-        nodeEvent(user, LogConstant.NODE_REMOVED, node);
+    public static void nodeRemovedEvent(Graph graph, Node node, String user) {
+        nodeEvent(graph, node, LogConstant.NODE_REMOVED, user);
     }
 
 
-    public static void nodeEvent(String user, LogConstant constant, Node node) {
-        NodeEvent event = new NodeEvent(user, constant, node);
+    public static void nodeEvent(Graph graph, Node node, LogConstant constant, String user) {
+        NodeEvent event = new NodeEvent(graph, node, constant, user);
         save(nodeEventRepository, event);
     }
 
 
-    public static void nodeRollbackEvent(String user, Node node) {
-        NodeRollbackEvent event = new NodeRollbackEvent(user, node);
+    public static void nodeRollbackEvent(Graph graph, Node node, String user) {
+        NodeRollbackEvent event = new NodeRollbackEvent(graph, user, node);
         save(nodeRollbackEventRepository, event);
     }
 
 
-    public static void nodeRunEvent(String user, Node node, String outcome) {
-        NodeRunEvent event = new NodeRunEvent(user, node, outcome);
+    public static void nodeRunEvent(Graph graph, String user, Node node, String outcome) {
+        NodeRunEvent event = new NodeRunEvent(graph, user, node, outcome);
         save(nodeRunEventRepository, event);
     }
 
 
-    public static void workflowCreationEvent(String user, String workflowId) {
-        WorkflowCreationEvent event = new WorkflowCreationEvent(user, workflowId);
+    public static void graphCreatedEvent(Graph graph, String user) {
+        GraphCreatedEvent event = new GraphCreatedEvent(graph, user);
         save(workflowCreationEventRepository, event);
     }
 
 
-    public static void workflowLoadEvent(String user, String fileName) {
-        workflowIOEvent(user, LogConstant.WORKFLOW_UPLOADED, fileName);
+    public static void graphUploadEvent(Graph graph, String user) {
+        graphIOEvent(graph, user, LogConstant.GRAPH_UPLOADED);
     }
 
 
-    public static void workflowSaveEvent(String user, String fileName) {
-        workflowIOEvent(user, LogConstant.WORKFLOW_DOWNLOADED, fileName);
+    public static void graphDownloadEvent(Graph graph, String user) {
+        graphIOEvent(graph, user, LogConstant.GRAPH_DOWNLOADED);
     }
 
 
-    public static void workflowIOEvent(String user, LogConstant constant, String fileName) {
-        WorkflowIOEvent event = new WorkflowIOEvent(user, constant, fileName);
+    public static void graphStoreEvent(Graph graph, String user) {
+        graphIOEvent(graph, user, LogConstant.GRAPH_STORED);
+    }
+
+
+    public static void graphLoadEvent(Graph graph, String user) {
+        graphIOEvent(graph, user, LogConstant.GRAPH_LOADED);
+    }
+
+
+    public static void graphDiscardedEvent(String id, String name, String user) {
+        GraphIOEvent event = new GraphIOEvent(id, name, user, LogConstant.GRAPH_DISCARDED);
         save(workflowIOEventRepository, event);
     }
 
 
-    public static void workflowRenameEvent(String user, String oldName, String newName) {
-        WorkflowRenameEvent event = new WorkflowRenameEvent(user, oldName, newName);
-        save(workflowRenameEventRepository, event);
+    public static void graphIOEvent(Graph graph, String user, LogConstant constant) {
+        GraphIOEvent event = new GraphIOEvent(graph, user, constant);
+        save(workflowIOEventRepository, event);
     }
 
     

@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.logging.repository;
 
-import com.processdataquality.praeclarus.logging.entity.WorkflowIOEvent;
+import com.processdataquality.praeclarus.logging.entity.GraphIOEvent;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface WorkflowIOEventRepository
-        extends CrudRepository<WorkflowIOEvent, Long> {
+        extends CrudRepository<GraphIOEvent, Long> {
 
 }
 

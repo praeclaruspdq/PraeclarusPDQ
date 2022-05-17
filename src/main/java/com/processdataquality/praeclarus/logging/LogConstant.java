@@ -31,18 +31,20 @@ public enum LogConstant {
     LOGON_FAIL("Failed Logon"),
     LOGOFF("Logoff"),
 
-    // Workflow
-    WORKFLOW_CREATED("Workflow created"),
-    WORKFLOW_UPLOADED("Workflow uploaded"),
-    WORKFLOW_DOWNLOADED("Workflow saved"),
-    WORKFLOW_LOADED("Workflow loaded"),
-    WORKFLOW_STORED("Workflow stored"),
-    WORKFLOW_RENAMED("Workflow renamed"),
+    // Graph
+    GRAPH_CREATED("Graph created"),
+    GRAPH_UPLOADED("Graph uploaded"),
+    GRAPH_DOWNLOADED("Graph saved"),
+    GRAPH_LOADED("Graph loaded"),
+    GRAPH_STORED("Graph stored"),
+    GRAPH_DISCARDED("Graph discarded"),
 
     // Node
     NODE_ADDED("Node added"),
     NODE_REMOVED("Node removed"),
-    NODE_OPTION_CHANGED("Node option changed"),
+
+    // Options
+    OPTION_VALUE_CHANGED("Option value changed"),
 
     // Connector
     CONNECTOR_ADDED("Connector added"),

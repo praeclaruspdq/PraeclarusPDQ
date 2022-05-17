@@ -24,3 +24,8 @@ canvas {
     background-color:#F0F0F0;
 }
 
+:host([readonly]) [part='input-field'] {
+    border-style: none;
+    border-width: 0;
+}
+

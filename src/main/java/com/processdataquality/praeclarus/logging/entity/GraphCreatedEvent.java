@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.logging.entity;
 
 import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.node.Graph;
 
 import javax.persistence.Entity;
 
@@ -25,27 +26,12 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class WorkflowIOEvent extends AbstractLogEvent {
+public class GraphCreatedEvent extends AbstractGraphEvent {
 
+    protected GraphCreatedEvent() { }
 
-    private String fileName;
-
-    protected WorkflowIOEvent() { }
-    
-    public WorkflowIOEvent(String user, LogConstant label, String fileName) {
-        super(user, label);
-        setFileName(fileName);
-    }
-
-
-    public String getFileName() { return fileName; }
-
-    public void setFileName(String fileName) { this.fileName = fileName; }
-
-
-    @Override
-    public String toString() {
-        return super.toString() + "; Source: " + fileName;
+    public GraphCreatedEvent(Graph graph, String user) {
+        super(graph, user, LogConstant.GRAPH_CREATED);
     }
 
 }

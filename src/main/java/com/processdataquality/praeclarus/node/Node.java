@@ -17,7 +17,6 @@
 package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.repo.Repo;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -187,7 +186,6 @@ public abstract class Node {
     public void connect(Node target) {
         addNext(target);
         target.addPrevious(this);
-        EventLogger.addConnectorEvent("user", getLabel(), target.getLabel());
     }
 
 
@@ -198,7 +196,6 @@ public abstract class Node {
     public void disconnect(Node target) {
         removeNext(target);
         target.removePrevious(this);
-        EventLogger.removeConnectorEvent("user", getLabel(), target.getLabel());
     }
 
 
@@ -248,7 +245,10 @@ public abstract class Node {
     }
 
 
-    public void setLabel(String label) { _label = label; }
+    public void setLabel(String label) {
+        _label = label;
+        _plugin.getOptions().setLabel(label);
+    }
 
 
     /**
