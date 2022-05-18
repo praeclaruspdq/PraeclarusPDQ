@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.node;
 
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
@@ -31,7 +31,7 @@ public class NodeLoader {
     
     public Node fromJson(JSONObject json) throws JSONException, IOException {
         Node node = null;
-        PDQPlugin plugin = newPluginInstance(json.getString("plugin"));
+        AbstractPlugin plugin = newPluginInstance(json.getString("plugin"));
         if (plugin != null) {
             addOptions(plugin, json.getJSONObject("options"));
             String nodeID = json.getString("id");
@@ -52,9 +52,9 @@ public class NodeLoader {
 
 
     @SuppressWarnings("unchecked")
-    private PDQPlugin newPluginInstance(String fqClassName) {
+    private AbstractPlugin newPluginInstance(String fqClassName) {
         try {
-            Class<PDQPlugin> clazz = (Class<PDQPlugin>) Class.forName(fqClassName);
+            Class<AbstractPlugin> clazz = (Class<AbstractPlugin>) Class.forName(fqClassName);
             return clazz.getDeclaredConstructor().newInstance();
         }
         catch (Throwable e) {
@@ -64,7 +64,7 @@ public class NodeLoader {
 
 
     @SuppressWarnings("unchecked")
-    private void addOptions(PDQPlugin plugin, JSONObject jsonOptions) throws JSONException {
+    private void addOptions(AbstractPlugin plugin, JSONObject jsonOptions) throws JSONException {
         if (jsonOptions != null) {
             Iterator<String> keys = jsonOptions.keys();
             while (keys.hasNext()) {

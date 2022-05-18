@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.Options;
 import tech.tablesaw.io.fixed.FixedWidthReadOptions;
 
 /**
@@ -33,27 +32,23 @@ import tech.tablesaw.io.fixed.FixedWidthReadOptions;
 )
 public class FixedWidthDataReader extends AbstractDataReader {
 
-    @Override
-    public Options getOptions() {
-        Options options = super.getOptions();
-        if (! options.containsKey("Ends on New Line")) {
-            options.addDefault("Separator", ",");
-            options.addDefault("Ends on New Line", true);
-        }
-        return options;
+    public FixedWidthDataReader() {
+        super();
+        getOptions().addDefault("Separator", ",");
+        getOptions().addDefault("Ends on New Line", true);
     }
 
-    
+
     protected FixedWidthReadOptions getReadOptions() throws InvalidOptionValueException {
         return FixedWidthReadOptions.builder(getSource())
-                .missingValueIndicator(_options.get("Missing Value").asString())
+                .missingValueIndicator(getOptions().get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
 //                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
 //                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
-                .header(_options.get("Header").asBoolean())
-                .tableName(_options.get("Table Name").asString())
-                .sample(_options.get("Sample").asBoolean())
-                .recordEndsOnNewline(_options.get("Ends on New Line").asBoolean())
+                .header(getOptions().get("Header").asBoolean())
+                .tableName(getOptions().get("Table Name").asString())
+                .sample(getOptions().get("Sample").asBoolean())
+                .recordEndsOnNewline(getOptions().get("Ends on New Line").asBoolean())
                 .build();
     }
 

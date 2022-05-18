@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import tech.tablesaw.api.StringColumn;
 
@@ -37,7 +36,10 @@ public class DistortedLabelJaroWinkler extends AbstractImperfectLabel {
 
     private final JaroWinklerDistance jaroWinkler = new JaroWinklerDistance();
 
-    public DistortedLabelJaroWinkler() { }
+    public DistortedLabelJaroWinkler() {
+        super();
+        getOptions().addDefault("Threshold", 0.7);
+    }
 
     
     @Override
@@ -47,16 +49,6 @@ public class DistortedLabelJaroWinkler extends AbstractImperfectLabel {
         if (distance > threshold && distance < 1.0) {
             addResult(column, s1, s2);
         }
-    }
-
-
-    @Override
-    public Options getOptions() {
-        Options options = super.getOptions();
-        if (!options.containsKey("Threshold")) {
-            options.addDefault("Threshold", 0.7);
-        }
-        return options;
     }
 
 }

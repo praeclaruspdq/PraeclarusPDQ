@@ -35,20 +35,17 @@ import java.io.IOException;
 public class HtmlDataWriter extends AbstractDataWriter {
 
     public HtmlDataWriter() {
-        initOptions();
-    }
-
-    public void initOptions() {
-        _options.addDefault("Escape Text", true);
+        super();
+        getOptions().addDefault("Escape Text", true);
     }
 
 
     @Override
     protected WriteOptions getWriteOptions() throws IOException {
         HtmlWriteOptions.Builder builder = HtmlWriteOptions.builder(getDestination());
-        for (String key : _options.getChanges().keySet()) {
+        for (String key : getOptions().getChanges().keySet()) {
             if (key.equals("Escape Text")) {
-                builder.escapeText(_options.get("Escape Text").asBoolean());
+                builder.escapeText(getOptions().get("Escape Text").asBoolean());
             }
         }
         return builder.build();

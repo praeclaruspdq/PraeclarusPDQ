@@ -59,7 +59,7 @@ public class Vertex implements CanvasPrimitive {
 
     public double y() { return  _y; }
 
-    public String getID() { return _node.getInternalID(); }
+    public String getID() { return _node.getID(); }
 
 
     public Node getNode() { return _node; }

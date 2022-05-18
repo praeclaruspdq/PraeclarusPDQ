@@ -19,7 +19,7 @@ package com.processdataquality.praeclarus.ui.parameter.editor;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -74,7 +74,7 @@ public abstract class AbstractFileEditor extends AbstractEditor {
     }
 
 
-    protected PDQPlugin getPlugin() { return (PDQPlugin) getContainer(); }
+    protected AbstractPlugin getPlugin() { return (AbstractPlugin) getContainer(); }
 
     protected abstract Button createButton() ;
 

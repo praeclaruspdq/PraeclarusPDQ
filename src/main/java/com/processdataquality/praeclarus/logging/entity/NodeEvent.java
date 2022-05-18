@@ -39,7 +39,7 @@ public class NodeEvent extends AbstractGraphEvent {
 
     public NodeEvent(Graph graph, Node node, LogConstant label, String user) {
         super(graph, user, label);
-        setNodeId(node.getInternalID());
+        setNodeId(node.getID());
         setNodeName(node.getLabel());
     }
 

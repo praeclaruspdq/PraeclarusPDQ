@@ -16,9 +16,9 @@
 
 package com.processdataquality.praeclarus.node;
 
-import com.processdataquality.praeclarus.action.Action;
-import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.action.AbstractAction;
+import com.processdataquality.praeclarus.pattern.AbstractDataPattern;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.reader.DataReader;
 import com.processdataquality.praeclarus.writer.DataWriter;
 
@@ -33,31 +33,28 @@ import java.util.UUID;
 public class NodeFactory {
 
     // called when creating a new node
-    public static Node create(PDQPlugin plugin) {
+    public static Node create(AbstractPlugin plugin) {
         return create(plugin, UUID.randomUUID().toString());
     }
 
 
     // called when restoring a node in a saved workflow
-    public static Node create(PDQPlugin plugin, String id) {
-        plugin.getOptions().setID(id);
+    public static Node create(AbstractPlugin plugin, String id) {
+        plugin.setId(id);
         Node node = null;
         if (plugin instanceof DataReader) {
-            node = new ReaderNode(plugin, id);
+            node = new ReaderNode(plugin);
         }
         if (plugin instanceof DataWriter) {
-            node = new WriterNode(plugin, id);
+            node = new WriterNode(plugin);
         }
-        if (plugin instanceof ImperfectionPattern) {
-            node = new PatternNode(plugin, id);
+        if (plugin instanceof AbstractDataPattern) {
+            node = new PatternNode(plugin);
         }
-        if (plugin instanceof Action) {
-            node = new ActionNode(plugin, id);
+        if (plugin instanceof AbstractAction) {
+            node = new ActionNode(plugin);
         }
 
-        if (node != null) {
-            plugin.getOptions().setLabel(node.getLabel());
-        }
         return node;
     }
 }

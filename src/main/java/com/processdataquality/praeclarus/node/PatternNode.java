@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.node;
 
-import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.pattern.AbstractDataPattern;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import tech.tablesaw.api.Table;
 
@@ -32,8 +32,8 @@ public class PatternNode extends Node {
     private Table detected;                 // a table of pattern matches
 
 
-    public PatternNode(PDQPlugin plugin, String id) {
-        super(plugin, id);
+    public PatternNode(AbstractPlugin plugin) {
+        super(plugin);
     }
 
 
@@ -43,7 +43,7 @@ public class PatternNode extends Node {
      */
     @Override
     public void run() throws Exception {
-        ImperfectionPattern imperfectionPattern = (ImperfectionPattern) getPlugin();
+        AbstractDataPattern imperfectionPattern = (AbstractDataPattern) getPlugin();
         Table master = getInputs().get(0);         // only one input
         if (getState() == NodeState.UNSTARTED && imperfectionPattern.canDetect()) {
             setState(NodeState.EXECUTING);
@@ -99,7 +99,7 @@ public class PatternNode extends Node {
      * @param ui the updated UI
      */
     public void updateUI(PluginUI ui) {
-       ((ImperfectionPattern) getPlugin()).setUI(ui);
+       ((AbstractDataPattern) getPlugin()).setUI(ui);
     }
 
 }

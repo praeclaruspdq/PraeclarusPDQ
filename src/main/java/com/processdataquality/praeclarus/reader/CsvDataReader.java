@@ -19,7 +19,6 @@ package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.Options;
 import tech.tablesaw.io.csv.CsvReadOptions;
 
 /**
@@ -35,31 +34,27 @@ import tech.tablesaw.io.csv.CsvReadOptions;
 )
 public class CsvDataReader extends AbstractDataReader {
 
-    @Override
-    public Options getOptions() {
-        Options options = super.getOptions();
-        if (! options.containsKey("Separator")) {
-            options.addDefault("Separator", ',');
-        }
-        return options;
+    public CsvDataReader() {
+        super();
+        getOptions().addDefault("Separator", ',');
     }
 
 
     protected CsvReadOptions getReadOptions() throws InvalidOptionValueException {
         CsvReadOptions.Builder builder = CsvReadOptions.builder(getSource());
-        for (String key : _options.getChanges().keySet()) {
+        for (String key : getOptions().getChanges().keySet()) {
             switch (key) {
                 case "Separator":
-                    builder.separator(_options.get("Separator").asChar());
+                    builder.separator(getOptions().get("Separator").asChar());
                     break;
                 case "Missing Value":
-                    builder.missingValueIndicator(_options.get("Missing Value").asString());
+                    builder.missingValueIndicator(getOptions().get("Missing Value").asString());
                     break;
                 case "Header":
-                    builder.header(_options.get("Header").asBoolean());
+                    builder.header(getOptions().get("Header").asBoolean());
                     break;
                 case "Table Name":
-                    builder.tableName(_options.get("Table Name").asString());
+                    builder.tableName(getOptions().get("Table Name").asString());
                     break;
             }
         }

@@ -20,7 +20,6 @@ import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.OptionException;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
-import com.processdataquality.praeclarus.option.Options;
 import com.processdataquality.praeclarus.plugin.uitemplate.*;
 import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.Row;
@@ -35,22 +34,18 @@ import java.util.List;
  * @author Michael Adams
  * @date 11/5/21
  */
-public abstract class AbstractImperfectLabel implements ImperfectionPattern {
+public abstract class AbstractImperfectLabel extends AbstractDataPattern {
 
     // The table that will contain the results of the pattern detection
     protected Table _detected;
 
-    // The set of parameters used by this plugin
-    private Options _options;
-
-    // The UI template used for the front-end interactions
-    private PluginUI _ui;
-
-
-    protected AbstractImperfectLabel() { }
+    protected AbstractImperfectLabel() {
+        super();
+        getOptions().addDefault(new ColumnNameListOption("Column Name"));
+    }
 
     // To be implemented by subclasses to detect distortion between two strings
-    protected abstract void detect(StringColumn column, String s1, String s2);
+    abstract void detect(StringColumn column, String s1, String s2);
 
 
     /**
@@ -96,57 +91,6 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
         repaired.setName(colName);
         master.replaceColumn(colName, repaired);
         return master;
-    }
-
-
-    /**
-     * By default subclasses can detect, but they can override this as required
-     * @return true (this plugin can detect an imperfection pattern)
-     */
-    @Override
-    public boolean canDetect() {
-        return true;
-    }
-
-    
-    /**
-     * By default subclasses can repair, but they can override this as required
-     * @return true (this plugin can repair a log)
-     */
-    @Override
-    public boolean canRepair() {
-        return true;
-    }
-
-
-    @Override
-    public int getMaxInputs() { return 1; }
-
-    @Override
-    public int getMaxOutputs() { return 1; }
-
-
-
-    /**
-     * Gets or creates a set of options for the plugin
-     * @return
-     */
-    @Override
-    public Options getOptions() {
-        if (_options == null) {
-            _options = new Options();
-            _options.addDefault(new ColumnNameListOption("Column Name"));
-        }
-        return _options;
-    }
-
-
-    /**
-     * Sets the options for this plugin, overwriting existing values
-     * @param options a map of configuration keys and values
-     */
-    public void setOptions(Options options) {
-        this._options = options;
     }
 
 
@@ -234,9 +178,4 @@ public abstract class AbstractImperfectLabel implements ImperfectionPattern {
         return _ui;
    }
 
-
-    @Override
-    public void setUI(PluginUI ui) {
-        _ui = ui;
-    }
 }

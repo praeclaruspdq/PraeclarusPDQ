@@ -16,7 +16,6 @@
 
 package com.processdataquality.praeclarus.writer;
 
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.Destination;
 
@@ -26,7 +25,7 @@ import java.io.IOException;
  * @author Michael Adams
  * @date 31/3/21
  */
-public interface DataWriter extends PDQPlugin {
+public interface DataWriter {
 
     /**
      * Writes the data in a Table object to a sink (file, stream, etc)

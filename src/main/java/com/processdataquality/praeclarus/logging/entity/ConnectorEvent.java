@@ -40,9 +40,9 @@ public class ConnectorEvent extends AbstractGraphEvent {
         super(graph, user, label);
         setGraphID(graph.getId());
         setGraphName(graph.getName());
-        setSourceID(source.getInternalID());
+        setSourceID(source.getID());
         setSourceLabel(source.getLabel());
-        setTargetID(target.getInternalID());
+        setTargetID(target.getID());
         setTargetLabel(target.getLabel());
     }
 

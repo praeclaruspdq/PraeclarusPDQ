@@ -17,7 +17,6 @@
 package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.exception.OptionException;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import tech.tablesaw.api.Table;
 
@@ -25,7 +24,7 @@ import tech.tablesaw.api.Table;
  * @author Michael Adams
  * @date 11/5/21
  */
-public interface ImperfectionPattern extends PDQPlugin {
+public interface DataPattern {
 
     /**
      * Detect instances of an imperfection pattern found within a table

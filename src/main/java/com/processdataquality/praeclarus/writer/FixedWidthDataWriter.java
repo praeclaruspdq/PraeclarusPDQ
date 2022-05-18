@@ -35,13 +35,14 @@ import java.io.IOException;
 public class FixedWidthDataWriter extends AbstractDataWriter {
 
     public FixedWidthDataWriter() {
-        initOptions();
+        super();
+        addDefaultOptions();
     }
 
 
-    public void initOptions() {
-        _options.addDefault("Header", true);
-        _options.addDefault("Pad char", ' ');
+    public void addDefaultOptions() {
+        getOptions().addDefault("Header", true);
+        getOptions().addDefault("Pad char", ' ');
     }
 
 
@@ -49,12 +50,12 @@ public class FixedWidthDataWriter extends AbstractDataWriter {
     protected WriteOptions getWriteOptions() throws IOException {
         FixedWidthWriteOptions.Builder builder =
                 FixedWidthWriteOptions.builder(getDestination());
-        for (String key : _options.getChanges().keySet()) {
+        for (String key : getOptions().getChanges().keySet()) {
             if (key.equals("Header")) {
-                builder.header(_options.get("Header").asBoolean());
+                builder.header(getOptions().get("Header").asBoolean());
             }
             if (key.equals("Pad char")) {
-                builder.padding(_options.get("Pad char").asChar());
+                builder.padding(getOptions().get("Pad char").asChar());
             }
         }
         return builder.build();

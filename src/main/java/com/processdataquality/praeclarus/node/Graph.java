@@ -98,6 +98,7 @@ public class Graph implements HasOptions, OptionValueChangeListener {
     @Override
     public void optionValueChanged(Option option) {
         updateOptionValue(option);
+        EventLogger.optionChangeEvent(getId(), getName(), "user", option);
     }
 
     public String getId() { return id; }
@@ -238,7 +239,7 @@ public class Graph implements HasOptions, OptionValueChangeListener {
 
 
     public Options refreshOptions() {
-        Options options = new Options(getId(), getName());
+        Options options = new Options();
         options.addDefault("Name", getName());
         options.addDefault("Public", isShared());
         options.addDefault(new MultiLineOption("Description", getDescription()));

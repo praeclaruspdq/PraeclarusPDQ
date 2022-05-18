@@ -74,6 +74,7 @@ public abstract class AbstractEditor extends HorizontalLayout {
     protected void updateOption(Object value) {
         _option.setValue(value);
         _container.getOptions().update(_option);
+        
     }
 
 

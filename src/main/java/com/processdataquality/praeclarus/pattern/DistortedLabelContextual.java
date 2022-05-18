@@ -35,36 +35,28 @@ public class DistortedLabelContextual extends AbstractImperfectLabelContextual {
 
 	double[][] rs, ds, ts, dcfs, eds, ls;
 
+
+	public DistortedLabelContextual() {
+		super();
+		addDefaultOptions();
+	}
+
 	@Override
 	protected void detect(StringColumn column, String s1, String s2) {
 	}
 
-	@Override
-	public Options getOptions() {
+
+	private void addDefaultOptions() {
 		Options options = super.getOptions();
 
 		// TODO define limit for each option
+		options.addDefault("String Similarity Threshold", 0.8);
+		options.addDefault("Control Flow Similarity Weight", 1);
+		options.addDefault("Resource Similarity Weight", 1);
+		options.addDefault("Data Similarity Weight", 1);
+		options.addDefault("Time Similarity Weight", 1);
+		options.addDefault("Duration Similarity Weight", 1);
 
-		if (!options.containsKey("String Similarity Threshold")) {
-			options.addDefault("String Similarity Threshold", 0.8);
-		}
-		if (!options.containsKey("Control Flow Similarity Weight")) {
-			options.addDefault("Control Flow Similarity Weight", 1);
-		}
-		if (!options.containsKey("Resource Similarity Weight")) {
-			options.addDefault("Resource Similarity Weight", 1);
-		}
-		if (!options.containsKey("Data Similarity Weight")) {
-			options.addDefault("Data Similarity Weight", 1);
-		}
-		if (!options.containsKey("Time Similarity Weight")) {
-			options.addDefault("Time Similarity Weight", 1);
-		}
-		if (!options.containsKey("Duration Similarity Weight")) {
-			options.addDefault("Duration Similarity Weight", 1);
-		}
-
-		return options;
 	}
 
 

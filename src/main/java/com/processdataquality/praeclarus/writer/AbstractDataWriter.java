@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.option.FileOption;
-import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import org.apache.commons.io.output.WriterOutputStream;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.Destination;
@@ -33,13 +33,12 @@ import java.nio.charset.Charset;
  * @author Michael Adams
  * @date 9/6/21
  */
-public abstract class AbstractDataWriter implements DataWriter {
+public abstract class AbstractDataWriter extends AbstractPlugin implements DataWriter {
 
-    protected final Options _options = new Options();
     protected Destination _destination;
 
     protected AbstractDataWriter() {
-        _options.addDefault(new FileOption("Destination", ""));
+        getOptions().addDefault(new FileOption("Destination", ""));
     }
 
     // each sub-class will have unique read options for data format etc.
@@ -51,21 +50,6 @@ public abstract class AbstractDataWriter implements DataWriter {
         table.write().usingOptions(getWriteOptions());
     }
 
-
-    @Override
-    public Options getOptions() {
-        return _options;
-    }
-
-    @Override
-    public int getMaxInputs() {
-        return 1;
-    }
-
-    @Override
-    public int getMaxOutputs() {
-        return 1;
-    }
 
     @Override
     public Destination getDestination() {

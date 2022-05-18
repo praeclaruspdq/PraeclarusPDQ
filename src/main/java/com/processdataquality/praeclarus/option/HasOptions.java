@@ -16,6 +16,8 @@
 
 package com.processdataquality.praeclarus.option;
 
+import java.util.UUID;
+
 /**
  * @author Michael Adams
  * @date 5/5/2022
@@ -27,5 +29,11 @@ public interface HasOptions {
      * have configurable parameters.
      */
     Options getOptions();
+
+
+    default String getId() { return UUID.randomUUID().toString(); }
+
+
+    String getName();
 
 }

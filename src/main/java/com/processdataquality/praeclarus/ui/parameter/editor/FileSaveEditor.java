@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.ui.parameter.editor;
 
 import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
 import com.processdataquality.praeclarus.writer.AbstractDataWriter;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;

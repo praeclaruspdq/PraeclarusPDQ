@@ -33,28 +33,30 @@ import tech.tablesaw.io.csv.CsvWriteOptions;
 public class CsvDataWriter extends AbstractDataWriter {
 
     public CsvDataWriter() {
-        initOptions();
+        super();
+        addDefaultOptions();
     }
 
 
-    private void initOptions() {
-        _options.addDefault("Header", true);
-        _options.addDefault("Separator", ',');
-        _options.addDefault("Quote", '\"');
+    private void addDefaultOptions() {
+        getOptions().addDefault("Header", true);
+        getOptions().addDefault("Separator", ',');
+        getOptions().addDefault("Quote", '\"');
     }
 
 
+    @Override
     protected CsvWriteOptions getWriteOptions() {
         CsvWriteOptions.Builder builder = CsvWriteOptions.builder(getDestination());
-        for (String key : _options.getChanges().keySet()) {
+        for (String key : getOptions().getChanges().keySet()) {
             if (key.equals("Header")) {
-                builder.header(_options.get("Header").asBoolean());
+                builder.header(getOptions().get("Header").asBoolean());
             }
             if (key.equals("Separator")) {
-                builder.separator(_options.get("Separator").asChar());
+                builder.separator(getOptions().get("Separator").asChar());
             }
             if (key.equals("Quote")) {
-                builder.quoteChar(_options.get("Quote").asChar());
+                builder.quoteChar(getOptions().get("Quote").asChar());
             }
         }
         return builder.build();

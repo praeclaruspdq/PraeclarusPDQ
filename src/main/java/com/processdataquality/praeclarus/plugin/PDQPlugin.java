@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.plugin;
 
+import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.option.HasOptions;
 
 /**
@@ -38,5 +39,11 @@ public interface PDQPlugin extends HasOptions {
      * plugin (i.e. the threshold of allowable outputs for this plugin)
      */
     int getMaxOutputs();
+
+
+    default String getName() {
+        Plugin metaData = getClass().getAnnotation(Plugin.class);
+        return metaData != null ? metaData.name() : getClass().getSimpleName();
+    }
 
 }

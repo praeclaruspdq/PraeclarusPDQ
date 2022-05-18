@@ -124,7 +124,7 @@ public class EventLogger {
 
 
     public static void optionChangeEvent(Node node, String user, Option option) {
-        optionChangeEvent(node.getInternalID(), node.getLabel(), user, option);
+        optionChangeEvent(node.getID(), node.getLabel(), user, option);
     }
 
 

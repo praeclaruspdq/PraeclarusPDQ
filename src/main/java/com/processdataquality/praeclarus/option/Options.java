@@ -18,14 +18,12 @@ package com.processdataquality.praeclarus.option;
 
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.logging.EventLogger;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -39,44 +37,22 @@ public class Options extends HashMap<String, Option> {         // key is Option'
     // track any changes made to option values for this plugin
     private final Map<String, Option> changes = new HashMap<>();
 
-    private String id;                                          // a unique identifier
-    private String label;                                       // a human readable name
     private OptionValueChangeListener listener;                 // will only be one
 
 
     public Options() {
-        this(UUID.randomUUID().toString(), "");
-    }
-
-    public Options(String id, String label) {
-        this.id = id;
-        this.label = label;
+        super();
     }
 
     public Options(Map<String, Object> defaults) {
         this();
-        init(defaults);
-    }
-
-    public Options(String id, String label, Map<String, Object> defaults) {
-        this(id, label);
-        init(defaults);
+        addDefaults(defaults);
     }
 
 
     public void setValueChangeListener(OptionValueChangeListener listener) {
         this.listener = listener;
     }
-
-
-    public String getID() { return id; }
-
-    public void setID(String id) { this.id = id; }
-
-
-    public String getLabel() { return label; }
-
-    public void setLabel(String label) { this.label = label; }
 
 
     public Option add(String key, Object o) {
@@ -118,7 +94,7 @@ public class Options extends HashMap<String, Option> {         // key is Option'
     }
 
 
-    public void init(Map<String, Object> map) {
+    public void addDefaults(Map<String, Object> map) {
          for (String key : map.keySet()) {
              addDefault(key, map.get(key));
          }
@@ -149,7 +125,6 @@ public class Options extends HashMap<String, Option> {         // key is Option'
          if (! (existing == null || existing.equals(option.value()))) {
              changes.put(option.key(), option);
              if (listener != null) listener.optionValueChanged(option);
-             EventLogger.optionChangeEvent(id, label, "user", option);
          }
      }
 

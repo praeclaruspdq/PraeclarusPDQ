@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import tech.tablesaw.api.StringColumn;
 
@@ -38,7 +37,11 @@ public class DistortedLabelLevenshtein extends AbstractImperfectLabel {
     private final LevenshteinDistance levenshtein =
             new LevenshteinDistance(getOptions().get("Threshold").asInt());
 
-    public DistortedLabelLevenshtein() { }
+
+    public DistortedLabelLevenshtein() {
+        super();
+        getOptions().addDefault("Threshold", 2);
+    }
 
 
     @Override
@@ -47,15 +50,6 @@ public class DistortedLabelLevenshtein extends AbstractImperfectLabel {
         if (distance > 0) { //    && distance <= levenshtein.getThreshold()) {
             addResult(column, s1, s2);
         }
-    }
-
-    @Override
-    public Options getOptions() {
-        Options options = super.getOptions();
-        if (!options.containsKey("Threshold")) {
-            options.addDefault("Threshold", 2);
-        }
-        return options;
     }
 
 }

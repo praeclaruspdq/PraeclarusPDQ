@@ -18,7 +18,7 @@ package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
 import com.processdataquality.praeclarus.option.FileOption;
-import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import org.apache.commons.io.input.ReaderInputStream;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.ReadOptions;
@@ -32,13 +32,25 @@ import java.nio.charset.StandardCharsets;
  * @author Michael Adams
  * @date 29/4/21
  */
-public abstract class AbstractDataReader implements DataReader {
+public abstract class AbstractDataReader extends AbstractPlugin implements DataReader {
 
-    protected Options _options;          // the options or properties for this reader
     protected Source _source;             // the data input source
+
+
+    protected AbstractDataReader() {
+        super();
+        addDefaultOptions();
+    }
+
 
     // each sub-class will have unique read options for data format etc.
     protected abstract ReadOptions getReadOptions() throws InvalidOptionValueException;
+
+
+    @Override
+    public int getMaxInputs() {
+        return 0;
+    }
 
 
     /**
@@ -49,29 +61,6 @@ public abstract class AbstractDataReader implements DataReader {
     @Override
     public Table read() throws IOException {
         return Table.read().usingOptions(getReadOptions());
-    }
-
-
-
-    @Override
-    public Options getOptions() {
-        if (_options == null) {
-            _options = new Options(new CommonReadOptions().toMap());
-            _options.addDefault(new FileOption("Source", ""));
-        }
-        return _options;
-    }
-
-
-    @Override
-    public int getMaxInputs() {
-        return 0;
-    }
-
-
-    @Override
-    public int getMaxOutputs() {
-        return 1;
     }
 
 
@@ -154,4 +143,11 @@ public abstract class AbstractDataReader implements DataReader {
         }
         setSource(source);
     }
+
+
+    private void addDefaultOptions() {
+        getOptions().addDefaults(new CommonReadOptions().toMap());
+        getOptions().addDefault(new FileOption("Source", ""));
+    }
+
 }

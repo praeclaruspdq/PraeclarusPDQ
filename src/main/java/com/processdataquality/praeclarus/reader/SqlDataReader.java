@@ -18,7 +18,7 @@ package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.Source;
 import tech.tablesaw.io.jdbc.SqlResultSetReader;
@@ -36,9 +36,12 @@ import java.sql.*;
         version = "1.0",
         synopsis = "Loads a log stored as a table in a database."
 )
-public class SqlDataReader implements DataReader {
+public class SqlDataReader extends AbstractPlugin implements DataReader {
 
-    private Options _options = initOptions();
+    public SqlDataReader() {
+        super();
+        addDefaultOptions();
+    }
 
     @Override
     public Table read() throws IOException {
@@ -50,21 +53,6 @@ public class SqlDataReader implements DataReader {
         }
     }
 
-    @Override
-    public Options getOptions() {
-        return _options;
-    }
-
-    
-    @Override
-    public int getMaxInputs() {
-        return 0;
-    }
-
-    @Override
-    public int getMaxOutputs() {
-        return 1;
-    }
 
     @Override
     public void setSource(Source source) { }      // unused
@@ -74,14 +62,12 @@ public class SqlDataReader implements DataReader {
         return null;
     }
 
-    private Options initOptions() {
-        Options options = new Options();
-        options.addDefault("DB Type", "MySQL");
-        options.addDefault("DB URL", "jdbc:mysql://localhost/DB");
-        options.addDefault("User Name", "");
-        options.addDefault("Password", "");
-        options.addDefault("Table Name", "tablename");
-        return options;
+    private void addDefaultOptions() {
+        getOptions().addDefault("DB Type", "MySQL");
+        getOptions().addDefault("DB URL", "jdbc:mysql://localhost/DB");
+        getOptions().addDefault("User Name", "");
+        getOptions().addDefault("Password", "");
+        getOptions().addDefault("Table Name", "tablename");
     }
 
 
@@ -89,11 +75,11 @@ public class SqlDataReader implements DataReader {
         Connection connection = null;
         Statement statement = null;
         try {
-            Class.forName(getDriver(_options.get("DB Type")));
-            String url = _options.get("DB URL").asString();
-            String user = _options.get("User Name").asString();
-            String pass = _options.get("Password").asString();
-            String tableName = _options.get("Table Name").asString();
+            Class.forName(getDriver(getOptions().get("DB Type")));
+            String url = getOptions().get("DB URL").asString();
+            String user = getOptions().get("User Name").asString();
+            String pass = getOptions().get("Password").asString();
+            String tableName = getOptions().get("Table Name").asString();
             connection = DriverManager.getConnection(url, user, pass);
             statement = connection.createStatement();
             return statement.executeQuery("SELECT * FROM " + tableName);

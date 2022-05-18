@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.option.FileOption;
-import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.lang3.StringUtils;
 import org.deckfour.xes.in.XesXmlParser;
 import org.deckfour.xes.model.*;
@@ -52,20 +51,21 @@ public class XesDataReader extends AbstractDataReader {
     private boolean _includeData = false;
 
 
+    public XesDataReader() {
+        super();
+        addDefaultOptions();
+    }
+
+
     @Override
     public Table read() throws IOException {
         return createTable(parseInput());
     }
 
-    @Override
-    public Options getOptions() {
-        if (_options == null) {
-            _options = new Options();
-            _options.addDefault("Globals Only", false);
-            _options.addDefault("Include Data", true);
-            _options.addDefault(new FileOption("Source", ""));
-        }
-        return _options;
+    public void addDefaultOptions() {
+        getOptions().addDefault("Globals Only", false);
+        getOptions().addDefault("Include Data", true);
+        getOptions().addDefault(new FileOption("Source", ""));
     }
 
     @Override

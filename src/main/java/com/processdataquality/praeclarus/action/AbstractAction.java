@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.action;
 
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import tech.tablesaw.api.Table;
 
 import java.util.List;
@@ -26,7 +26,11 @@ import java.util.List;
  * @author Michael Adams
  * @date 21/5/21
  */
-public interface Action extends PDQPlugin {
+public abstract class AbstractAction extends AbstractPlugin {
 
-    Table run(List<Table> inputSet) throws InvalidOptionValueException;
+    protected AbstractAction() {
+        super();
+    }
+
+    public abstract Table run(List<Table> inputSet) throws InvalidOptionValueException;
 }

@@ -31,33 +31,24 @@ import com.processdataquality.praeclarus.option.Options;
 @Pattern(group = PatternGroup.POLLUTED_LABEL)
 
 public class PollutedLabelContextual extends AbstractImperfectLabelContextual {
-	
-	@Override
-	public Options getOptions() {
+
+
+	public PollutedLabelContextual() {
+		super();
+		addDefaultOptions();
+	}
+
+
+	private void addDefaultOptions() {
 		Options options = super.getOptions();
 
 		// TODO define limit for each option
-
-		if (!options.containsKey("String Similarity Threshold")) {
-			options.addDefault("String Similarity Threshold", 0.7);
-		}
-		if (!options.containsKey("Control Flow Similarity Weight")) {
-			options.addDefault("Control Flow Similarity Weight", 1);
-		}
-		if (!options.containsKey("Resource Similarity Weight")) {
-			options.addDefault("Resource Similarity Weight", 1);
-		}
-		if (!options.containsKey("Data Similarity Weight")) {
-			options.addDefault("Data Similarity Weight", 1);
-		}
-		if (!options.containsKey("Time Similarity Weight")) {
-			options.addDefault("Time Similarity Weight", 1);
-		}
-		if (!options.containsKey("Duration Similarity Weight")) {
-			options.addDefault("Duration Similarity Weight", 1);
-		}
-
-		return options;
+		options.addDefault("String Similarity Threshold", 0.7);
+		options.addDefault("Control Flow Similarity Weight", 1);
+		options.addDefault("Resource Similarity Weight", 1);
+		options.addDefault("Data Similarity Weight", 1);
+		options.addDefault("Time Similarity Weight", 1);
+		options.addDefault("Duration Similarity Weight", 1);
 	}
 
 

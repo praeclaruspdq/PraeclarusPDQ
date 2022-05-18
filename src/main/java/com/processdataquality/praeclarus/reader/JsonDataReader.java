@@ -31,15 +31,19 @@ import tech.tablesaw.io.json.JsonReadOptions;
         synopsis = "Loads a log file formatted as JSON."
 )
 public class JsonDataReader extends AbstractDataReader {
+
+    public JsonDataReader() {
+        super();
+    }
     protected JsonReadOptions getReadOptions() throws InvalidOptionValueException {
         return JsonReadOptions.builder(getSource())
-                .missingValueIndicator(_options.get("Missing Value").asString())
+                .missingValueIndicator(getOptions().get("Missing Value").asString())
 //                .dateFormat(DateTimeFormatter.ofPattern((String) _options.get("Date Format")))
 //                .timeFormat(DateTimeFormatter.ofPattern((String) _options.get("Time Format")))
 //                .dateTimeFormat(DateTimeFormatter.ofPattern((String) _options.get("DateTime Format")))
-                .header(_options.get("Header").asBoolean())
-                .tableName(_options.get("Table Name").asString())
-                .sample(_options.get("Sample").asInt() > 0)
+                .header(getOptions().get("Header").asBoolean())
+                .tableName(getOptions().get("Table Name").asString())
+                .sample(getOptions().get("Sample").asInt() > 0)
                 .build();
     }
 

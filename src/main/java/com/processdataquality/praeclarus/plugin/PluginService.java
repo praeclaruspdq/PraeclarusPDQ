@@ -16,10 +16,10 @@
 
 package com.processdataquality.praeclarus.plugin;
 
-import com.processdataquality.praeclarus.action.Action;
-import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
-import com.processdataquality.praeclarus.reader.DataReader;
-import com.processdataquality.praeclarus.writer.DataWriter;
+import com.processdataquality.praeclarus.action.AbstractAction;
+import com.processdataquality.praeclarus.pattern.AbstractDataPattern;
+import com.processdataquality.praeclarus.reader.AbstractDataReader;
+import com.processdataquality.praeclarus.writer.AbstractDataWriter;
 
 /**
  * @author Michael Adams
@@ -27,33 +27,36 @@ import com.processdataquality.praeclarus.writer.DataWriter;
  */
 public class PluginService {
 
-    private static final PluginFactory<DataReader> READER_FACTORY = new PluginFactory<>(DataReader.class);
-    private static final PluginFactory<DataWriter> WRITER_FACTORY = new PluginFactory<>(DataWriter.class);
-    private static final PluginFactory<ImperfectionPattern> PATTERN_FACTORY
-            = new PluginFactory<>(ImperfectionPattern.class);
-    private static final PluginFactory<Action> ACTION_FACTORY = new PluginFactory<>(Action.class);
+    private static final PluginFactory<AbstractDataReader> READER_FACTORY =
+            new PluginFactory<>(AbstractDataReader.class);
+    private static final PluginFactory<AbstractDataWriter> WRITER_FACTORY =
+            new PluginFactory<>(AbstractDataWriter.class);
+    private static final PluginFactory<AbstractDataPattern> PATTERN_FACTORY =
+            new PluginFactory<>(AbstractDataPattern.class);
+    private static final PluginFactory<AbstractAction> ACTION_FACTORY =
+            new PluginFactory<>(AbstractAction.class);
 
 
-    public static PluginFactory<DataReader> readers() { return READER_FACTORY; }
+    public static PluginFactory<AbstractDataReader> readers() { return READER_FACTORY; }
 
-    public static PluginFactory<DataWriter> writers() { return WRITER_FACTORY; }
+    public static PluginFactory<AbstractDataWriter> writers() { return WRITER_FACTORY; }
 
-    public static PluginFactory<ImperfectionPattern> patterns() { return PATTERN_FACTORY; }
+    public static PluginFactory<AbstractDataPattern> patterns() { return PATTERN_FACTORY; }
 
-    public static PluginFactory<Action> actions() { return ACTION_FACTORY; }
+    public static PluginFactory<AbstractAction> actions() { return ACTION_FACTORY; }
 
     
     public static PluginFactory<? extends PDQPlugin> factory(Class<? extends PDQPlugin> clazz) {
-        if (clazz.equals(DataReader.class)) {
+        if (clazz.equals(AbstractDataReader.class)) {
             return READER_FACTORY;
         }
-        if (clazz.equals(DataWriter.class)) {
+        if (clazz.equals(AbstractDataWriter.class)) {
             return WRITER_FACTORY;
         }
-        if (clazz.equals(ImperfectionPattern.class)) {
+        if (clazz.equals(AbstractDataPattern.class)) {
             return PATTERN_FACTORY;
         }
-        if (clazz.equals(Action.class)) {
+        if (clazz.equals(AbstractAction.class)) {
             return ACTION_FACTORY;
         }
         return null;

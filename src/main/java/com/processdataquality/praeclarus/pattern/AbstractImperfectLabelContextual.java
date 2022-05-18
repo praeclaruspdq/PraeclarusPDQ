@@ -40,24 +40,14 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 
 	protected AbstractImperfectLabelContextual() {
 		super();
+		addDefaultOptions();
 	}
 
-	@Override
-	public Options getOptions() {
+	private void addDefaultOptions() {
 		Options options = super.getOptions();
-
-		// TODO define limit for each option
-		if (!options.containsKey("Sort Column")) {
-			options.addDefault(new ColumnNameListOption("Sort Column"));
-		}
-		if (!options.containsKey("Direct Control Flow Noise Threshold")) {
-			options.addDefault("Direct Control Flow Noise Threshold", 0.05);
-		}
-		if (!options.containsKey("Overall Context Similarity Threshold")) {
-			options.addDefault("Overall Context Similarity Threshold", 0.6);
-		}
-
-		return options;
+		options.addDefault(new ColumnNameListOption("Sort Column"));
+		options.addDefault("Direct Control Flow Noise Threshold", 0.05);
+		options.addDefault("Overall Context Similarity Threshold", 0.6);
 	}
 
 	

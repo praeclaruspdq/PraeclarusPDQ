@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.repo.Repo;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -38,9 +38,7 @@ import java.util.Set;
  * @date 12/5/21
  */
 public abstract class Node {
-
-    private String _internalID;   // a unique id for this node
-
+    
     private String _commitID;           // the commit version of the table in the repo
     private String _tableID;            // the file name of the table in the repo
     private String _label;
@@ -48,7 +46,7 @@ public abstract class Node {
     private Set<Node> _next;      // set of immediate target nodes for this node
     private Set<Node> _previous;  // set of immediate source nodes for this node
 
-    private PDQPlugin _plugin;
+    private AbstractPlugin _plugin;
     private Set<NodeStateListener> _listeners;
     private NodeState _state;
     private Table _output;    // a table with the result of running this plugin
@@ -57,9 +55,8 @@ public abstract class Node {
 
     protected Node() { }
 
-    protected Node(PDQPlugin plugin, String id) {
+    protected Node(AbstractPlugin plugin) {
         _plugin = plugin;
-        _internalID = id;
         _next = new HashSet<>();
         _previous = new HashSet<>();
         _listeners = new HashSet<>();
@@ -223,10 +220,10 @@ public abstract class Node {
     /**
      * @return the plugin contained within this node
      */
-    public PDQPlugin getPlugin() { return _plugin; }
+    public AbstractPlugin getPlugin() { return _plugin; }
 
 
-    public String getInternalID() { return _internalID; }
+    public String getID() { return _plugin.getId(); }
 
     public String getCommitID() { return _commitID; }
 
@@ -247,7 +244,7 @@ public abstract class Node {
 
     public void setLabel(String label) {
         _label = label;
-        _plugin.getOptions().setLabel(label);
+        _plugin.setLabel(label);
     }
 
 
@@ -349,14 +346,14 @@ public abstract class Node {
 
 
     private String getCommitMessage() {
-        return "Node: " + getInternalID() + "; Plugin: " + getLabel() +
+        return "Node: " + getID() + "; Plugin: " + getLabel() +
                 "; Plugin Class: " + getPlugin().getClass().getName();
     }
 
 
     public JSONObject asJson() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("id", _internalID);
+        json.put("id", getID());
         json.put("label", _label);
         if (_commitID != null) json.put("commitID", _commitID);
         if (_tableID != null) json.put("tableID", _tableID);

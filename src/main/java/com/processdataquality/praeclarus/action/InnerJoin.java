@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.action;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.Options;
 import tech.tablesaw.api.Table;
 
 import java.util.List;
@@ -33,11 +32,12 @@ import java.util.List;
         version = "1.0",
         synopsis = "Performs an inner join on a set of tables."
 )
-public class InnerJoin implements Action {
+public class InnerJoin extends AbstractAction {
 
-    private final Options options = new Options();
-
-    public InnerJoin() { }
+    public InnerJoin() {
+        super();
+        getOptions().addDefault("Columns", "");
+    }
 
     @Override
     public Table run(List<Table> inputList) throws InvalidOptionValueException {
@@ -52,20 +52,8 @@ public class InnerJoin implements Action {
 
 
     @Override
-    public Options getOptions() {
-        if (options.isEmpty()) {
-            options.addDefault("Columns", "");
-        }
-        return options;
-    }
-
-
-    @Override
     public int getMaxInputs() {
         return 2;
     }
 
-    @Override
-    public int getMaxOutputs() {
-        return 1;
-    }}
+}

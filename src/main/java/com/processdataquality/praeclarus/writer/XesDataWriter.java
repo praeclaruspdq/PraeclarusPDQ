@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
-import com.processdataquality.praeclarus.option.Options;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
@@ -67,6 +66,11 @@ import java.util.Map;
 )
 public class XesDataWriter extends AbstractDataWriter {
 
+    public XesDataWriter() {
+        super();
+        addDefaultOptions();
+    }
+
     @Override
     public void write(Table table) throws IOException {
         XLog log = createXLog(table);
@@ -74,17 +78,16 @@ public class XesDataWriter extends AbstractDataWriter {
     }
 
 
-    @Override
-    public Options getOptions() {
-        _options.addDefault("Case ID column", "case:id");
-        _options.addDefault("Name column", "concept:name");
-        _options.addDefault("Time column", "time:timestamp");
-        _options.addDefault("Lifecycle column", "lifecycle:transition");
-        _options.addDefault("Instance column", "concept:instance");
-        _options.addDefault("Resource column", "org:resource");
-        _options.addDefault("Data column", "data");
-        return _options;
+    public void addDefaultOptions() {
+        getOptions().addDefault("Case ID column", "case:id");
+        getOptions().addDefault("Name column", "concept:name");
+        getOptions().addDefault("Time column", "time:timestamp");
+        getOptions().addDefault("Lifecycle column", "lifecycle:transition");
+        getOptions().addDefault("Instance column", "concept:instance");
+        getOptions().addDefault("Resource column", "org:resource");
+        getOptions().addDefault("Data column", "data");
     }
+
 
     @Override
     protected WriteOptions getWriteOptions() throws IOException {

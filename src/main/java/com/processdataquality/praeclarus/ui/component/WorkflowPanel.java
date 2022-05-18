@@ -22,13 +22,16 @@ import com.processdataquality.praeclarus.node.*;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.pattern.ImperfectionPattern;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.pattern.AbstractDataPattern;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.plugin.PluginService;
 import com.processdataquality.praeclarus.plugin.uitemplate.ButtonAction;
 import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 import com.processdataquality.praeclarus.ui.MainView;
-import com.processdataquality.praeclarus.ui.canvas.*;
+import com.processdataquality.praeclarus.ui.canvas.Canvas;
+import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
+import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
+import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.ui.component.announce.Announcement;
 import com.processdataquality.praeclarus.ui.component.announce.ErrorMsg;
 import com.processdataquality.praeclarus.ui.component.dialog.MessageDialog;
@@ -120,7 +123,7 @@ public class WorkflowPanel extends VerticalLayout
 
         // pattern detected but not yet repaired
         if (node instanceof PatternNode && ! node.hasCompleted()) {
-            PluginUI ui = ((ImperfectionPattern) node.getPlugin()).getUI();
+            PluginUI ui = ((AbstractDataPattern) node.getPlugin()).getUI();
             if (ui != null) {
                 new PluginUIDialog(ui, node, this).open();
             }
@@ -190,7 +193,7 @@ public class WorkflowPanel extends VerticalLayout
 
 
     public void showPluginProperties(Node selected) {
-        PDQPlugin plugin = selected != null ? selected.getPlugin() : null;
+        AbstractPlugin plugin = selected != null ? selected.getPlugin() : null;
         if (plugin != null) {
             addColumnListIfRequired(selected, plugin.getOptions());
             _parent.getPropertiesPanel().set(plugin);
@@ -203,7 +206,7 @@ public class WorkflowPanel extends VerticalLayout
 
     private Node addPluginInstance(TreeItem item) {
         String pTypeName = item.getRoot().getLabel();
-        PDQPlugin instance = null;
+        AbstractPlugin instance = null;
         if (pTypeName.equals("Readers")) {
             instance = PluginService.readers().newInstance(item.getName());
         }

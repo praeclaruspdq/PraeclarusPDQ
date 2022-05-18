@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.node;
 
-import com.processdataquality.praeclarus.action.Action;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.action.AbstractAction;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 
 /**
  * A container node for a generic action to be performed on data inputs
@@ -27,19 +27,19 @@ import com.processdataquality.praeclarus.plugin.PDQPlugin;
  */
 public class ActionNode extends Node {
 
-    public ActionNode(PDQPlugin plugin, String id) {
-        super(plugin, id);
+    public ActionNode(AbstractPlugin plugin) {
+        super(plugin);
     }
 
 
     /**
-     * Runs a plugin's Action algorithm using this node's input tables and write the
+     * Runs a plugin's AbstractAction algorithm using this node's input tables and write the
      * result to the output table
      */
     @Override
     public void run() throws Exception {
         setState(NodeState.EXECUTING);
-        setOutput(((Action) getPlugin()).run(getInputs()));
+        setOutput(((AbstractAction) getPlugin()).run(getInputs()));
         setState(NodeState.COMPLETED);
     }
 }

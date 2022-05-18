@@ -32,32 +32,22 @@ import com.processdataquality.praeclarus.option.Options;
 
 public class SynonymousLabelContextual extends AbstractImperfectLabelContextual {
 
-	@Override
-	public Options getOptions() {
+	public SynonymousLabelContextual() {
+		super();
+		addDefaultOptions();
+	}
+
+
+	private void addDefaultOptions() {
 		Options options = super.getOptions();
 
 		// TODO define limit for each option
-
-		if (!options.containsKey("String Similarity Threshold")) {
-			options.addDefault("String Similarity Threshold", 0.5);
-		}
-		if (!options.containsKey("Control Flow Similarity Weight")) {
-			options.addDefault("Control Flow Similarity Weight", 1);
-		}
-		if (!options.containsKey("Resource Similarity Weight")) {
-			options.addDefault("Resource Similarity Weight", 1);
-		}
-		if (!options.containsKey("Data Similarity Weight")) {
-			options.addDefault("Data Similarity Weight", 1);
-		}
-		if (!options.containsKey("Time Similarity Weight")) {
-			options.addDefault("Time Similarity Weight", 1);
-		}
-		if (!options.containsKey("Duration Similarity Weight")) {
-			options.addDefault("Duration Similarity Weight", 1);
-		}
-
-		return options;
+		options.addDefault("String Similarity Threshold", 0.5);
+		options.addDefault("Control Flow Similarity Weight", 1);
+		options.addDefault("Resource Similarity Weight", 1);
+		options.addDefault("Data Similarity Weight", 1);
+		options.addDefault("Time Similarity Weight", 1);
+		options.addDefault("Duration Similarity Weight", 1);
 	}
 
 	

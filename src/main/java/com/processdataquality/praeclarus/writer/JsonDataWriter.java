@@ -35,20 +35,17 @@ import java.io.IOException;
 public class JsonDataWriter extends AbstractDataWriter {
 
     public JsonDataWriter() {
-        initOptions();
-    }
-
-    public void initOptions() {
-        _options.addDefault("Header", true);
+        super();
+        getOptions().addDefault("Header", true);
     }
 
 
     @Override
     protected WriteOptions getWriteOptions() throws IOException {
         JsonWriteOptions.Builder builder = JsonWriteOptions.builder(getDestination());
-        for (String key : _options.getChanges().keySet()) {
+        for (String key : getOptions().getChanges().keySet()) {
             if (key.equals("Header")) {
-                builder.header(_options.get("Header").asBoolean());
+                builder.header(getOptions().get("Header").asBoolean());
             }
         }
         return builder.build();

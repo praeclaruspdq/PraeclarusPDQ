@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.node;
 
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.writer.DataWriter;
 import tech.tablesaw.api.Table;
 
@@ -28,8 +28,8 @@ import tech.tablesaw.api.Table;
  */
 public class WriterNode extends Node {
 
-    public WriterNode(PDQPlugin plugin, String id) {
-        super(plugin, id);
+    public WriterNode(AbstractPlugin plugin) {
+        super(plugin);
     }
 
 

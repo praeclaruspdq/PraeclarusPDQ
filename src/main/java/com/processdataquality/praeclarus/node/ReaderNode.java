@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.exception.ReaderException;
-import com.processdataquality.praeclarus.plugin.PDQPlugin;
+import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.reader.DataReader;
 import tech.tablesaw.api.Table;
 
@@ -31,8 +31,8 @@ import java.util.UUID;
  */
 public class ReaderNode extends Node {
 
-    public ReaderNode(PDQPlugin plugin, String id) {
-        super(plugin, id);
+    public ReaderNode(AbstractPlugin plugin) {
+        super(plugin);
     }
 
 
