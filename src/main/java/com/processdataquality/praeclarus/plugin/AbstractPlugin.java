@@ -59,8 +59,8 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
     public void setLabel(String label) { this.label = label; }
 
 
-    public String getId() { return id; }
+    public String getID() { return id; }
 
-    public void setId(String id) { this.id = id; }
+    public void setID(String id) { this.id = id; }
     
 }

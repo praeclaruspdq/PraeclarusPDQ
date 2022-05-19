@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.node;
+package com.processdataquality.praeclarus.graph;
 
 /**
  * Notifies listeners of changes of state during a node's execution
@@ -22,9 +22,8 @@ package com.processdataquality.praeclarus.node;
  * @author Michael Adams
  * @date 9/6/21
  */
-public interface NodeRunnerListener {
+public interface GraphRunnerEventListener {
 
-    void runnerStateChanged(NodeRunner.RunnerState newState);
-
-    void runnerNodePaused(Node node);
+    void runnerEvent(GraphRunnerEvent event);
+    
 }

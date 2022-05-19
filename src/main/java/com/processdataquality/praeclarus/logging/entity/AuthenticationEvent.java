@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.logging.entity;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.logging.EventType;
 
 import javax.persistence.Entity;
 
@@ -32,11 +32,11 @@ public class AuthenticationEvent extends AbstractLogEvent {
 
     protected AuthenticationEvent() { }
 
-    public AuthenticationEvent(String user, LogConstant label) {
+    public AuthenticationEvent(String user, EventType label) {
         this(user, label, null);
     }
 
-    public AuthenticationEvent(String user, LogConstant label, String reason) {
+    public AuthenticationEvent(String user, EventType label, String reason) {
         super(user, label);
         setReason(reason);
     }

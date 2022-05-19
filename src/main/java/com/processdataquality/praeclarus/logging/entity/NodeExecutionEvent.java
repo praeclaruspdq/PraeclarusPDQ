@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.logging.entity;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
-import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.logging.EventType;
+import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
@@ -27,19 +27,20 @@ import javax.persistence.Entity;
  * @date 30/11/21
  */
 @Entity
-public class NodeRunEvent extends NodeEvent {
+public class NodeExecutionEvent extends NodeEvent {
 
     private String tableId;
     private String commitId;
-    private String outcome;
+    private String note;
 
-    protected NodeRunEvent() { }
+    protected NodeExecutionEvent() { }
 
-    public NodeRunEvent(Graph graph, String user, Node node, String outcome) {
-        super(graph, node, LogConstant.NODE_RUN, user);
+    public NodeExecutionEvent(Graph graph, Node node, EventType eventType,
+                              String user, String note) {
+        super(graph, node, eventType, user);
         setTableId(node.getTableID());
         setCommitId(node.getCommitID());
-        setOutcome(outcome);
+        setNote(note);
     }
 
 
@@ -53,14 +54,14 @@ public class NodeRunEvent extends NodeEvent {
     public void setCommitId(String commitId) { this.commitId = commitId; }
 
 
-    public String getOutcome() { return outcome; }
+    public String getNote() { return note; }
 
-    public void setOutcome(String outcome) { this.outcome = outcome; }
+    public void setNote(String outcome) { this.note = outcome; }
 
 
     @Override
     public String toString() {
-        return super.toString() + "; Result: " + outcome;
+        return super.toString() + "; Result: " + note;
     }
     
 }

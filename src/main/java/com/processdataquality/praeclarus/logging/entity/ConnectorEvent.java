@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.logging.entity;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
-import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.logging.EventType;
+import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.node.Node;
 
 import javax.persistence.Entity;
@@ -36,7 +36,7 @@ public class ConnectorEvent extends AbstractGraphEvent {
 
     protected ConnectorEvent() { }
 
-    public ConnectorEvent(Graph graph, String user, LogConstant label, Node source, Node target) {
+    public ConnectorEvent(Graph graph, String user, EventType label, Node source, Node target) {
         super(graph, user, label);
         setGraphID(graph.getId());
         setGraphName(graph.getName());

@@ -14,19 +14,13 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging.repository;
-
-import com.processdataquality.praeclarus.logging.entity.OptionChangeEvent;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+package com.processdataquality.praeclarus.node;
 
 /**
  * @author Michael Adams
- * @date 1/12/21
+ * @date 22/11/21
  */
-@Repository
-public interface NodeChangeEventRepository
-        extends CrudRepository<OptionChangeEvent, Long> {
+public interface NodeStateChangeListener {
 
+    void nodeStateChanged(Node node) throws Exception;
 }
-

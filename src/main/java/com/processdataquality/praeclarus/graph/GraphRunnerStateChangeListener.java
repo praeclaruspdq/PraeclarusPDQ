@@ -14,27 +14,16 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.repo.graph;
-
-import com.processdataquality.praeclarus.graph.Graph;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
+package com.processdataquality.praeclarus.graph;
 
 /**
+ * Notifies listeners of changes of state during a node's execution
+ *
  * @author Michael Adams
- * @date 1/12/21
+ * @date 9/6/21
  */
-@Repository
-public interface GraphRepository extends CrudRepository<Graph, String> {
+public interface GraphRunnerStateChangeListener {
 
-    List<Graph> findByOwner(String owner);
-
-    List<Graph> findBySharedTrue();
-
-    List<Graph> findByOwnerAndSharedFalse(String owner);
-
+    void runnerStateChanged(GraphRunner.RunnerState newState);
 
 }
-

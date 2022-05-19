@@ -23,7 +23,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextArea;
 
-import static com.processdataquality.praeclarus.logging.LogConstant.CONNECTOR_ADDED;
+import static com.processdataquality.praeclarus.logging.EventType.CONNECTOR_ADDED;
 
 /**
  * @author Michael Adams
@@ -57,6 +57,9 @@ public class EventsPanel extends Div implements LogEventListener {
         if (event instanceof ConnectorEvent) {
             line += formatConnectorEvent((ConnectorEvent) event);
         }
+        else if (event instanceof NodeExecutionEvent) {
+            line += formatNodeExecutionEvent((NodeExecutionEvent) event);
+        }
         else if (event instanceof NodeEvent) {
             line += formatNodeEvent((NodeEvent) event);
         }
@@ -73,9 +76,8 @@ public class EventsPanel extends Div implements LogEventListener {
 
     private String formatConnectorEvent(ConnectorEvent event) {
         String joiner = event.getCategory() == CONNECTOR_ADDED ? "-->" :  "-X-";
-        return String.format("%s %s %s [%s, %s]",
-                event.getSourceLabel(), joiner, event.getTargetLabel(),
-                event.getGraphName(), event.getGraphID());
+        return String.format("%s %s %s %s",  event.getSourceLabel(), joiner,
+                event.getTargetLabel(), formatGraphEvent(event));
     }
 
 
@@ -86,20 +88,19 @@ public class EventsPanel extends Div implements LogEventListener {
     }
 
 
-    private String formatNodeEvent(NodeEvent event) {
-        return String.format("%s [%s], [%s, %s]",
-                event.getNodeName(), event.getNodeId(),
-                event.getGraphName(), event.getGraphID());
+    private String formatNodeExecutionEvent(NodeExecutionEvent event) {
+        return formatNodeEvent(event);
     }
 
 
-    private String formatGraphCreatedEvent(GraphCreatedEvent event) {
-        return formatGraphEvent(event);
+    private String formatNodeEvent(NodeEvent event) {
+        return String.format("%s [%s], %s",
+                event.getNodeName(), event.getNodeId(), formatGraphEvent(event));
     }
 
 
     private String formatGraphEvent(AbstractGraphEvent event) {
-        return String.format("%s, [%s]", event.getGraphName(), event.getGraphID());
+        return String.format(" [%s, %s]", event.getGraphName(), event.getGraphID());
     }
     
 }

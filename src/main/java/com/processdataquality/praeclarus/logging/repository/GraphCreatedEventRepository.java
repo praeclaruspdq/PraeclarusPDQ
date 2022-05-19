@@ -14,13 +14,19 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.node;
+package com.processdataquality.praeclarus.logging.repository;
+
+import com.processdataquality.praeclarus.logging.entity.GraphCreatedEvent;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author Michael Adams
- * @date 22/11/21
+ * @date 1/12/21
  */
-public interface NodeStateListener {
+@Repository
+public interface GraphCreatedEventRepository
+        extends CrudRepository<GraphCreatedEvent, Long> {
 
-    void nodeStateChanged(Node node) throws Exception;
 }
+

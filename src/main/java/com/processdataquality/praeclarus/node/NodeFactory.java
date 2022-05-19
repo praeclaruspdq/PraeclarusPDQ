@@ -40,7 +40,7 @@ public class NodeFactory {
 
     // called when restoring a node in a saved workflow
     public static Node create(AbstractPlugin plugin, String id) {
-        plugin.setId(id);
+        plugin.setID(id);
         Node node = null;
         if (plugin instanceof DataReader) {
             node = new ReaderNode(plugin);

@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.logging.entity;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
-import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.logging.EventType;
+import com.processdataquality.praeclarus.graph.Graph;
 
 import javax.persistence.Entity;
 
@@ -31,11 +31,11 @@ public class GraphIOEvent extends AbstractGraphEvent {
 
     protected GraphIOEvent() { }
     
-    public GraphIOEvent(Graph graph, String user, LogConstant label) {
+    public GraphIOEvent(Graph graph, String user, EventType label) {
         super(graph, user, label);
     }
 
-    public GraphIOEvent(String id, String name, String user, LogConstant label) {
+    public GraphIOEvent(String id, String name, String user, EventType label) {
         super(id, name, user, label);
     }
 

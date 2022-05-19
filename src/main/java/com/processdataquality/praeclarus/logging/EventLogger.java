@@ -18,7 +18,7 @@ package com.processdataquality.praeclarus.logging;
 
 import com.processdataquality.praeclarus.logging.entity.*;
 import com.processdataquality.praeclarus.logging.repository.*;
-import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.option.Option;
 import org.springframework.data.repository.CrudRepository;
@@ -39,35 +39,39 @@ public class EventLogger {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     private static final Set<LogEventListener> listeners = new HashSet<>();
+    private static boolean capturing = true;
 
     private static AuthenticationEventRepository authenticationEventRepository;
     private static ConnectorEventRepository connectorEventRepository;
-    private static NodeChangeEventRepository nodeChangeEventRepository;
+    private static OptionChangeEventRepository optionChangeEventRepository;
     private static NodeEventRepository nodeEventRepository;
-    private static NodeRollbackEventRepository nodeRollbackEventRepository;
-    private static NodeRunEventRepository nodeRunEventRepository;
-    private static WorkflowCreationEventRepository workflowCreationEventRepository;
-    private static WorkflowIOEventRepository workflowIOEventRepository;
+    private static NodeExecutionEventRepository nodeExecutionEventRepository;
+    private static GraphCreatedEventRepository graphCreatedEventRepository;
+    private static GraphIOEventRepository graphIOEventRepository;
 
     
     // Inject repositories
     public EventLogger(AuthenticationEventRepository authRepo,
                        ConnectorEventRepository connRepo,
-                       NodeChangeEventRepository ncRepo,
+                       OptionChangeEventRepository ncRepo,
                        NodeEventRepository nRepo,
-                       NodeRollbackEventRepository nrbRepo,
-                       NodeRunEventRepository nrRepo,
-                       WorkflowCreationEventRepository wcRepo,
-                       WorkflowIOEventRepository wioRepo) {
+                       NodeExecutionEventRepository nrRepo,
+                       GraphCreatedEventRepository wcRepo,
+                       GraphIOEventRepository wioRepo) {
         authenticationEventRepository = authRepo;
         connectorEventRepository = connRepo;
-        nodeChangeEventRepository = ncRepo;
+        optionChangeEventRepository = ncRepo;
         nodeEventRepository = nRepo;
-        nodeRollbackEventRepository = nrbRepo;
-        nodeRunEventRepository = nrRepo;
-        workflowCreationEventRepository = wcRepo;
-        workflowIOEventRepository = wioRepo;
+        nodeExecutionEventRepository = nrRepo;
+        graphCreatedEventRepository = wcRepo;
+        graphIOEventRepository = wioRepo;
     }
+
+
+    // event capture and announcing can be turned off temporarily while graph loading etc.
+    public static void ignoreEvents() { capturing = false; }
+
+    public static void captureEvents() { capturing = true; }
 
 
     public static void addEventListener(LogEventListener lel) {
@@ -81,37 +85,37 @@ public class EventLogger {
 
 
     public static void logonSuccessEvent(String user) {
-        authenticationEvent(user, LogConstant.LOGON_SUCCESS, null);
+        authenticationEvent(user, EventType.LOGON_SUCCESS, null);
     }
 
 
     public static void logonFailEvent(String user, String reason) {
-        authenticationEvent(user, LogConstant.LOGON_FAIL, reason);
+        authenticationEvent(user, EventType.LOGON_FAIL, reason);
     }
 
 
     public static void logOffEvent(String user) {
-        authenticationEvent(user, LogConstant.LOGOFF, null);
+        authenticationEvent(user, EventType.LOGOFF, null);
     }
 
     
-    public static void authenticationEvent(String user, LogConstant constant, String reason) {
+    public static void authenticationEvent(String user, EventType constant, String reason) {
         AuthenticationEvent event = new AuthenticationEvent(user, constant, reason);
         save(authenticationEventRepository, event);
     }
 
 
     public static void addConnectorEvent(Graph graph, String user, Node source, Node target) {
-        connectorEvent(graph, user, LogConstant.CONNECTOR_ADDED, source, target);
+        connectorEvent(graph, user, EventType.CONNECTOR_ADDED, source, target);
     }
 
 
     public static void removeConnectorEvent(Graph graph, String user, Node source, Node target) {
-        connectorEvent(graph, user, LogConstant.CONNECTOR_REMOVED, source, target);
+        connectorEvent(graph, user, EventType.CONNECTOR_REMOVED, source, target);
     }
 
 
-    public static void connectorEvent(Graph graph, String user, LogConstant constant,
+    public static void connectorEvent(Graph graph, String user, EventType constant,
                                       Node source, Node target) {
         ConnectorEvent event = new ConnectorEvent(graph, user, constant, source, target);
         save(connectorEventRepository, event);
@@ -132,79 +136,91 @@ public class EventLogger {
                                          Option option) {
         OptionChangeEvent event = new OptionChangeEvent(compId, compName, user,
                 option);
-        save(nodeChangeEventRepository, event);
+        save(optionChangeEventRepository, event);
     }
 
 
     public static void nodeAddedEvent(Graph graph, Node node, String user) {
-        nodeEvent(graph, node, LogConstant.NODE_ADDED, user);
+        nodeEvent(graph, node, EventType.NODE_ADDED, user);
     }
 
 
     public static void nodeRemovedEvent(Graph graph, Node node, String user) {
-        nodeEvent(graph, node, LogConstant.NODE_REMOVED, user);
+        nodeEvent(graph, node, EventType.NODE_REMOVED, user);
     }
 
 
-    public static void nodeEvent(Graph graph, Node node, LogConstant constant, String user) {
+    public static void nodeEvent(Graph graph, Node node, EventType constant, String user) {
         NodeEvent event = new NodeEvent(graph, node, constant, user);
         save(nodeEventRepository, event);
     }
 
 
-    public static void nodeRollbackEvent(Graph graph, Node node, String user) {
-        NodeRollbackEvent event = new NodeRollbackEvent(graph, user, node);
-        save(nodeRollbackEventRepository, event);
+    public static void nodeCompletedEvent(Graph graph, Node node, String user, String outcome) {
+        nodeExecutionEvent(graph, node, EventType.NODE_COMPLETED, user, outcome);
     }
 
 
-    public static void nodeRunEvent(Graph graph, String user, Node node, String outcome) {
-        NodeRunEvent event = new NodeRunEvent(graph, user, node, outcome);
-        save(nodeRunEventRepository, event);
+    public static void nodePausedEvent(Graph graph, Node node, String user, String outcome) {
+        nodeExecutionEvent(graph, node, EventType.NODE_PAUSED, user, outcome);
+    }
+
+
+    public static void nodeRollbackEvent(Graph graph, Node node, String user, String outcome) {
+        nodeExecutionEvent(graph, node, EventType.NODE_ROLLBACK, user, outcome);
+    }
+
+    
+    public static void nodeExecutionEvent(Graph graph, Node node, EventType eventType,
+                                          String user, String outcome) {
+        NodeExecutionEvent event = new NodeExecutionEvent(graph, node, eventType, user, outcome);
+        save(nodeExecutionEventRepository, event);
     }
 
 
     public static void graphCreatedEvent(Graph graph, String user) {
         GraphCreatedEvent event = new GraphCreatedEvent(graph, user);
-        save(workflowCreationEventRepository, event);
+        save(graphCreatedEventRepository, event);
     }
 
 
     public static void graphUploadEvent(Graph graph, String user) {
-        graphIOEvent(graph, user, LogConstant.GRAPH_UPLOADED);
+        graphIOEvent(graph, user, EventType.GRAPH_UPLOADED);
     }
 
 
     public static void graphDownloadEvent(Graph graph, String user) {
-        graphIOEvent(graph, user, LogConstant.GRAPH_DOWNLOADED);
+        graphIOEvent(graph, user, EventType.GRAPH_DOWNLOADED);
     }
 
 
     public static void graphStoreEvent(Graph graph, String user) {
-        graphIOEvent(graph, user, LogConstant.GRAPH_STORED);
+        graphIOEvent(graph, user, EventType.GRAPH_STORED);
     }
 
 
     public static void graphLoadEvent(Graph graph, String user) {
-        graphIOEvent(graph, user, LogConstant.GRAPH_LOADED);
+        graphIOEvent(graph, user, EventType.GRAPH_LOADED);
     }
 
 
     public static void graphDiscardedEvent(String id, String name, String user) {
-        GraphIOEvent event = new GraphIOEvent(id, name, user, LogConstant.GRAPH_DISCARDED);
-        save(workflowIOEventRepository, event);
+        GraphIOEvent event = new GraphIOEvent(id, name, user, EventType.GRAPH_DISCARDED);
+        save(graphIOEventRepository, event);
     }
 
 
-    public static void graphIOEvent(Graph graph, String user, LogConstant constant) {
+    public static void graphIOEvent(Graph graph, String user, EventType constant) {
         GraphIOEvent event = new GraphIOEvent(graph, user, constant);
-        save(workflowIOEventRepository, event);
+        save(graphIOEventRepository, event);
     }
 
     
     private static <T extends AbstractLogEvent> void save(CrudRepository<T, Long> repo, T event) {
-        repo.save(event);
-        announce(event);
+        if (capturing) {
+            repo.save(event);
+            announce(event);
+        }
     }
 
 

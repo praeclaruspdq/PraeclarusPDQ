@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.logging.entity;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
+import com.processdataquality.praeclarus.logging.EventType;
 import com.processdataquality.praeclarus.option.Option;
 
 import javax.persistence.Entity;
@@ -38,7 +38,7 @@ public class OptionChangeEvent extends AbstractLogEvent {
 
     public OptionChangeEvent(String componentId, String componentLabel, String user,
                              Option option) {
-        super(user, LogConstant.OPTION_VALUE_CHANGED);
+        super(user, EventType.OPTION_VALUE_CHANGED);
         setComponentId(componentId);
         setComponentLabel(componentLabel);
         setOptionName(option.key());

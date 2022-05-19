@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.repo.graph;
 
-import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.graph.Graph;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

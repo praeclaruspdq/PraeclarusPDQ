@@ -24,7 +24,7 @@ import java.util.Map;
  * @author Michael Adams
  * @date 30/11/21
  */
-public enum LogConstant {
+public enum EventType {
 
     // Authentication
     LOGON_SUCCESS("Successful Logon"),
@@ -51,31 +51,32 @@ public enum LogConstant {
     CONNECTOR_REMOVED("Connector removed"),
 
     // Execution
-    NODE_RUN("Node executed"),
+    NODE_COMPLETED("Node completed"),
     NODE_ROLLBACK("Node rolled back"),
+    NODE_PAUSED("Node paused"),
     NODE_PATTERN_DETECTED("Pattern Node detect"),
     NODE_PATTERN_REPAIRED("Pattern node repair")
     ;
 
     private final String _label;
-    private static final Map<String, LogConstant> _map;
+    private static final Map<String, EventType> _map;
 
     static {
-        Map<String, LogConstant> map = new HashMap<>();
-        for (LogConstant constant : LogConstant.values()) {
+        Map<String, EventType> map = new HashMap<>();
+        for (EventType constant : EventType.values()) {
             map.put(constant.asString(), constant);
         }
         _map = Collections.unmodifiableMap(map);
     }
 
 
-    LogConstant(String label) {
+    EventType(String label) {
         _label = label;
     }
 
     public String asString() { return _label; }
 
-    public static LogConstant fromString(String label) {
+    public static EventType fromString(String label) {
         return _map.get(label);
     }
 

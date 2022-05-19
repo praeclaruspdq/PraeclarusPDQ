@@ -17,9 +17,9 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.logging.EventLogger;
-import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.node.Node;
-import com.processdataquality.praeclarus.node.NodeStateListener;
+import com.processdataquality.praeclarus.node.NodeStateChangeListener;
 import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.processdataquality.praeclarus.ui.component.announce.Announcement;
 import com.processdataquality.praeclarus.ui.component.dialog.VertexLabelDialog;
@@ -36,7 +36,7 @@ import java.util.Set;
  * @author Michael Adams
  * @date 19/5/21
  */
-public class Workflow implements CanvasEventListener, NodeStateListener {
+public class Workflow implements CanvasEventListener, NodeStateChangeListener {
 
     private enum State { VERTEX_DRAG, ARC_DRAW, NONE }
 
@@ -189,6 +189,7 @@ public class Workflow implements CanvasEventListener, NodeStateListener {
         _vertices.clear();
         _connectors.clear();
         _graph = graph;
+        _container.getRunner().setGraph(graph);
         setChanged(false);
         setSelected(null);
         render();

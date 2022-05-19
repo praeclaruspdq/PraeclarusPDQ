@@ -18,7 +18,7 @@ package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
 import com.processdataquality.praeclarus.node.Node;
-import com.processdataquality.praeclarus.node.NodeRunner;
+import com.processdataquality.praeclarus.graph.GraphRunner;
 import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
 import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
 import com.processdataquality.praeclarus.ui.canvas.Vertex;
@@ -36,9 +36,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
  */
 public class RunnerButtons extends Div implements CanvasSelectionListener {
 
-    private final NodeRunner _runner;
+    private final GraphRunner _runner;
 
-    private NodeRunner.RunnerState _state;
+    private GraphRunner.RunnerState _state;
     private Node _selectedNode;
     
     private Button _runButton;
@@ -47,9 +47,9 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     private Button _stopButton;
 
 
-    public RunnerButtons(NodeRunner runner) {
+    public RunnerButtons(GraphRunner runner) {
         _runner = runner;
-        _state = NodeRunner.RunnerState.IDLE;
+        _state = GraphRunner.RunnerState.IDLE;
         createButtons();
         UiUtil.removeTopMargin(this);
     }
@@ -91,7 +91,7 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     public void addSeparator() { add(new Label("      "));}
 
 
-    protected void setState(NodeRunner.RunnerState state) {
+    protected void setState(GraphRunner.RunnerState state) {
         if (_state != state) {
             _state = state;
             enable();
@@ -101,19 +101,19 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 
     private void createButtons() {
         _runButton = createButton(VaadinIcon.PLAY,
-                NodeRunner.RunnerAction.RUN,"Run");
+                GraphRunner.RunnerAction.RUN,"Run");
         _stepButton = createButton(VaadinIcon.STEP_FORWARD,
-                NodeRunner.RunnerAction.STEP, "Step fwd");
+                GraphRunner.RunnerAction.STEP, "Step fwd");
         _backButton = createButton(VaadinIcon.STEP_BACKWARD,
-                NodeRunner.RunnerAction.STEP_BACK, "Step back");
+                GraphRunner.RunnerAction.STEP_BACK, "Step back");
         _stopButton = createButton(VaadinIcon.STOP,
-                NodeRunner.RunnerAction.STOP, "Stop");
+                GraphRunner.RunnerAction.STOP, "Stop");
 
         add(_runButton, _stepButton, _backButton, _stopButton);
     }
 
 
-    private Button createButton(VaadinIcon icon, NodeRunner.RunnerAction runnerAction,
+    private Button createButton(VaadinIcon icon, GraphRunner.RunnerAction runnerAction,
                                 String tooltip)  {
         Icon runIcon = UiUtil.createIcon(icon);
         Button button = new Button(runIcon, e -> action(runnerAction));
@@ -133,7 +133,7 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     }
 
 
-    private void action(NodeRunner.RunnerAction runnerAction) {
+    private void action(GraphRunner.RunnerAction runnerAction) {
         try {
             long start = System.currentTimeMillis();
             _runner.action(runnerAction, _selectedNode);
@@ -153,7 +153,7 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     }
 
 
-    private void announceAction(NodeRunner.RunnerAction runnerAction, long start) {
+    private void announceAction(GraphRunner.RunnerAction runnerAction, long start) {
         double duration = (System.currentTimeMillis() - start)/1000D;
         String msg = String.format("%s completed in %.3f seconds.", runnerAction, duration);
         Announcement.success(msg);

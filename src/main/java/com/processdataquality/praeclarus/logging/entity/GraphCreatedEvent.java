@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.logging.entity;
 
-import com.processdataquality.praeclarus.logging.LogConstant;
-import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.logging.EventType;
+import com.processdataquality.praeclarus.graph.Graph;
 
 import javax.persistence.Entity;
 
@@ -31,7 +31,7 @@ public class GraphCreatedEvent extends AbstractGraphEvent {
     protected GraphCreatedEvent() { }
 
     public GraphCreatedEvent(Graph graph, String user) {
-        super(graph, user, LogConstant.GRAPH_CREATED);
+        super(graph, user, EventType.GRAPH_CREATED);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,28 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.logging.repository;
+package com.processdataquality.praeclarus.graph;
 
-import com.processdataquality.praeclarus.logging.entity.GraphCreatedEvent;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import com.processdataquality.praeclarus.logging.EventType;
+import com.processdataquality.praeclarus.node.Node;
 
 /**
  * @author Michael Adams
- * @date 1/12/21
+ * @date 19/5/2022
  */
-@Repository
-public interface WorkflowCreationEventRepository
-        extends CrudRepository<GraphCreatedEvent, Long> {
+public class GraphRunnerEvent {
 
+    private final EventType eventType;
+    private final Node node;
+
+    public GraphRunnerEvent(EventType eventType, Node node) {
+        this.eventType = eventType;
+        this.node = node;
+    }
+
+
+    public Node getNode() { return node; }
+
+
+    public EventType getEventType() { return eventType; }
 }
-

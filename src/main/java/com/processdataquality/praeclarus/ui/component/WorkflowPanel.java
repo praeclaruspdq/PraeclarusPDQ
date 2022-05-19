@@ -17,7 +17,12 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
+import com.processdataquality.praeclarus.graph.GraphRunner;
+import com.processdataquality.praeclarus.graph.GraphRunnerEvent;
+import com.processdataquality.praeclarus.graph.GraphRunnerEventListener;
+import com.processdataquality.praeclarus.graph.GraphRunnerStateChangeListener;
 import com.processdataquality.praeclarus.logging.EventLogger;
+import com.processdataquality.praeclarus.logging.EventType;
 import com.processdataquality.praeclarus.node.*;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.Option;
@@ -64,13 +69,14 @@ import java.util.List;
 @CssImport("./styles/pdq-styles.css")
 @JsModule("./src/fs.js")
 public class WorkflowPanel extends VerticalLayout
-        implements NodeRunnerListener, PluginUIListener {
+        implements GraphRunnerEventListener, GraphRunnerStateChangeListener,
+        PluginUIListener {
 
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
     private final RunnerButtons _runnerButtons;
     private final Canvas _canvas;
-    private final NodeRunner _runner;
+    private final GraphRunner _runner;
 
     private final Button _removeButton = createRemoveButton();
     private final Button _storeButton = createStoreButton();
@@ -84,12 +90,13 @@ public class WorkflowPanel extends VerticalLayout
     public WorkflowPanel(MainView parent) {
         _parent = parent;
         _canvas = new Canvas(1600, 800);
-        _runner = new NodeRunner();
+        _runner = new GraphRunner();
+        _runner.addNodeRunnerEventListener(this);
+        _runner.addNodeRunnerStateChangeListener(this);
         _workflow = new Workflow(this, _canvas.getContext());
         _canvas.addListener(_workflow);
         _runnerButtons = initRunnerButtons();
         addVertexSelectionListener(_runnerButtons);
-        _runner.addListener(this);
 
         VerticalLayout vl = new VerticalLayout();
         vl.add(new H4("Workflow"), _runnerButtons);
@@ -103,7 +110,7 @@ public class WorkflowPanel extends VerticalLayout
     @Override
     public void pluginUICloseEvent(ButtonAction buttonAction, Node node) {
         try {
-            _runner.action(NodeRunner.RunnerAction.RESUME, node);  // button action doesn't matter
+            _runner.action(GraphRunner.RunnerAction.RESUME, node);  // button action doesn't matter
         }
         catch (NodeRunnerException e) {
             new ErrorMsg(e.getMessage()).open();
@@ -112,20 +119,23 @@ public class WorkflowPanel extends VerticalLayout
     
 
     @Override
-    public void runnerStateChanged(NodeRunner.RunnerState state) {
+    public void runnerStateChanged(GraphRunner.RunnerState state) {
         _runnerButtons.setState(state);
         enableButtons(state, _workflow.getSelectedVertex());
     }
 
 
     @Override
-    public void runnerNodePaused(Node node) {
+    public void runnerEvent(GraphRunnerEvent event) {
+        if (event.getEventType() == EventType.NODE_PAUSED) {
+            Node node = event.getNode();
 
-        // pattern detected but not yet repaired
-        if (node instanceof PatternNode && ! node.hasCompleted()) {
-            PluginUI ui = ((AbstractDataPattern) node.getPlugin()).getUI();
-            if (ui != null) {
-                new PluginUIDialog(ui, node, this).open();
+            // pattern detected but not yet repaired
+            if (node instanceof PatternNode && !node.hasCompleted()) {
+                PluginUI ui = ((AbstractDataPattern) node.getPlugin()).getUI();
+                if (ui != null) {
+                    new PluginUIDialog(ui, node, this).open();
+                }
             }
         }
     }
@@ -229,7 +239,7 @@ public class WorkflowPanel extends VerticalLayout
     /**
      * @return the runner for this panel
      */
-    public NodeRunner getRunner() { return _runner; }
+    public GraphRunner getRunner() { return _runner; }
 
 
     private Button createRemoveButton() {
@@ -295,8 +305,8 @@ public class WorkflowPanel extends VerticalLayout
     }
 
 
-    private void enableButtons(NodeRunner.RunnerState state, CanvasPrimitive selected) {
-        boolean isIdle = state == NodeRunner.RunnerState.IDLE;
+    private void enableButtons(GraphRunner.RunnerState state, CanvasPrimitive selected) {
+        boolean isIdle = state == GraphRunner.RunnerState.IDLE;
         boolean hasContent = isIdle && _workflow != null && _workflow.hasContent();
         _removeButton.setEnabled(isIdle && selected != null);
         _downloadButton.setEnabled(hasContent);

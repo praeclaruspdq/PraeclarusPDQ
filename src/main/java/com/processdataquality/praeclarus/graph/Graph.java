@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.node;
+package com.processdataquality.praeclarus.graph;
 
 import com.processdataquality.praeclarus.logging.EventLogger;
+import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.option.*;
 import com.processdataquality.praeclarus.repo.graph.GraphStore;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -60,7 +61,6 @@ public class Graph implements HasOptions, OptionValueChangeListener {
     private Options _options;
 
 
-
     private Graph(Builder builder) {
         creator = builder.creator;
         id = builder.id != null ? builder.id : UUID.randomUUID().toString();
@@ -100,6 +100,7 @@ public class Graph implements HasOptions, OptionValueChangeListener {
         updateOptionValue(option);
         EventLogger.optionChangeEvent(getId(), getName(), "user", option);
     }
+
 
     public String getId() { return id; }
 

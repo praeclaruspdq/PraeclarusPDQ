@@ -47,7 +47,7 @@ public abstract class Node {
     private Set<Node> _previous;  // set of immediate source nodes for this node
 
     private AbstractPlugin _plugin;
-    private Set<NodeStateListener> _listeners;
+    private Set<NodeStateChangeListener> _listeners;
     private NodeState _state;
     private Table _output;    // a table with the result of running this plugin
     private NodeTask _preTask;          // optional code to run before plugin is run
@@ -70,9 +70,9 @@ public abstract class Node {
     public abstract void run() throws Exception;
 
 
-    public void addStateListener(NodeStateListener listener) { _listeners.add(listener); }
+    public void addStateListener(NodeStateChangeListener listener) { _listeners.add(listener); }
 
-    public boolean removeStateListener(NodeStateListener listener) {
+    public boolean removeStateListener(NodeStateChangeListener listener) {
         return _listeners.remove(listener);
     }
 
@@ -223,7 +223,7 @@ public abstract class Node {
     public AbstractPlugin getPlugin() { return _plugin; }
 
 
-    public String getID() { return _plugin.getId(); }
+    public String getID() { return _plugin.getID(); }
 
     public String getCommitID() { return _commitID; }
 
@@ -365,7 +365,7 @@ public abstract class Node {
 
 
     protected void announceStateChange() throws Exception {
-        for (NodeStateListener listener : _listeners) {
+        for (NodeStateChangeListener listener : _listeners) {
             listener.nodeStateChanged(this);
         }
     }

@@ -16,10 +16,9 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.node.Node;
-import com.processdataquality.praeclarus.node.NodeRunner;
-import com.processdataquality.praeclarus.node.NodeRunnerListener;
-import com.processdataquality.praeclarus.node.PatternNode;
+import com.processdataquality.praeclarus.graph.GraphRunner;
+import com.processdataquality.praeclarus.graph.GraphRunnerStateChangeListener;
+import com.processdataquality.praeclarus.node.*;
 import com.processdataquality.praeclarus.repo.Differ;
 import com.processdataquality.praeclarus.repo.LogEntry;
 import com.processdataquality.praeclarus.repo.Repo;
@@ -58,7 +57,7 @@ import java.util.List;
  */
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public class OutputPanel extends VerticalLayout
-        implements CanvasSelectionListener, NodeRunnerListener {
+        implements CanvasSelectionListener, GraphRunnerStateChangeListener {
 
     private enum Page { OUTPUT, HISTORY, DIFF, DETECTED, EVENTS, NONE }
     
@@ -73,7 +72,7 @@ public class OutputPanel extends VerticalLayout
     
     public OutputPanel(MainView parent) {
         parent.getWorkflowPanel().addVertexSelectionListener(this);
-        parent.getWorkflowPanel().getRunner().addListener(this);
+        parent.getWorkflowPanel().getRunner().addNodeRunnerStateChangeListener(this);
         setId("OutputPanel");
         add(title, page, buttonsPanel());
         buttons = getButtons();
@@ -92,15 +91,11 @@ public class OutputPanel extends VerticalLayout
 
 
     @Override
-    public void runnerStateChanged(NodeRunner.RunnerState newState) {
-        if (newState == NodeRunner.RunnerState.IDLE) {
+    public void runnerStateChanged(GraphRunner.RunnerState newState) {
+        if (newState == GraphRunner.RunnerState.IDLE) {
             enableButtons();
         }
     }
-
-
-    @Override
-    public void runnerNodePaused(Node node) { }
 
 
     private HorizontalLayout buttonsPanel() {

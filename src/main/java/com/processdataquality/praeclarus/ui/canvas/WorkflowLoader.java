@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.ui.canvas;
 
 import com.processdataquality.praeclarus.logging.EventLogger;
-import com.processdataquality.praeclarus.node.Graph;
+import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeLoader;
 import com.processdataquality.praeclarus.repo.graph.GraphStore;
@@ -47,6 +47,7 @@ public class WorkflowLoader {
 
 
     public void load(String jsonStr) throws JSONException, IOException {
+        EventLogger.ignoreEvents();                  // suppress events while loading
         JSONObject json = new JSONObject(jsonStr);
         Graph graph = loadGraph(json, jsonStr);
         _workflow.clear(graph);
@@ -54,6 +55,7 @@ public class WorkflowLoader {
         Map<String, Vertex> vertices = loadVertices(json.getJSONArray("vertices"));
         loadConnectors(json.getJSONArray("connectors"), vertices);
         _workflow.setLoading(false);
+        EventLogger.captureEvents();
         selectHeadVertex(vertices, graph);
     }
 

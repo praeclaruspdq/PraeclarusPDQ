@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.node;
+package com.processdataquality.praeclarus.graph;
 
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
+import com.processdataquality.praeclarus.logging.EventLogger;
+import com.processdataquality.praeclarus.logging.EventType;
+import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.NodeStateChangeListener;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,25 +29,38 @@ import java.util.Set;
  * @author Michael Adams
  * @date 25/5/21
  */
-public class NodeRunner implements NodeStateListener {
+public class GraphRunner implements NodeStateChangeListener {
 
     public enum RunnerState { RUNNING, STEPPING, IDLE }
     public enum RunnerAction { RUN, STEP, STEP_BACK, RESUME, STOP }
 
     private RunnerState _runnerState = RunnerState.IDLE;
-    private final Set<NodeRunnerListener> _listeners = new HashSet<>();
+    private Graph _graph;
+    private final Set<GraphRunnerEventListener> _eventListeners = new HashSet<>();
+    private final Set<GraphRunnerStateChangeListener> _stateListeners = new HashSet<>();
     private Node _stepToNode = null;
 
-    public NodeRunner() { }
+    public GraphRunner() { }
+
+    public GraphRunner(Graph graph) { setGraph(graph); }
 
     
-    public void addListener(NodeRunnerListener listener) {
-        _listeners.add(listener);
+    public void addNodeRunnerEventListener(GraphRunnerEventListener listener) {
+        _eventListeners.add(listener);
     }
 
-    public boolean removeListener(NodeRunnerListener listener) {
-        return _listeners.remove(listener);
+    public boolean removeNodeRunnerEventListener(GraphRunnerEventListener listener) {
+        return _eventListeners.remove(listener);
     }
+
+    public void addNodeRunnerStateChangeListener(GraphRunnerStateChangeListener listener) {
+        _stateListeners.add(listener);
+    }
+
+    public boolean removeNodeRunnerStateChangeListener(GraphRunnerStateChangeListener listener) {
+        return _stateListeners.remove(listener);
+    }
+
 
     @Override
     public void nodeStateChanged(Node node) throws Exception {
@@ -58,6 +75,9 @@ public class NodeRunner implements NodeStateListener {
         _stepToNode = node;
         launch(node, RunnerState.STEPPING);
     }
+
+
+    public void setGraph(Graph graph) { _graph = graph; }
 
 
     private void run(Node node) throws NodeRunnerException {
@@ -79,6 +99,7 @@ public class NodeRunner implements NodeStateListener {
         try {
             rollbackAllNext(node);        // all subsequent nodes must also roll back
             node.reset();
+            announceNodeRollback(node);
         }
         catch (Throwable t) {
             throw new NodeRunnerException(t.getMessage(), t.getCause());
@@ -151,10 +172,12 @@ public class NodeRunner implements NodeStateListener {
         for (Node next : node.next()) {
             if (next.hasCompleted()) {
                 next.reset();
+                announceNodeRollback(node);
                 rollbackAllNext(next);
             }
         }
     }
+
 
     private void start(Node node) throws Exception {
         node.addStateListener(this);
@@ -165,7 +188,8 @@ public class NodeRunner implements NodeStateListener {
 
     private void complete(Node node) throws Exception {
         node.runPostTask();
-        
+        announceNodeCompleted(node);
+
         switch (_runnerState) {
             case STEPPING: if (node == _stepToNode) {
                 reset();
@@ -198,12 +222,28 @@ public class NodeRunner implements NodeStateListener {
 
     
     private void announceStateChanged(RunnerState state) {
-        _listeners.forEach(l -> l.runnerStateChanged(state));
+        _stateListeners.forEach(l -> l.runnerStateChanged(state));
     }
 
 
     private void announceNodePaused(Node node) {
-        _listeners.forEach(l -> l.runnerNodePaused(node));
+        announceNodeEvent(EventType.NODE_PAUSED, node);
+    }
+
+
+    private void announceNodeCompleted(Node node) {
+        announceNodeEvent(EventType.NODE_COMPLETED, node);
+    }
+
+
+    private void announceNodeRollback(Node node) {
+        announceNodeEvent(EventType.NODE_ROLLBACK, node);
+    }
+
+
+    private void announceNodeEvent(EventType eventType, Node node) {
+        _eventListeners.forEach(l -> l.runnerEvent(new GraphRunnerEvent(eventType, node)));
+        EventLogger.nodeExecutionEvent(_graph, node, eventType, "user", null);
     }
 
 }
