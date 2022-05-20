@@ -17,6 +17,8 @@
 package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
@@ -28,6 +30,9 @@ import java.util.Iterator;
  * @date 12/5/21
  */
 public class NodeLoader {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NodeLoader.class);
+
     
     public Node fromJson(JSONObject json) throws JSONException, IOException {
         Node node = null;
@@ -58,6 +63,7 @@ public class NodeLoader {
             return clazz.getDeclaredConstructor().newInstance();
         }
         catch (Throwable e) {
+            LOG.error("Failed to load plugin: " + fqClassName, e);
             return null;
         }
     }

@@ -28,6 +28,12 @@ public abstract class AbstractDataPattern extends AbstractPlugin implements Data
     // The UI template used for the front-end interactions
     protected PluginUI _ui;
 
+    
+    protected AbstractDataPattern() {
+        super();
+    }
+
+
     @Override
     public PluginUI getUI() {
         return _ui;

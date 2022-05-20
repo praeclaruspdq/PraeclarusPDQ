@@ -16,14 +16,16 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.graph.Graph;
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeStateChangeListener;
 import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
 import com.processdataquality.praeclarus.ui.component.announce.Announcement;
 import com.processdataquality.praeclarus.ui.component.dialog.VertexLabelDialog;
 import com.processdataquality.praeclarus.ui.repo.WorkflowStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -39,6 +41,8 @@ import java.util.Set;
 public class Workflow implements CanvasEventListener, NodeStateChangeListener {
 
     private enum State { VERTEX_DRAG, ARC_DRAW, NONE }
+
+    private static final Logger LOG = LoggerFactory.getLogger(Workflow.class);
 
     private final WorkflowPanel _container;
     private final Context2D _ctx;
@@ -141,6 +145,7 @@ public class Workflow implements CanvasEventListener, NodeStateChangeListener {
         }
         catch (JSONException | IOException je) {
             Announcement.error("Failed to load file: " + je.getMessage());
+            LOG.error("Failed to load file: ", je);
             clear();
         }
     }
@@ -332,7 +337,7 @@ public class Workflow implements CanvasEventListener, NodeStateChangeListener {
                 v.getNode().reset();
             }
             catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("Error resetting vertices", e);
             }
         });
     }

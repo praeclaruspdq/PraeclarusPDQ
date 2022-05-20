@@ -17,6 +17,8 @@
 package com.processdataquality.praeclarus.plugin;
 
 import com.processdataquality.praeclarus.writer.DataWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,8 @@ import java.util.jar.JarFile;
  * @date 25/05/12
  */
 public class PluginLoader extends URLClassLoader {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PluginLoader.class);
 
     private final List<String> _pathList;
 
@@ -137,7 +141,7 @@ public class PluginLoader extends URLClassLoader {
             }
         }
         catch (Exception e) {
-            // fall through to null
+            LOG.error("Failed to load class " + name, e);
         }
         return null;
     }

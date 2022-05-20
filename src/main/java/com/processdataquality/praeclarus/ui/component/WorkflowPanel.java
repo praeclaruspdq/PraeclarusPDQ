@@ -23,7 +23,9 @@ import com.processdataquality.praeclarus.graph.GraphRunnerEventListener;
 import com.processdataquality.praeclarus.graph.GraphRunnerStateChangeListener;
 import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.logging.EventType;
-import com.processdataquality.praeclarus.node.*;
+import com.processdataquality.praeclarus.node.Node;
+import com.processdataquality.praeclarus.node.NodeFactory;
+import com.processdataquality.praeclarus.node.PatternNode;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
@@ -38,7 +40,6 @@ import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
 import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.ui.component.announce.Announcement;
-import com.processdataquality.praeclarus.ui.component.announce.ErrorMsg;
 import com.processdataquality.praeclarus.ui.component.dialog.MessageDialog;
 import com.processdataquality.praeclarus.ui.component.dialog.StoredWorkflowsDialog;
 import com.processdataquality.praeclarus.ui.component.layout.VerticalScrollLayout;
@@ -56,6 +57,8 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import tech.tablesaw.api.Table;
 
@@ -71,6 +74,8 @@ import java.util.List;
 public class WorkflowPanel extends VerticalLayout
         implements GraphRunnerEventListener, GraphRunnerStateChangeListener,
         PluginUIListener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WorkflowPanel.class);
 
     private final Workflow _workflow;                 // frontend
     private final MainView _parent;
@@ -113,7 +118,8 @@ public class WorkflowPanel extends VerticalLayout
             _runner.action(GraphRunner.RunnerAction.RESUME, node);  // button action doesn't matter
         }
         catch (NodeRunnerException e) {
-            new ErrorMsg(e.getMessage()).open();
+            Announcement.error(e.getMessage());
+            LOG.error("Error attempting to continue after closing plugin UI", e);
         }
     }
     
@@ -345,7 +351,8 @@ public class WorkflowPanel extends VerticalLayout
             return true;
         }
         catch (JSONException je) {
-            Announcement.error("Failed to save file: " + je.getMessage());
+            Announcement.error("Failed to download file: " + je.getMessage());
+            LOG.error("Failed to download file", je);
         }
         return false;
     }
@@ -356,6 +363,7 @@ public class WorkflowPanel extends VerticalLayout
         }
         catch (JSONException je) {
             Announcement.error("Failed to store file: " + je.getMessage());
+            LOG.error("Failed to store file", je);
         }
     }
 
@@ -372,6 +380,7 @@ public class WorkflowPanel extends VerticalLayout
         }
         catch (JSONException je) {
             Announcement.error("Failed to save file: " + je.getMessage());
+            LOG.error("Failed to save file", je);
         }
     }
 

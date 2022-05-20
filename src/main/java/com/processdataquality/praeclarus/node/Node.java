@@ -47,11 +47,12 @@ public abstract class Node {
     private Set<Node> _previous;  // set of immediate source nodes for this node
 
     private AbstractPlugin _plugin;
-    private Set<NodeStateChangeListener> _listeners;
+    private List<NodeStateChangeListener> _listeners;
     private NodeState _state;
-    private Table _output;    // a table with the result of running this plugin
+    private Table _output;        // a table with the result of running this plugin
     private NodeTask _preTask;          // optional code to run before plugin is run
     private NodeTask _postTask;         // optional code to run after plugin is run
+    private NodeStopWatch _stopWatch;
 
     protected Node() { }
 
@@ -59,7 +60,7 @@ public abstract class Node {
         _plugin = plugin;
         _next = new HashSet<>();
         _previous = new HashSet<>();
-        _listeners = new HashSet<>();
+        _listeners = new ArrayList<>();
         _state = NodeState.UNSTARTED;
     }
 
@@ -80,6 +81,14 @@ public abstract class Node {
     protected void setState(NodeState state) throws Exception {
         if (_state != state) {
             _state = state;
+            if (state == NodeState.EXECUTING) {
+                _stopWatch = new NodeStopWatch();
+                _listeners.add(0, _stopWatch);      // ensure it gets updates first
+            }
+            else {
+                removeStateListener(_stopWatch);
+            }
+            
             announceStateChange();
         }
     }
@@ -88,6 +97,9 @@ public abstract class Node {
      * @return the current state of this node
      */
     public NodeState getState() { return _state; }
+
+
+    public NodeStopWatch getStopWatch() { return _stopWatch; }
 
 
     /**

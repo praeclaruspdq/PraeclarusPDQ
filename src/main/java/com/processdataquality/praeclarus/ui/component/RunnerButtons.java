@@ -17,8 +17,8 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
-import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.graph.GraphRunner;
+import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.ui.canvas.CanvasPrimitive;
 import com.processdataquality.praeclarus.ui.canvas.CanvasSelectionListener;
 import com.processdataquality.praeclarus.ui.canvas.Vertex;
@@ -29,12 +29,16 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Michael Adams
  * @date 14/5/21
  */
 public class RunnerButtons extends Div implements CanvasSelectionListener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RunnerButtons.class);
 
     private final GraphRunner _runner;
 
@@ -149,6 +153,7 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
             _runner.reset();
             String msg = "Error in node '" + _selectedNode.getLabel()  + "': " +  e.getMessage();
             Announcement.error(msg);
+            LOG.error(msg, e);
         }
     }
 

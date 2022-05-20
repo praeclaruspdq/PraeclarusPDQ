@@ -20,6 +20,6 @@ package com.processdataquality.praeclarus.node;
  * @author Michael Adams
  * @date 22/11/21
  */
-public enum NodeState { UNSTARTED, EXECUTING, PAUSED, COMPLETED }
+public enum NodeState { UNSTARTED, EXECUTING, PAUSED, RESUMED, COMPLETED }
 
 

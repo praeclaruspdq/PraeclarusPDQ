@@ -43,6 +43,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
@@ -60,7 +62,9 @@ public class OutputPanel extends VerticalLayout
         implements CanvasSelectionListener, GraphRunnerStateChangeListener {
 
     private enum Page { OUTPUT, HISTORY, DIFF, DETECTED, EVENTS, NONE }
-    
+
+    private static final Logger LOG = LoggerFactory.getLogger(OutputPanel.class);
+
     private final Div title = new Div();
     private final VerticalScrollLayout page = new VerticalScrollLayout();
     private final HorizontalLayout buttonBar = new HorizontalLayout();
@@ -245,7 +249,7 @@ public class OutputPanel extends VerticalLayout
                     page.add(grid);
                 }
                 catch (GitAPIException | IOException e) {
-                    e.printStackTrace();
+                    LOG.error("Failed to load history for " + node.getLabel(), e);
                 }
             }
             else {
@@ -280,7 +284,7 @@ public class OutputPanel extends VerticalLayout
                     else page.add(new Html("<p>The selected node has no previous nodes to compare to</p>"));
                 }
                 catch (IOException e) {
-                    e.printStackTrace();
+                    LOG.error("Failed to load diff tables for " + node.getLabel(), e);
                 }
             }
             else {

@@ -34,6 +34,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextArea;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 
 import java.util.List;
@@ -44,6 +46,8 @@ import java.util.Optional;
  * @date 1/11/21
  */
 public class StoredWorkflowsDialog extends Dialog {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StoredWorkflowsDialog.class);
 
     private static final String PANEL_WIDTH = "760px";
     private static final String GRID_HEIGHT = "300px";
@@ -232,6 +236,7 @@ public class StoredWorkflowsDialog extends Dialog {
         }
         catch (JSONException je) {
             Announcement.error("Failed to store workflow: " + je.getMessage());
+            LOG.error("Failed to store workflow: ",  je);
         }
     }
 

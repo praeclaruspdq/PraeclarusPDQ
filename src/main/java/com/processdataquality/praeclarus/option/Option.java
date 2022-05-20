@@ -72,7 +72,7 @@ public class Option implements Comparable<Option> {
 
     public int asInt() {
         if (! (_value instanceof Integer)) {
-            throw new InvalidOptionValueException("Value is missing or not an Integer");
+            throwOne("an Integer");
         }
         return (int) _value;
     }
@@ -80,7 +80,7 @@ public class Option implements Comparable<Option> {
 
     public double asDouble() {
         if (! (_value instanceof Double)) {
-            throw new InvalidOptionValueException("Value is missing or not a Double");
+            throwOne("a Double");
         }
         return (double) _value;
     }
@@ -88,7 +88,7 @@ public class Option implements Comparable<Option> {
 
     public boolean asBoolean() {
         if (! (_value instanceof Boolean)) {
-            throw new InvalidOptionValueException("Value is missing or not a Boolean");
+            throwOne("a Boolean");
         }
         return (boolean) _value;
     }
@@ -103,9 +103,15 @@ public class Option implements Comparable<Option> {
                     return value.charAt(0);
                 }
             }
-            throw new InvalidOptionValueException("Value is missing or not a char type");
+            throwOne( "a char type");
         }
         return (char) _value;
+    }
+
+
+    private void throwOne(String type) {
+        throw new InvalidOptionValueException("The value for Option '" + key()  +
+                " is missing or not " + type);
     }
 
 

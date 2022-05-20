@@ -19,10 +19,10 @@ package com.processdataquality.praeclarus.graph;
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
 import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.logging.EventType;
-import com.processdataquality.praeclarus.node.Node;
-import com.processdataquality.praeclarus.node.NodeStateChangeListener;
+import com.processdataquality.praeclarus.node.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -243,7 +243,42 @@ public class GraphRunner implements NodeStateChangeListener {
 
     private void announceNodeEvent(EventType eventType, Node node) {
         _eventListeners.forEach(l -> l.runnerEvent(new GraphRunnerEvent(eventType, node)));
-        EventLogger.nodeExecutionEvent(_graph, node, eventType, "user", null);
+        EventLogger.nodeExecutionEvent(_graph, node, eventType, "user", "");
+           //     getLogComment(eventType, node));
+    }
+
+
+    private String getLogComment(EventType eventType, Node node) {
+        if (node instanceof ReaderNode) {
+            if (eventType == EventType.NODE_COMPLETED) {
+                return getLogComment("loaded",
+                        node.getOutput().rowCount(), node.getStopWatch().getDuration());
+            }
+        }
+        if (node instanceof WriterNode) {
+            if (eventType == EventType.NODE_COMPLETED) {
+                return getLogComment("wrote",
+                        node.getOutput().rowCount(), node.getStopWatch().getDuration());
+            }
+        }
+        if (node instanceof PatternNode) {
+            List<Long> durations = node.getStopWatch().getDurations();
+            if (eventType == EventType.NODE_PAUSED) {
+                return getLogComment("detected",
+                        ((PatternNode) node).getDetected().rowCount(), durations.get(0));
+            }
+            else if (eventType == EventType.NODE_COMPLETED) {
+                return getLogComment("repaired",
+                        node.getOutput().rowCount(), durations.get(1));
+            }
+        }
+        return null;
+    }
+
+
+    private String getLogComment(String action, int rows, long nanos) {
+        double seconds = nanos/1000000D;
+        return String.format("%s %d rows in %.3f seconds", action, rows, seconds);
     }
 
 }

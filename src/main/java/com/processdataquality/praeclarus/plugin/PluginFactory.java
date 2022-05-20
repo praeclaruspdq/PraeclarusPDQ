@@ -21,6 +21,8 @@ import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.config.PluginConfig;
 import com.processdataquality.praeclarus.writer.DataWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,8 +33,11 @@ import java.util.*;
  */
 public class PluginFactory<T> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PluginFactory.class);
+
     private final Map<String, Class<T>> _classMap;
-    
+
+
     public PluginFactory(Class<T> type) {
         _classMap = buildMap(type);
     }
@@ -86,6 +91,7 @@ public class PluginFactory<T> {
             return clazz.getDeclaredConstructor().newInstance();
         }
         catch (Throwable e) {
+            LOG.error("Failed to create new instance of class " + clazz.getName(), e);
             return null;
         }
     }
@@ -97,9 +103,8 @@ public class PluginFactory<T> {
             return loader.loadAsMap(type);
         }
         catch (IOException e) {
-            System.out.println("Failed to load plugins.");
+            LOG.error("Failed to load plugins. ", e);
             return Collections.emptyMap();
-            //e.printStackTrace();
         }
     }
 

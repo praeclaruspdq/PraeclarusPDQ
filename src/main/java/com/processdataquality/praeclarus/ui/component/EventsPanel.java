@@ -89,7 +89,7 @@ public class EventsPanel extends Div implements LogEventListener {
 
 
     private String formatNodeExecutionEvent(NodeExecutionEvent event) {
-        return formatNodeEvent(event);
+        return formatNodeEvent(event) + ", " + event.getNote();
     }
 
 

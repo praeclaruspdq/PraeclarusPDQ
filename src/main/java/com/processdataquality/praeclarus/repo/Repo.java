@@ -26,6 +26,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tech.tablesaw.api.Table;
 
 import java.io.File;
@@ -42,6 +44,7 @@ import java.util.List;
  */
 public class Repo {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Repo.class);
     private static final File REPO_DIR = new File("../pdq_repo");
 
     static {
@@ -93,11 +96,11 @@ public class Repo {
                 try (Git git = Git.init().setDirectory(REPO_DIR).call()) {
                 }
                 catch (GitAPIException e) {
-                    System.out.println("Failed to initialise repository: " + e.getMessage());
+                    LOG.error("Failed to initialise repository: ", e);
                 }
             }
             else {
-                System.out.println("Failed to create repo directory");
+                LOG.error("Failed to create repo directory");
             }
         }
     }

@@ -57,6 +57,7 @@ public class PatternNode extends Node {
             }
         }
         else if (getState() != NodeState.COMPLETED && imperfectionPattern.canRepair()) {
+            setState(NodeState.RESUMED);
             setOutput(imperfectionPattern.repair(master));
             setState(NodeState.COMPLETED);
         }
