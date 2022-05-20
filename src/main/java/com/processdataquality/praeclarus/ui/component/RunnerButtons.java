@@ -139,9 +139,8 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 
     private void action(GraphRunner.RunnerAction runnerAction) {
         try {
-            long start = System.currentTimeMillis();
             _runner.action(runnerAction, _selectedNode);
-            announceAction(runnerAction, start);
+            Announcement.success(_selectedNode.getLabel() + " completed successfully");
         }
         catch (NodeRunnerException e) {
             try {
@@ -155,13 +154,6 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
             Announcement.error(msg);
             LOG.error(msg, e);
         }
-    }
-
-
-    private void announceAction(GraphRunner.RunnerAction runnerAction, long start) {
-        double duration = (System.currentTimeMillis() - start)/1000D;
-        String msg = String.format("%s completed in %.3f seconds.", runnerAction, duration);
-        Announcement.success(msg);
     }
 
 }

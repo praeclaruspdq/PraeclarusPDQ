@@ -20,64 +20,53 @@ import org.springframework.data.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Michael Adams
  * @date 20/5/2022
  */
-public class NodeStopWatch implements NodeStateChangeListener {
+public class NodeStopWatch {
 
-    private final long started;
-    private long stageStart;
+    private static final double NANO = Math.pow(10, 9);
+
+    private long started;
     private final List<Pair<Long, Long>> stages = new ArrayList<>();
-    private long completed;
 
 
-    public NodeStopWatch() {
-        started = now();
-        stageStart = started;
-    }
+    public NodeStopWatch() { }
 
-
-    @Override
-    public void nodeStateChanged(Node node) throws Exception {
-        switch (node.getState()) {
-            case COMPLETED: completed = System.nanoTime(); break;
-            case PAUSED: stages.add(Pair.of(stageStart, now())); break;
-            case RESUMED: stageStart = now(); break;
+    
+    public void stateChange(NodeState state) {
+        switch (state) {
+            case EXECUTING: stages.clear();                    // deliberate fallthrough
+            case RESUMED: started = now(); break;
+            case COMPLETED:                                    // deliberate fallthrough
+            case PAUSED: stages.add(Pair.of(started, now())); break;
         }
     }
     
 
     public long getDuration() {
-        return completed > 0 ? completed - started : -1;
+        return getDuration(0);
     }
 
 
-    public long getDuration(TimeUnit unit) {
-        return TimeUnit.NANOSECONDS.convert(getDuration(), unit);
+    public long getDuration(int index) {
+        if (stages.size() < index - 1) return -1;
+        return stages.get(index).getSecond() - stages.get(index).getFirst();
     }
 
 
-    public List<Long> getDurations() {
-        List<Long> durations = new ArrayList<>();
-        if (stages.isEmpty()) {
-            durations.add(getDuration());
-        }
-        else {
-            stages.forEach(s -> durations.add(s.getSecond() - s.getFirst()));
-            durations.add(completed - stageStart);
-        }
-        return durations;
+    public double getDurationAsMillis() { return getDurationAsMillis(0); }
+
+    public double getDurationAsMillis(int index) {
+        return getDurationAsSeconds(index) * 1000D;
     }
 
 
-    public List<Long> getDurations(TimeUnit unit) {
-        List<Long> durations = new ArrayList<>();
-        getDurations().forEach(d -> durations.add(getDuration(unit)));
-        return durations;
-    }
+    public double getDurationAsSeconds() { return getDurationAsSeconds(0); }
+
+    public double getDurationAsSeconds(int index) { return getDuration(index) / NANO; }
 
 
     private long now() { return System.nanoTime(); }

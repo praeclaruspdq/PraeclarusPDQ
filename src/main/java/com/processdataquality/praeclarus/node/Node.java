@@ -38,7 +38,9 @@ import java.util.Set;
  * @date 12/5/21
  */
 public abstract class Node {
-    
+
+    private final NodeStopWatch _stopWatch = new NodeStopWatch();
+
     private String _commitID;           // the commit version of the table in the repo
     private String _tableID;            // the file name of the table in the repo
     private String _label;
@@ -52,8 +54,8 @@ public abstract class Node {
     private Table _output;        // a table with the result of running this plugin
     private NodeTask _preTask;          // optional code to run before plugin is run
     private NodeTask _postTask;         // optional code to run after plugin is run
-    private NodeStopWatch _stopWatch;
 
+    
     protected Node() { }
 
     protected Node(AbstractPlugin plugin) {
@@ -81,15 +83,8 @@ public abstract class Node {
     protected void setState(NodeState state) throws Exception {
         if (_state != state) {
             _state = state;
-            if (state == NodeState.EXECUTING) {
-                _stopWatch = new NodeStopWatch();
-                _listeners.add(0, _stopWatch);      // ensure it gets updates first
-            }
-            else {
-                removeStateListener(_stopWatch);
-            }
-            
-            announceStateChange();
+            _stopWatch.stateChange(state);
+             announceStateChange();
         }
     }
 
