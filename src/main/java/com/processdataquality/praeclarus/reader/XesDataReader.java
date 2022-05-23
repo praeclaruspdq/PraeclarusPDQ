@@ -62,7 +62,7 @@ public class XesDataReader extends AbstractDataReader {
         return createTable(parseInput());
     }
 
-    public void addDefaultOptions() {
+    protected void addDefaultOptions() {
         getOptions().addDefault("Globals Only", false);
         getOptions().addDefault("Include Data", true);
         getOptions().addDefault(new FileOption("Source", ""));

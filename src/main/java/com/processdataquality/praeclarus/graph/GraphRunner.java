@@ -280,7 +280,7 @@ public class GraphRunner implements NodeStateChangeListener {
             else if (eventType == EventType.NODE_COMPLETED) {
                 return getLogComment("repaired",
                         node.getOutput().rowCount(),
-                        node.getStopWatch().getDurationAsSeconds(1));
+                        node.getStopWatch().getLastDurationAsSeconds());
             }
         }
         return null;

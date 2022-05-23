@@ -145,7 +145,7 @@ public abstract class AbstractDataReader extends AbstractPlugin implements DataR
     }
 
 
-    private void addDefaultOptions() {
+    protected void addDefaultOptions() {
         getOptions().addDefaults(new CommonReadOptions().toMap());
         getOptions().addDefault(new FileOption("Source", ""));
     }

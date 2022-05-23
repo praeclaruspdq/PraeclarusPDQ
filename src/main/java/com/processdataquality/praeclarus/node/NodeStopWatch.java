@@ -59,12 +59,21 @@ public class NodeStopWatch {
 
     public double getDurationAsMillis() { return getDurationAsMillis(0); }
 
+    public double getLastDurationAsMillis() {
+        return getDurationAsMillis(stages.size() -1);
+    }
+
+
     public double getDurationAsMillis(int index) {
         return getDurationAsSeconds(index) * 1000D;
     }
 
 
     public double getDurationAsSeconds() { return getDurationAsSeconds(0); }
+
+    public double getLastDurationAsSeconds() {
+        return getDurationAsSeconds(stages.size() -1);
+    }
 
     public double getDurationAsSeconds(int index) { return getDuration(index) / NANO; }
 
