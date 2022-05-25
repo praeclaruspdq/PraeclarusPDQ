@@ -53,7 +53,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
-import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import tech.tablesaw.api.Table;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,12 +102,7 @@ public class WorkflowPanel extends VerticalLayout
         _canvas.addListener(_workflow);
         _runnerButtons = initRunnerButtons();
         addVertexSelectionListener(_runnerButtons);
-
-        VerticalLayout vl = new VerticalLayout();
-        vl.add(new H4("Workflow"), _runnerButtons);
-        UiUtil.removeBottomPadding(vl);
-        
-        add(vl, createCanvasContainer());
+        add(_runnerButtons, createCanvasContainer());
         changedSelected(null);                     // init with default properties panel
     }
 
@@ -181,11 +176,18 @@ public class WorkflowPanel extends VerticalLayout
 
                     @SuppressWarnings("unchecked")
                     List<TreeItem> droppedItems = (List<TreeItem>) event.getDragData().get();
-
                     TreeItem item = droppedItems.get(0);     // only one is dropped
-                    Node node = addPluginInstance(item);
-                    _workflow.addVertex(node);
-                    _runnerButtons.enable();
+                    try {
+                        Node node = addPluginInstance(item);
+                        _workflow.addVertex(node);
+                        _runnerButtons.enable();
+                    }
+                    catch (InvocationTargetException | NoSuchMethodException |
+                           InstantiationException | IllegalAccessException e) {
+                        Announcement.error("Failed to create plugin: " + e.getMessage());
+                        LOG.error("Failed to create plugin: ", e);
+                    }
+
                 }
             }
         });
@@ -220,7 +222,8 @@ public class WorkflowPanel extends VerticalLayout
     }
 
 
-    private Node addPluginInstance(TreeItem item) {
+    private Node addPluginInstance(TreeItem item) throws InvocationTargetException,
+            NoSuchMethodException, InstantiationException, IllegalAccessException {
         String pTypeName = item.getRoot().getLabel();
         AbstractPlugin instance = null;
         if (pTypeName.equals("Readers")) {

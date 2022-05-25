@@ -46,17 +46,17 @@ public class PluginService {
     public static PluginFactory<AbstractAction> actions() { return ACTION_FACTORY; }
 
     
-    public static PluginFactory<? extends PDQPlugin> factory(Class<? extends PDQPlugin> clazz) {
-        if (clazz.equals(AbstractDataReader.class)) {
+    public static PluginFactory<? extends AbstractPlugin> factory(Class<? extends AbstractPlugin> clazz) {
+        if (AbstractDataReader.class.isAssignableFrom(clazz)) {
             return READER_FACTORY;
         }
-        if (clazz.equals(AbstractDataWriter.class)) {
+        if (AbstractDataWriter.class.isAssignableFrom(clazz)) {
             return WRITER_FACTORY;
         }
-        if (clazz.equals(AbstractDataPattern.class)) {
+        if (AbstractDataPattern.class.isAssignableFrom(clazz)) {
             return PATTERN_FACTORY;
         }
-        if (clazz.equals(AbstractAction.class)) {
+        if (AbstractAction.class.isAssignableFrom(clazz)) {
             return ACTION_FACTORY;
         }
         return null;

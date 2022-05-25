@@ -20,11 +20,11 @@ package com.processdataquality.praeclarus.plugin;
 import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.config.PluginConfig;
-import com.processdataquality.praeclarus.writer.DataWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -80,20 +80,14 @@ public class PluginFactory<T> {
     }
 
 
-    public T newInstance(String className) {
+    // ensure the plugin class is known to the framework
+    public T newInstance(String className) throws NoSuchMethodException,
+            InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<T> clazz = _classMap.get(className);
-        return newInstance(clazz);
-    }
-
-
-    private T newInstance(Class<T> clazz) {
-        try {
-            return clazz.getDeclaredConstructor().newInstance();
+        if (clazz == null) {
+            throw new InstantiationException("Unable to instantiate class. No known class: " + className);
         }
-        catch (Throwable e) {
-            LOG.error("Failed to create new instance of class " + clazz.getName(), e);
-            return null;
-        }
+        return clazz.getDeclaredConstructor().newInstance();
     }
 
 
@@ -107,15 +101,5 @@ public class PluginFactory<T> {
             return Collections.emptyMap();
         }
     }
-
-
-    public static void main(String[] args) {
-        PluginFactory<DataWriter> p = new PluginFactory<>(DataWriter.class);
-        List<String> list = p.getPluginNames();
-        for (String n : list) {
-            System.out.println(n);
-        }
-        DataWriter d = p.newInstance(list.get(0));
-
-    }
+    
 }

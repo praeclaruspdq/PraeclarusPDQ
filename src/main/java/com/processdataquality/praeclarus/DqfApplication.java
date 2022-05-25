@@ -31,7 +31,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class DqfApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
+
         SpringApplication.run(DqfApplication.class, args);
+
+//        // set security for allowable plugin actions
+//        Policy.setPolicy(new PluginSecurityPolicy());
+//        System.setSecurityManager(new SecurityManager());
+
     }
 
 }

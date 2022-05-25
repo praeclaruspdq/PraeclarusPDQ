@@ -17,12 +17,15 @@
 package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
+import com.processdataquality.praeclarus.plugin.PluginFactory;
+import com.processdataquality.praeclarus.plugin.PluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 /**
@@ -59,10 +62,19 @@ public class NodeLoader {
     @SuppressWarnings("unchecked")
     private AbstractPlugin newPluginInstance(String fqClassName) {
         try {
-            Class<AbstractPlugin> clazz = (Class<AbstractPlugin>) Class.forName(fqClassName);
-            return clazz.getDeclaredConstructor().newInstance();
+            Class<?> c = Class.forName(fqClassName);
+            if (AbstractPlugin.class.isAssignableFrom(c)) {
+                Class<? extends AbstractPlugin> clazz = (Class<? extends AbstractPlugin>) c;
+                PluginFactory<? extends AbstractPlugin> pluginFactory = PluginService.factory(clazz);
+                if (pluginFactory != null) {
+                    return pluginFactory.newInstance(fqClassName);
+                }
+                else throw new InstantiationException("Plugin class is unregistered.");
+            }
+            else throw new InstantiationException("Plugin class is not a valid PDQ plugin.");
         }
-        catch (Throwable e) {
+        catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException |
+               InstantiationException | NoSuchMethodException e) {
             LOG.error("Failed to load plugin: " + fqClassName, e);
             return null;
         }
