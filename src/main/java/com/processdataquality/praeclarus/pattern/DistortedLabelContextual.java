@@ -38,7 +38,6 @@ public class DistortedLabelContextual extends AbstractImperfectLabelContextual {
 
 	public DistortedLabelContextual() {
 		super();
-		addDefaultOptions();
 	}
 
 	@Override
@@ -46,7 +45,7 @@ public class DistortedLabelContextual extends AbstractImperfectLabelContextual {
 	}
 
 
-	private void addDefaultOptions() {
+	protected void addDefaultOptions() {
 		Options options = super.getOptions();
 
 		// TODO define limit for each option

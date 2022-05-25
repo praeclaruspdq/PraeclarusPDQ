@@ -43,7 +43,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		addDefaultOptions();
 	}
 
-	private void addDefaultOptions() {
+	protected void addDefaultOptions() {
 		Options options = super.getOptions();
 		options.addDefault(new ColumnNameListOption("Sort Column"));
 		options.addDefault("Direct Control Flow Noise Threshold", 0.05);

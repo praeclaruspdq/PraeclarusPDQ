@@ -35,11 +35,10 @@ public class PollutedLabelContextual extends AbstractImperfectLabelContextual {
 
 	public PollutedLabelContextual() {
 		super();
-		addDefaultOptions();
 	}
 
 
-	private void addDefaultOptions() {
+	protected void addDefaultOptions() {
 		Options options = super.getOptions();
 
 		// TODO define limit for each option
