@@ -16,16 +16,24 @@
 
 package com.processdataquality.praeclarus.ui;
 
+import com.processdataquality.praeclarus.security.SecurityService;
 import com.processdataquality.praeclarus.ui.component.OutputPanel;
 import com.processdataquality.praeclarus.ui.component.PluginsPanel;
 import com.processdataquality.praeclarus.ui.component.PropertiesPanel;
 import com.processdataquality.praeclarus.ui.component.WorkflowPanel;
+import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import javax.annotation.security.PermitAll;
 
 /**
  * The primary view for the web UI
@@ -33,17 +41,22 @@ import com.vaadin.flow.router.Route;
  * @author Michael Adams
  * @date 14/4/21
  */
+@PermitAll
 @Route
+@PageTitle("Praeclarus PDQ")
 @JsModule("./src/unload.js")
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public class MainView extends VerticalLayout {
 
+    private final SecurityService _securityService;         // handles login and out
+    
     private final PropertiesPanel _propsPanel;
     private final WorkflowPanel _workflowPanel;
 
 
-    public MainView() {
+    public MainView(SecurityService service) {
         setId("mainview");
+        _securityService = service;
         _propsPanel = new PropertiesPanel();
         _workflowPanel = new WorkflowPanel(this);
         SplitLayout masterLayout = new SplitLayout();
@@ -71,7 +84,7 @@ public class MainView extends VerticalLayout {
         leftLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
 
         // title image added here to save wasted space across page top
-        leftLayout.addToPrimary(getTitleImage(), new PluginsPanel());
+        leftLayout.addToPrimary(getTitleBar(), new PluginsPanel());
         leftLayout.addToSecondary(_propsPanel);
         leftLayout.setWidth("23%");
         leftLayout.addSplitterDragendListener(e -> _workflowPanel.onResize());
@@ -90,10 +103,18 @@ public class MainView extends VerticalLayout {
     }
 
     
-    private Image getTitleImage() {
+    private HorizontalLayout getTitleBar() {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidthFull();
+        layout.getStyle().set("flex-wrap", "wrap-reverse");
         Image image = new Image("icons/praeclarus.png", "Praeclarus");
         image.setHeight("48px");
-        return image;
+        Button logout = UiUtil.createToolButton(VaadinIcon.USER, "Logout", true,
+                c -> _securityService.logout());
+        logout.getStyle().set("margin-inline-start", "auto");
+        logout.getStyle().set("margin-right", "5px");
+        layout.add(image, logout);
+        return layout;
     }
 
 }

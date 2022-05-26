@@ -34,10 +34,6 @@ public class DqfApplication extends SpringBootServletInitializer {
 
         SpringApplication.run(DqfApplication.class, args);
 
-//        // set security for allowable plugin actions
-//        Policy.setPolicy(new PluginSecurityPolicy());
-//        System.setSecurityManager(new SecurityManager());
-
     }
 
 }
