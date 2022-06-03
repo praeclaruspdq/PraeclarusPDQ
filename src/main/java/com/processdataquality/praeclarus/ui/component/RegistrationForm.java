@@ -47,7 +47,7 @@ public class RegistrationForm extends FormLayout {
 
 
    public RegistrationForm() {
-       title = new H3("Signup form");
+       title = new H3("User Registration");
        firstname = new TextField("First name");
        lastname = new TextField("Last name");
        email = new EmailField("Email");
@@ -63,9 +63,8 @@ public class RegistrationForm extends FormLayout {
        submitButton = new Button("Join the community");
        submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-       add(title, firstname, lastname, email, password,
-               passwordConfirm, errorMessageField,
-               submitButton);
+       add(title, firstname, lastname, username, email, password, passwordConfirm,
+               errorMessageField, submitButton);
 
        // Max width of the Form
        setMaxWidth("500px");
@@ -79,7 +78,6 @@ public class RegistrationForm extends FormLayout {
 
        // These components always take full width
        setColspan(title, 2);
-       setColspan(email, 2);
        setColspan(errorMessageField, 2);
        setColspan(submitButton, 2);
    }

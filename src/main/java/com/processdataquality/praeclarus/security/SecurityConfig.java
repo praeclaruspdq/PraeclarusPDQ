@@ -47,7 +47,7 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/icons/**", "/register");
+        web.ignoring().antMatchers("/icons/**");
         super.configure(web);
     }
 

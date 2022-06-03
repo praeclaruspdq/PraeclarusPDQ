@@ -102,6 +102,9 @@ public class UiUtil {
 
 
     public static Grid<Row> tableToGrid(Table table) {
+        if (table.rowCount() == 0) {
+            return emptyTableToGrid(table);
+        }
         Grid<Row> grid = new Grid<>();
         for (String name : table.columnNames()) {
             ColumnType colType = table.column(name).type();
@@ -145,6 +148,15 @@ public class UiUtil {
             rows.add(table.row(i));
         }
         grid.setItems(rows);
+        return grid;
+    }
+
+    
+    private static Grid<Row> emptyTableToGrid(Table table) {
+        Grid<Row> grid = new Grid<>();
+        for (String name : table.columnNames()) {
+            grid.addColumns(name);
+        }
         return grid;
     }
 

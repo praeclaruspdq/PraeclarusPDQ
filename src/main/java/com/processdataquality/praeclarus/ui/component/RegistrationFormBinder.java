@@ -17,8 +17,8 @@
 package com.processdataquality.praeclarus.ui.component;
 
 import com.processdataquality.praeclarus.security.user.PdqUser;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
+import com.processdataquality.praeclarus.ui.component.announce.Announcement;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -73,6 +73,7 @@ public class RegistrationFormBinder {
                binder.writeBean(userBean);
 
                // Typically, you would here call backend to store the bean
+               
 
                // Show success message if everything went well
                showSuccess(userBean);
@@ -121,11 +122,10 @@ public class RegistrationFormBinder {
     * We call this method when form submission has succeeded
     */
    private void showSuccess(PdqUser userBean) {
-       Notification notification =
-               Notification.show("Data saved, welcome " + userBean.getFirstname());
-       notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+       Announcement.show("Data saved, welcome " + userBean.getFirstname());
 
-       // Here you'd typically redirect the user to another view
+       // Redirect back to login page
+       UI.getCurrent().navigate("login");
    }
 
 }

@@ -23,18 +23,17 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-import javax.annotation.security.PermitAll;
-
+@AnonymousAllowed
 @Route("register")
-@PermitAll
 @PageTitle("Register - Praeclarus PDQ")
 public class RegistrationView extends VerticalLayout {
 
     public RegistrationView() {
         RegistrationForm registrationForm = new RegistrationForm();
-        // setHorizontalComponentAlignment(Alignment.CENTER, registrationForm);
         setSizeFull();
+        setHorizontalComponentAlignment(Alignment.CENTER, registrationForm);
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
         add(UiUtil.getLargeLogo(), new H1("Praeclarus PDQ"), registrationForm);
