@@ -35,7 +35,7 @@ public abstract class AbstractLogEvent {
     private Long id;
 
     private LocalDateTime timestamp;
-    private String user;
+    private String username;
     private String label;
 
 
@@ -43,7 +43,7 @@ public abstract class AbstractLogEvent {
 
     public AbstractLogEvent(String user, EventType constant) {
         setTimestamp(LocalDateTime.now());
-        setUser(user);
+        setUsername(user);
         setLabel(constant.asString());
     }
     
@@ -60,9 +60,9 @@ public abstract class AbstractLogEvent {
     }
 
 
-    public String getUser() { return user; }
+    public String getUsername() { return username; }
 
-    public void setUser(String user) { this.user = user; }
+    public void setUsername(String user) { this.username = user; }
 
 
     public String getLabel() {return label; }
@@ -75,7 +75,7 @@ public abstract class AbstractLogEvent {
 
     @Override
     public String toString() {
-        return getTimestampAsString() + "; User: " + getUser() + "; Event: " + getLabel();
+        return getTimestampAsString() + "; User: " + getUsername() + "; Event: " + getLabel();
     }
 
 }

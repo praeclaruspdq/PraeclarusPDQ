@@ -35,7 +35,7 @@ import java.util.ArrayList;
  */
 public abstract class AbstractImperfectLabelContextual extends AbstractImperfectLabel {
 
-	private double[][] rs, ds, ts, dcfs, eds, ls;
+	protected double[][] rs, ds, ts, dcfs, eds, ls;
 
 
 	protected AbstractImperfectLabelContextual() {
@@ -115,6 +115,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 
 
 	protected void detect(Table table, StringColumn selectedColumn, String sortColName) {
+		_detected = createResultTable();
 		ParseTable parser = new ParseTable(table, selectedColumn.name(), sortColName);
 		parser.parse();
 		rs = new ResourceSimilarity(parser.getActivities()).getSimilarity();
@@ -122,7 +123,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		ts = new TimeSimilarity(parser.getActivities()).getSimilarity();
 		dcfs = new ControlFlowSimilarity(parser.getActivities(), parser.getTraces(),
 				getOptions().get("Direct Control Flow Noise Threshold").asDouble()).getDirectControlFlowSimilarity();
-		eds = new EventDataSimilarity(parser.getActivities()).getSimilarity();
+		eds = new EventDataSimilarity(parser.getActivities(),0).getSimilarity();
 		ls = new StringSimilarity(parser.getActivities()).getSimilarity();
 
 		ArrayList<Pair<Activity, Activity>> res = new ArrayList<Pair<Activity, Activity>>();
@@ -168,7 +169,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 	 * @return the average context similarity
 	 */
 
-	private double overallSimilarity(int i, int j) {
+	double overallSimilarity(int i, int j) {
 		double score = 0;
 		double duW = getOptions().get("Duration Similarity Weight").asInt();
 		double tW = getOptions().get("Time Similarity Weight").asInt();

@@ -38,6 +38,7 @@ public class SynonymousLabelContextual extends AbstractImperfectLabelContextual 
 
 
 	protected void addDefaultOptions() {
+		super.addDefaultOptions();
 		Options options = super.getOptions();
 
 		// TODO define limit for each option

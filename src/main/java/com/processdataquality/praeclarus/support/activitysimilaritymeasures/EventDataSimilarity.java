@@ -19,6 +19,7 @@ package com.processdataquality.praeclarus.support.activitysimilaritymeasures;
 import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.logelements.ActivityData;
 import com.processdataquality.praeclarus.support.logelements.Event;
+import com.processdataquality.praeclarus.support.math.EditDistanceRecursive;
 import com.processdataquality.praeclarus.support.math.Pair;
 
 import java.util.ArrayList;
@@ -35,11 +36,13 @@ public class EventDataSimilarity {
 	private ArrayList<Activity> activities;
 	private int nDA;
 	private double[][] DaS;
+	private double DANameSimThresh;
 
-	public EventDataSimilarity(ArrayList<Activity> activities) {
+	public EventDataSimilarity(ArrayList<Activity> activities, double DANameSimThresh) {
 		this.activities = new ArrayList<Activity>(activities);
 		nDA = activities.size();
 		DaS = new double[nDA][nDA];
+		this.DANameSimThresh = DANameSimThresh;
 		for (Activity a : activities) {
 			a.findPredecessors();
 			a.findSuccessors();
@@ -57,7 +60,7 @@ public class EventDataSimilarity {
 					boolean datai = activities.get(i).hasEventLevelData();
 					boolean dataj = activities.get(j).hasEventLevelData();
 					if (datai && dataj) {
-						//Main.out.println("i, j: " + i + ", " + j);
+						//System.out.println("i, j: " + i + ", " + j + " have data");
 						DaS[i][j] = dataSimilarity(activities.get(i), activities.get(j));
 
 					} else if ((datai && !dataj) || (!datai && dataj)) {
@@ -156,6 +159,7 @@ public class EventDataSimilarity {
 		int[] match = match(data1, data2);
 		double count = 0;
 		for (int i = 0; i < match.length; i++) {
+			//System.out.println("match i " + i+ " is " + match[i] );
 			if (match[i] != -1) {
 				double temp = valuesManhattanSimilarity(data1.get(i), data2.get(match[i]));
 				dataSimilarity += temp;
@@ -493,7 +497,9 @@ public class EventDataSimilarity {
 			int i = test1.indexOf(ad1);
 			for (ActivityData ad2 : test2) {
 				int j = test2.indexOf(ad2);
-				if (ad1.getName().equals(ad2.getName())) {
+				double distance = EditDistanceRecursive.normalizedDistance(ad1.getName(), ad2.getName());
+				//System.out.println("data 1: " + ad1.getName() + " and data 2: " + ad2.getName() + " distance: " + distance);
+				if (distance < (1 - DANameSimThresh)) {
 					res[i] = j;
 					break;
 				}

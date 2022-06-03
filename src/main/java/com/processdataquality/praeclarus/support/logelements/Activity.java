@@ -25,7 +25,7 @@ import java.util.*;
 
 /**
  * @author Sareh Sadeghianasl
- * @date 7/1/22
+ * @date 23/5/22
  */
 
 public class Activity {
@@ -61,6 +61,7 @@ public class Activity {
 	private boolean isDWRandom;
 	private boolean isMRandom;
 	private int mul = 2;
+	private int index;
 	
 	private double[] availableHours, availableDays, availableMonths, availableFourHours;
 	private double[] availableHoursPdf, availableDaysPdf, availableMonthsPdf, availableFourHoursPdf;
@@ -750,5 +751,12 @@ public class Activity {
 		String on = new String(other.getName());
 		return (this.name.equals(on));
 	}
+	
+	public int getIndex() {
+		return index;
+	}
 
+	public void setIndex(int index) {
+		this.index = index;
+	}
 }

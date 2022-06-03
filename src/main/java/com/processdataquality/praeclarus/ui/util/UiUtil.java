@@ -22,6 +22,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -40,6 +41,13 @@ public class UiUtil {
 
     public static final String VAADIN_BLUE = "2C68EC";
     public static final String DISABLED_COLOUR = "BDC3CC";
+
+
+    public static Image getLargeLogo() {
+        Image image = new Image("icons/laurelWreath.png", "Praeclarus");
+        image.setHeight("128px");
+        return image;
+    }
 
 
     public static void removeTopMargin(Component c) {
