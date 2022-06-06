@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import com.processdataquality.praeclarus.repo.user.UserRepository;
 import com.processdataquality.praeclarus.security.user.PdqUser;
 import com.processdataquality.praeclarus.ui.component.announce.Announcement;
 import com.vaadin.flow.component.UI;
@@ -23,18 +24,23 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class RegistrationFormBinder {
 
    private final RegistrationForm registrationForm;
+   private final UserRepository repo;
 
    /**
     * Flag for disabling first run for password validation
     */
    private boolean enablePasswordValidation;
 
-   public RegistrationFormBinder(RegistrationForm registrationForm) {
+
+   public RegistrationFormBinder(RegistrationForm registrationForm,
+                                 UserRepository userRepository) {
        this.registrationForm = registrationForm;
+       repo = userRepository;
    }
 
    /**
@@ -48,6 +54,11 @@ public class RegistrationFormBinder {
        // A custom validator for password fields
        binder.forField(registrationForm.getPasswordField())
                .withValidator(this::passwordValidator).bind("password");
+
+       // check username is unique
+       binder.forField(registrationForm.getUsernameField())
+               .withValidator(this::usernameValidator).bind("username");
+
 
        // The second password field is not connected to the Binder, but we
        // want the binder to re-check the password validator when the field
@@ -73,7 +84,8 @@ public class RegistrationFormBinder {
                binder.writeBean(userBean);
 
                // Typically, you would here call backend to store the bean
-               
+               userBean.setPassword(new BCryptPasswordEncoder().encode(userBean.getPassword()));
+               repo.save(userBean);
 
                // Show success message if everything went well
                showSuccess(userBean);
@@ -117,6 +129,15 @@ public class RegistrationFormBinder {
 
        return ValidationResult.error("Passwords do not match");
    }
+
+
+   private ValidationResult usernameValidator(String user, ValueContext ctx) {
+       if (repo.findByUsername(user) != null) {
+           return ValidationResult.error("That username is already in use.");
+       }
+       return ValidationResult.ok();
+   }
+
 
    /**
     * We call this method when form submission has succeeded

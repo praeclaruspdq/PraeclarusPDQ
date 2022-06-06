@@ -82,6 +82,8 @@ public class RegistrationForm extends FormLayout {
        setColspan(submitButton, 2);
    }
 
+   public TextField getUsernameField() { return username; }
+
    public PasswordField getPasswordField() { return password; }
 
    public PasswordField getPasswordConfirmField() { return passwordConfirm; }

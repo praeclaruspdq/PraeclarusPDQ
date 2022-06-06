@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui;
 
+import com.processdataquality.praeclarus.repo.user.UserRepository;
 import com.processdataquality.praeclarus.ui.component.RegistrationForm;
 import com.processdataquality.praeclarus.ui.component.RegistrationFormBinder;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
@@ -30,7 +31,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @PageTitle("Register - Praeclarus PDQ")
 public class RegistrationView extends VerticalLayout {
 
-    public RegistrationView() {
+    public RegistrationView(UserRepository userRepository) {
         RegistrationForm registrationForm = new RegistrationForm();
         setSizeFull();
         setHorizontalComponentAlignment(Alignment.CENTER, registrationForm);
@@ -38,7 +39,8 @@ public class RegistrationView extends VerticalLayout {
         setJustifyContentMode(JustifyContentMode.CENTER);
         add(UiUtil.getLargeLogo(), new H1("Praeclarus PDQ"), registrationForm);
 
-        RegistrationFormBinder registrationFormBinder = new RegistrationFormBinder(registrationForm);
+        RegistrationFormBinder registrationFormBinder =
+                new RegistrationFormBinder(registrationForm, userRepository);
         registrationFormBinder.addBindingAndValidation();
     }
 }

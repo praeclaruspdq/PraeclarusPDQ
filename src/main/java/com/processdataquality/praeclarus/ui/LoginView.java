@@ -39,7 +39,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setJustifyContentMode(JustifyContentMode.CENTER);
         loginForm.setAction("login");
         add(UiUtil.getLargeLogo(), new H1("Praeclarus PDQ"), loginForm,
-                registration());
+                registrationLink());
     }
 
     
@@ -56,8 +56,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     }
 
 
-    private RouterLink registration() {
-    //    String route = RouteConfiguration.forSessionScope().getUrl(RegistrationView.class);
+    private RouterLink registrationLink() {
         return new RouterLink("New User? Register Here", RegistrationView.class);
     }
 

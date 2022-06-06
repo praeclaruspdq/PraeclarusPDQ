@@ -35,10 +35,10 @@ public interface UserRepository extends CrudRepository<PdqUser, String> {
 
     PdqUser findByUsername(String username);
 
-    @Query("UPDATE PdqUser u SET u.lastLogin=:lastLogin WHERE u.username = ?#{ principal?.username }")
+    @Query("UPDATE PdqUser u SET u.lastLogin=:lastLogin WHERE u.username=:username")
     @Modifying
     @Transactional
-    void updateLastLogin(@Param("lastLogin") LocalDateTime lastLogin);
+    void updateLastLogin(@Param("username") String username, @Param("lastLogin") LocalDateTime lastLogin);
 
 
 }
