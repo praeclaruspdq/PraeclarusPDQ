@@ -124,7 +124,7 @@ public class StoredWorkflowsDialog extends Dialog {
 
 
     private Grid<StoredWorkflow> createPrivateGrid() {
-        return createGrid(WorkflowStore.findPrivate("user"));
+        return createGrid(WorkflowStore.findPrivate(EventLogger.loggedOnUserName()));
     }
 
 
@@ -244,7 +244,7 @@ public class StoredWorkflowsDialog extends Dialog {
     private void loadSelected() {
         parentWorkflow.fileLoaded(selectedWorkflow.getJson());
         Announcement.success("'" + selectedWorkflow.getName() + "' successfully loaded.");
-        EventLogger.graphLoadEvent(parentWorkflow.getGraph(), "user");
+        EventLogger.graphLoadEvent(parentWorkflow.getGraph());
     }
 
     
@@ -257,7 +257,7 @@ public class StoredWorkflowsDialog extends Dialog {
             WorkflowStore.delete(selectedWorkflow);
             getGridOnView().getListDataView().removeItem(selectedWorkflow);
             EventLogger.graphDiscardedEvent(selectedWorkflow.getId(),
-                    selectedWorkflow.getName(), "user");
+                    selectedWorkflow.getName());
             clearSelection();
         });
         

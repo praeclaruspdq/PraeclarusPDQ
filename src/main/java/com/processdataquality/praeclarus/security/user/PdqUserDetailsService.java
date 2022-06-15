@@ -16,15 +16,16 @@
 
 package com.processdataquality.praeclarus.security.user;
 
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.repo.user.UserRepository;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 
 /**
@@ -39,11 +40,6 @@ public class PdqUserDetailsService implements UserDetailsService {
 
     public PdqUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }
-
-    @PostConstruct
-    public void completeSetup() {
- //       addDefaultUser();
     }
 
     
@@ -63,19 +59,17 @@ public class PdqUserDetailsService implements UserDetailsService {
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
             userRepository.updateLastLogin(username, LocalDateTime.now());
+            EventLogger.logonSuccessEvent(username);
         }
     }
 
-    
-    public void addUser(PdqUser user) {
-        if (userRepository != null) userRepository.save(user);
-        else System.out.println("user repo is null");
-    }
 
-
-    private void addDefaultUser() {
-        addUser(new PdqUser("user", "userpass",
-                "first", "last","x@y.com"));
+    @EventListener
+    public void onFailure(AbstractAuthenticationFailureEvent failures) {
+        String username = failures.getAuthentication().getName();
+        if (username != null) {
+            EventLogger.logonFailEvent(username, failures.getException().getMessage());
+        }
     }
 
 }

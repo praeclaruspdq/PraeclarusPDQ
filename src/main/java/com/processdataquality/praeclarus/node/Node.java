@@ -25,10 +25,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import tech.tablesaw.api.Table;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A node in a workflow, representing a plugin. This class provides base functionality
@@ -286,6 +283,16 @@ public abstract class Node {
 
 
     /**
+     * @return a map of auxiliary datasets from all predecessor nodes
+     */
+    public Map<String, Table> getAuxiliaryInputs() {
+        Map<String, Table> auxInputs = new HashMap<>();
+        _previous.forEach(node -> auxInputs.putAll(node.getAuxiliaryDatasets()));
+        return auxInputs;
+    }
+
+    
+    /**
      * Returns this node to its pre-run state
      */
     public void reset() throws Exception {
@@ -313,6 +320,11 @@ public abstract class Node {
         _output = t;
         _tableID = t.name();
         commit(t);
+    }
+
+    
+    protected Map<String, Table> getAuxiliaryDatasets() {
+        return _plugin.getAuxiliaryDatasets();
     }
 
 

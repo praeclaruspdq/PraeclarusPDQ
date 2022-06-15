@@ -46,6 +46,10 @@ public class PatternNode extends Node {
         AbstractDataPattern imperfectionPattern = (AbstractDataPattern) getPlugin();
         Table master = getInputs().get(0);         // only one input
         if (getState() == NodeState.UNSTARTED && imperfectionPattern.canDetect()) {
+
+            // load plugin with all incoming plugins' aux datasets
+            imperfectionPattern.getAuxiliaryDatasets().putAll(getAuxiliaryInputs());
+            
             setState(NodeState.EXECUTING);
             detected = imperfectionPattern.detect(master);
             if (imperfectionPattern.canRepair()) {

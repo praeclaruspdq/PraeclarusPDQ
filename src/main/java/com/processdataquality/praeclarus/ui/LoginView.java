@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui;
 
+import com.processdataquality.praeclarus.ui.component.form.ForgotPasswordHandler;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
@@ -32,7 +33,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final LoginForm loginForm = new LoginForm();
 
-    public LoginView(){
+    public LoginView(ForgotPasswordHandler forgotPasswordHandler){
         addClassName("login-view");
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -40,6 +41,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         loginForm.setAction("login");
         add(UiUtil.getLargeLogo(), new H1("Praeclarus PDQ"), loginForm,
                 registrationLink());
+        loginForm.addForgotPasswordListener(forgotPasswordHandler);
     }
 
     

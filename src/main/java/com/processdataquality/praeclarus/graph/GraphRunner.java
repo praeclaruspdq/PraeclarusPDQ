@@ -242,7 +242,7 @@ public class GraphRunner implements NodeStateChangeListener {
 
     private void announceNodeEvent(EventType eventType, Node node) {
         _eventListeners.forEach(l -> l.runnerEvent(new GraphRunnerEvent(eventType, node)));
-        EventLogger.nodeExecutionEvent(_graph, node, eventType, "user",
+        EventLogger.nodeExecutionEvent(_graph, node, eventType,
                 getLogComment(eventType, node));
     }
 

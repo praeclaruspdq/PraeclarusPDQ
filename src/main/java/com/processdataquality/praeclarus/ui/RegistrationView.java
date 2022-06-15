@@ -17,8 +17,8 @@
 package com.processdataquality.praeclarus.ui;
 
 import com.processdataquality.praeclarus.repo.user.UserRepository;
-import com.processdataquality.praeclarus.ui.component.RegistrationForm;
-import com.processdataquality.praeclarus.ui.component.RegistrationFormBinder;
+import com.processdataquality.praeclarus.ui.component.form.RegistrationForm;
+import com.processdataquality.praeclarus.ui.component.form.RegistrationFormBinder;
 import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

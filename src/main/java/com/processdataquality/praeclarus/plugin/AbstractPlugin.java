@@ -20,6 +20,10 @@ import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.OptionValueChangeListener;
 import com.processdataquality.praeclarus.option.Options;
+import tech.tablesaw.api.Table;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Michael Adams
@@ -27,6 +31,7 @@ import com.processdataquality.praeclarus.option.Options;
  */
 public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeListener {
 
+    private final Map<String, Table> auxiliaryDatasets = new HashMap<>();
     private final Options options = new Options();
     private String label = getName();                        // default from interface
     private String id = getId();                             // default from interface
@@ -47,10 +52,13 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
     public int getMaxOutputs() { return 1; }
 
 
+    public Map<String, Table> getAuxiliaryDatasets() { return auxiliaryDatasets; }
+
+
     // can be overridden by plugins that have to effect the value change immediately
     @Override
     public void optionValueChanged(Option option) {
-        EventLogger.optionChangeEvent(id, label, "user", option);
+        EventLogger.optionChangeEvent(id, label, option);
     }
 
     

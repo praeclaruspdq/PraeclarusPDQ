@@ -16,12 +16,14 @@
 
 package com.processdataquality.praeclarus.logging;
 
+import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.logging.entity.*;
 import com.processdataquality.praeclarus.logging.repository.*;
-import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.option.Option;
+import com.processdataquality.praeclarus.security.SecurityService;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
@@ -49,6 +51,7 @@ public class EventLogger {
     private static GraphCreatedEventRepository graphCreatedEventRepository;
     private static GraphIOEventRepository graphIOEventRepository;
 
+    private static SecurityService securityService;
     
     // Inject repositories
     public EventLogger(AuthenticationEventRepository authRepo,
@@ -57,7 +60,8 @@ public class EventLogger {
                        NodeEventRepository nRepo,
                        NodeExecutionEventRepository nrRepo,
                        GraphCreatedEventRepository wcRepo,
-                       GraphIOEventRepository wioRepo) {
+                       GraphIOEventRepository wioRepo,
+                       SecurityService service) {
         authenticationEventRepository = authRepo;
         connectorEventRepository = connRepo;
         optionChangeEventRepository = ncRepo;
@@ -65,6 +69,7 @@ public class EventLogger {
         nodeExecutionEventRepository = nrRepo;
         graphCreatedEventRepository = wcRepo;
         graphIOEventRepository = wioRepo;
+        securityService = service;
     }
 
 
@@ -94,8 +99,8 @@ public class EventLogger {
     }
 
 
-    public static void logOffEvent(String user) {
-        authenticationEvent(user, EventType.LOGOFF, null);
+    public static void logOffEvent() {
+        authenticationEvent(loggedOnUserName(), EventType.LOGOFF, null);
     }
 
     
@@ -105,117 +110,115 @@ public class EventLogger {
     }
 
 
-    public static void addConnectorEvent(Graph graph, String user, Node source, Node target) {
-        connectorEvent(graph, user, EventType.CONNECTOR_ADDED, source, target);
+    public static void addConnectorEvent(Graph graph, Node source, Node target) {
+        connectorEvent(graph, EventType.CONNECTOR_ADDED, source, target);
     }
 
 
-    public static void removeConnectorEvent(Graph graph, String user, Node source, Node target) {
-        connectorEvent(graph, user, EventType.CONNECTOR_REMOVED, source, target);
+    public static void removeConnectorEvent(Graph graph, Node source, Node target) {
+        connectorEvent(graph, EventType.CONNECTOR_REMOVED, source, target);
     }
 
 
-    public static void connectorEvent(Graph graph, String user, EventType constant,
+    public static void connectorEvent(Graph graph, EventType constant,
                                       Node source, Node target) {
-        ConnectorEvent event = new ConnectorEvent(graph, user, constant, source, target);
+        ConnectorEvent event = new ConnectorEvent(graph, loggedOnUserName(), constant,
+                source, target);
         save(connectorEventRepository, event);
     }
 
 
-    public static void optionChangeEvent(Graph graph, String user, Option option) {
-        optionChangeEvent(graph.getId(), graph.getName(), user, option);
-    }
-
-
-    public static void optionChangeEvent(Node node, String user, Option option) {
-        optionChangeEvent(node.getID(), node.getLabel(), user, option);
-    }
-
-
-    public static void optionChangeEvent(String compId, String compName, String user,
+    public static void optionChangeEvent(String componentID, String componentName,
                                          Option option) {
-        OptionChangeEvent event = new OptionChangeEvent(compId, compName, user,
-                option);
+        OptionChangeEvent event = new OptionChangeEvent(componentID, componentName,
+                loggedOnUserName(), option);
         save(optionChangeEventRepository, event);
     }
 
 
-    public static void nodeAddedEvent(Graph graph, Node node, String user) {
-        nodeEvent(graph, node, EventType.NODE_ADDED, user);
+    public static void nodeAddedEvent(Graph graph, Node node) {
+        nodeEvent(graph, node, EventType.NODE_ADDED);
     }
 
 
-    public static void nodeRemovedEvent(Graph graph, Node node, String user) {
-        nodeEvent(graph, node, EventType.NODE_REMOVED, user);
+    public static void nodeRemovedEvent(Graph graph, Node node) {
+        nodeEvent(graph, node, EventType.NODE_REMOVED);
     }
 
 
-    public static void nodeEvent(Graph graph, Node node, EventType constant, String user) {
-        NodeEvent event = new NodeEvent(graph, node, constant, user);
+    public static void nodeEvent(Graph graph, Node node, EventType constant) {
+        NodeEvent event = new NodeEvent(graph, node, constant, loggedOnUserName());
         save(nodeEventRepository, event);
     }
 
 
-    public static void nodeCompletedEvent(Graph graph, Node node, String user, String outcome) {
-        nodeExecutionEvent(graph, node, EventType.NODE_COMPLETED, user, outcome);
+    public static void nodeCompletedEvent(Graph graph, Node node, String outcome) {
+        nodeExecutionEvent(graph, node, EventType.NODE_COMPLETED, outcome);
     }
 
 
-    public static void nodePausedEvent(Graph graph, Node node, String user, String outcome) {
-        nodeExecutionEvent(graph, node, EventType.NODE_PAUSED, user, outcome);
+    public static void nodePausedEvent(Graph graph, Node node, String outcome) {
+        nodeExecutionEvent(graph, node, EventType.NODE_PAUSED, outcome);
     }
 
 
-    public static void nodeRollbackEvent(Graph graph, Node node, String user, String outcome) {
-        nodeExecutionEvent(graph, node, EventType.NODE_ROLLBACK, user, outcome);
+    public static void nodeRollbackEvent(Graph graph, Node node, String outcome) {
+        nodeExecutionEvent(graph, node, EventType.NODE_ROLLBACK, outcome);
     }
 
     
     public static void nodeExecutionEvent(Graph graph, Node node, EventType eventType,
-                                          String user, String outcome) {
-        NodeExecutionEvent event = new NodeExecutionEvent(graph, node, eventType, user, outcome);
+                                          String outcome) {
+        NodeExecutionEvent event = new NodeExecutionEvent(graph, node, eventType,
+                loggedOnUserName(), outcome);
         save(nodeExecutionEventRepository, event);
     }
 
 
-    public static void graphCreatedEvent(Graph graph, String user) {
-        GraphCreatedEvent event = new GraphCreatedEvent(graph, user);
+    public static void graphCreatedEvent(Graph graph) {
+        GraphCreatedEvent event = new GraphCreatedEvent(graph, loggedOnUserName());
         save(graphCreatedEventRepository, event);
     }
 
 
-    public static void graphUploadEvent(Graph graph, String user) {
-        graphIOEvent(graph, user, EventType.GRAPH_UPLOADED);
+    public static void graphUploadEvent(Graph graph) {
+        graphIOEvent(graph, EventType.GRAPH_UPLOADED);
     }
 
 
-    public static void graphDownloadEvent(Graph graph, String user) {
-        graphIOEvent(graph, user, EventType.GRAPH_DOWNLOADED);
+    public static void graphDownloadEvent(Graph graph) {
+        graphIOEvent(graph, EventType.GRAPH_DOWNLOADED);
     }
 
 
-    public static void graphStoreEvent(Graph graph, String user) {
-        graphIOEvent(graph, user, EventType.GRAPH_STORED);
+    public static void graphStoreEvent(Graph graph) {
+        graphIOEvent(graph, EventType.GRAPH_STORED);
     }
 
 
-    public static void graphLoadEvent(Graph graph, String user) {
-        graphIOEvent(graph, user, EventType.GRAPH_LOADED);
+    public static void graphLoadEvent(Graph graph) {
+        graphIOEvent(graph, EventType.GRAPH_LOADED);
     }
 
 
-    public static void graphDiscardedEvent(String id, String name, String user) {
-        GraphIOEvent event = new GraphIOEvent(id, name, user, EventType.GRAPH_DISCARDED);
+    public static void graphDiscardedEvent(String id, String name) {
+        GraphIOEvent event = new GraphIOEvent(id, name, loggedOnUserName(), EventType.GRAPH_DISCARDED);
         save(graphIOEventRepository, event);
     }
 
 
-    public static void graphIOEvent(Graph graph, String user, EventType constant) {
-        GraphIOEvent event = new GraphIOEvent(graph, user, constant);
+    public static void graphIOEvent(Graph graph, EventType constant) {
+        GraphIOEvent event = new GraphIOEvent(graph, loggedOnUserName(), constant);
         save(graphIOEventRepository, event);
     }
 
-    
+
+    public static String loggedOnUserName() {
+        UserDetails user = securityService.getAuthenticatedUser();
+        return user != null ? user.getUsername() : "N/A";
+    }
+
+
     private static <T extends AbstractLogEvent> void save(CrudRepository<T, Long> repo, T event) {
         if (capturing) {
             repo.save(event);
@@ -227,4 +230,5 @@ public class EventLogger {
     private static void announce(AbstractLogEvent event) {
         listeners.forEach(l -> l.eventLogged(event));
     }
+
 }

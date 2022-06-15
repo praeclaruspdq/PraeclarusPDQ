@@ -73,20 +73,20 @@ public class Graph implements HasOptions, OptionValueChangeListener {
         userContent = builder.userContent;
         _options = refreshOptions();
         _options.setValueChangeListener(this);
-        EventLogger.graphCreatedEvent(this, "user");
+        EventLogger.graphCreatedEvent(this);
         GraphStore.addIfNew(this);
     }
 
 
     public void connect(Node source, Node target) {
         source.connect(target);
-        EventLogger.addConnectorEvent(this, "user", source, target);
+        EventLogger.addConnectorEvent(this, source, target);
     }
 
 
     public void disconnect(Node source, Node target) {
         source.disconnect(target);
-        EventLogger.removeConnectorEvent(this, "user", source, target);
+        EventLogger.removeConnectorEvent(this, source, target);
     }
 
 
@@ -98,7 +98,7 @@ public class Graph implements HasOptions, OptionValueChangeListener {
     @Override
     public void optionValueChanged(Option option) {
         updateOptionValue(option);
-        EventLogger.optionChangeEvent(getId(), getName(), "user", option);
+        EventLogger.optionChangeEvent(getId(), getName(), option);
     }
 
 
@@ -170,7 +170,7 @@ public class Graph implements HasOptions, OptionValueChangeListener {
 
     public void addNode(Node node) {
         nodeSet.add(node);
-        EventLogger.nodeAddedEvent(this, node, "user");
+        EventLogger.nodeAddedEvent(this, node);
     }
 
 
@@ -183,7 +183,7 @@ public class Graph implements HasOptions, OptionValueChangeListener {
         node.previous().forEach(previous -> previous.removeNext(node));
         node.next().forEach(next -> next.removePrevious(node));
         nodeSet.remove(node);
-        EventLogger.nodeRemovedEvent(this, node, "user");
+        EventLogger.nodeRemovedEvent(this, node);
     }
 
 

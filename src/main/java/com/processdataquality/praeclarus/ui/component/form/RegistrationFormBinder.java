@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.ui.component;
+package com.processdataquality.praeclarus.ui.component.form;
 
 import com.processdataquality.praeclarus.repo.user.UserRepository;
 import com.processdataquality.praeclarus.security.user.PdqUser;

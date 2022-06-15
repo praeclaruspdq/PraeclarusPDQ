@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.security;
 
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import org.springframework.security.core.context.SecurityContext;
@@ -46,6 +47,7 @@ public class SecurityService {
 
 
     public void logout() {
+        EventLogger.logOffEvent();
         UI.getCurrent().getPage().setLocation(LOGOUT_SUCCESS_URL);
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
         logoutHandler.logout(

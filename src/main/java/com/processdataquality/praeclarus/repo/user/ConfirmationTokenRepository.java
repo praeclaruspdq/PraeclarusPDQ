@@ -16,32 +16,12 @@
 
 package com.processdataquality.praeclarus.repo.user;
 
-import com.processdataquality.praeclarus.security.user.PdqUser;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
-/**
- * @author Michael Adams
- * @date 1/12/21
- */
 @Repository
-public interface UserRepository extends CrudRepository<PdqUser, String> {
+public interface ConfirmationTokenRepository extends CrudRepository<ConfirmationToken, String> {
 
-    PdqUser findByUsername(String username);
-
-    PdqUser findByEmailIgnoreCase(String email);
-
-    @Query("UPDATE PdqUser u SET u.lastLogin=:lastLogin WHERE u.username=:username")
-    @Modifying
-    @Transactional
-    void updateLastLogin(@Param("username") String username, @Param("lastLogin") LocalDateTime lastLogin);
-
-
+    ConfirmationToken findByConfirmationToken(String confirmationToken);
+    
 }
-

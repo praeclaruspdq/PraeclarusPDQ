@@ -141,7 +141,7 @@ public class Workflow implements CanvasEventListener, NodeStateChangeListener {
             loader.load(jsonStr);
             _container.getRunner().reset();
             Announcement.success("Workflow successfully uploaded.");
-            EventLogger.graphUploadEvent(getGraph(), "user");
+            EventLogger.graphUploadEvent(getGraph());
         }
         catch (JSONException | IOException je) {
             Announcement.error("Failed to load file: " + je.getMessage());
@@ -201,7 +201,8 @@ public class Workflow implements CanvasEventListener, NodeStateChangeListener {
     }
 
     public void clear() {
-        Graph graph = new Graph.Builder("user").name("New Workflow").build();
+        String loggedOnUsername = EventLogger.loggedOnUserName();
+        Graph graph = new Graph.Builder(loggedOnUsername).name("New Workflow").build();
         clear(graph);
     }
 
@@ -346,7 +347,7 @@ public class Workflow implements CanvasEventListener, NodeStateChangeListener {
     public void store() throws JSONException {
         WorkflowStore.save(this);
         setChanged(false);
-        EventLogger.graphStoreEvent(getGraph(), "user");
+        EventLogger.graphStoreEvent(getGraph());
         Announcement.success("'" + getGraph().getName() + "' successfully stored.");
     }
     

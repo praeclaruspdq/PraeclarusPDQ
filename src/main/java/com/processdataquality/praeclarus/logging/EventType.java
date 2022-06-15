@@ -27,8 +27,8 @@ import java.util.Map;
 public enum EventType {
 
     // Authentication
-    LOGON_SUCCESS("Successful Logon"),
-    LOGON_FAIL("Failed Logon"),
+    LOGON_SUCCESS("Success"),
+    LOGON_FAIL("Failed"),
     LOGOFF("Logoff"),
 
     // Graph

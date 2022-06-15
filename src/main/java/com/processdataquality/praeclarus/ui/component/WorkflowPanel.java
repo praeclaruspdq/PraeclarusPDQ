@@ -350,7 +350,7 @@ public class WorkflowPanel extends VerticalLayout
             String jsonStr = _workflow.asJson().toString(3);
             _canvas.saveToFile(jsonStr);
             _workflow.setChanged(false);
-            EventLogger.graphDownloadEvent(_workflow.getGraph(), "user");
+            EventLogger.graphDownloadEvent(_workflow.getGraph());
             return true;
         }
         catch (JSONException je) {
