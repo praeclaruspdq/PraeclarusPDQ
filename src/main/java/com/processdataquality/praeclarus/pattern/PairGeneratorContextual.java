@@ -76,6 +76,7 @@ public class PairGeneratorContextual extends AbstractImperfectLabelContextual {
 		ArrayList<ActivityGroup> pairs = convertToList();
 		Collections.sort(pairs);
 		createPairs(graph, selectedColumn, pairs);
+		getAuxiliaryDatasets().put("Activities", createActivitiesTable());
 	}
 
 	private ArrayList<ActivityGroup> convertToList() {
@@ -119,7 +120,7 @@ public class PairGeneratorContextual extends AbstractImperfectLabelContextual {
 		int j = parser.getActivities().indexOf(g.getActs().get(1));
 		String act1 = "(" + i + ")" + g.getActs().get(0).getName();
 		String act2 = "(" + j + ")" + g.getActs().get(1).getName();
-		addResult(selectedColumn, "" + g.getId() + "", act1, act2, dcfs[i][j], rs[i][j], ts[i][j], eds[i][j]);
+		addResult(selectedColumn, "" + g.getId() + "", act1, act2, dcfs[i][j], rs[i][j], ts[i][j],ds[i][j], eds[i][j]);
 
 	}
 
@@ -152,14 +153,14 @@ public class PairGeneratorContextual extends AbstractImperfectLabelContextual {
 	 * @param eds     the data attribute similarity of act1 and act2
 	 */
 	protected void addResult(StringColumn column, String gid, String act1, String act2, double dcfs,
-			double rs, double ts, double eds) {
+			double rs, double ts, double ds, double eds) {
 		_detected.stringColumn(0).append(gid);
 		_detected.stringColumn(1).append(act1);
 		_detected.stringColumn(2).append(act2);
-		_detected.stringColumn(3).append(formatDouble(dcfs));
-		_detected.stringColumn(4).append(formatDouble(rs));
-		_detected.stringColumn(5).append(formatDouble(ts));
-		_detected.stringColumn(6).append(formatDouble(eds));
+		_detected.stringColumn(3).append(getSimPercent(dcfs));
+		_detected.stringColumn(4).append(getSimPercent(rs));
+		_detected.stringColumn(5).append(getTimeAndDurationSimPrecent(ts, ds));
+		_detected.stringColumn(6).append(getSimPercent(eds));
 	}
 
 	/**

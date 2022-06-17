@@ -40,15 +40,15 @@ public class MCQuestion {
 	private String[] DS;
 
 	public MCQuestion(int id, Activity main, ArrayList<Activity> trueOptions, ArrayList<Activity> falseOptions,
-			String[] DCFS, String[] RS, String[] TS, String[] DS) {
+			String[][] Sims) {
 		this.main = main;
 		this.trueOptions = trueOptions;
 		this.falseOptions = falseOptions;
 		this.id = id;
-		this.DCFS = DCFS;
-		this.RS = RS;
-		this.TS = TS;
-		this.DS = DS;
+		this.DCFS = Sims[0];
+		this.RS = Sims[1];
+		this.TS = Sims[2];
+		this.DS = Sims[3];
 		this.allOptions = new ArrayList<>(trueOptions);
 		allOptions.addAll(falseOptions);
 	}

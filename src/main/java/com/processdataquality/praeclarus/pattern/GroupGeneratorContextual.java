@@ -74,6 +74,7 @@ public class GroupGeneratorContextual extends AbstractImperfectLabelContextual {
 		for (ActivityGroup group : this.questionBank) {
 			addGroupToResult(selectedColumn, group);
 		}
+		getAuxiliaryDatasets().put("Activities", createActivitiesTable());
 	}
 
 	private ArrayList<ActivityGroup> createGroups() {
@@ -127,36 +128,11 @@ public class GroupGeneratorContextual extends AbstractImperfectLabelContextual {
 		String[] DS = new String[numPairs];
 		int counter = 0;
 		for (int i = 0; i < g.getActs().size(); i++) {
-			for (int j = i + 1; j < g.getActs().size(); j++) {
-				
-				DCFS[counter] =  ((int) (dcfs[indices[i]][indices[j]] * 100)) + "%";
-				
-				double r = rs[indices[i]][indices[j]];
-				if (r != -1) {
-					RS[counter] = ((int) (r * 100)) + "%";
-				} else {
-					RS[counter] = "NaN";
-				}
-				
-				double time = ts[indices[i]][indices[j]];
-				double duration = ds[indices[i]][indices[j]];
-				if (duration == -1 && time == -1) {
-					TS[counter] = "NaN";
-				} else if (duration == -1 && time != -1) {
-					TS[counter] = ((int) (time * 100)) + "%";
-				} else if (duration != -1 && time == -1) {
-					TS[counter] = ((int) (duration * 100)) + "%";
-				} else {
-					TS[counter] = ((int) (((time + duration) / 2))) * 100 + "%";
-				}
-				
-				double d = eds[indices[i]][indices[j]];
-				if (d != -1) {
-					DS[counter] = ((int) (d * 100)) + "%";
-				} else {
-					DS[counter] = "NaN";
-				}
-
+			for (int j = i + 1; j < g.getActs().size(); j++) {		
+				DCFS[counter] =  getSimPercent(dcfs[indices[i]][indices[j]]);
+				RS[counter] = getSimPercent(rs[indices[i]][indices[j]]);		
+				TS[counter] = getTimeAndDurationSimPrecent(ts[indices[i]][indices[j]], ds[indices[i]][indices[j]]);
+				DS[counter] = getSimPercent(eds[indices[i]][indices[j]]);
 				counter++;
 			}
 		}

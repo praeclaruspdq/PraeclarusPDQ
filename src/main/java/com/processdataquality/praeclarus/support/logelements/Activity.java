@@ -19,6 +19,8 @@ package com.processdataquality.praeclarus.support.logelements;
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 
+
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -759,4 +761,10 @@ public class Activity {
 	public void setIndex(int index) {
 		this.index = index;
 	}
+	
+	public int getAbsoluteFrequency() {
+		return this.events.size();
+	}
+
+	
 }

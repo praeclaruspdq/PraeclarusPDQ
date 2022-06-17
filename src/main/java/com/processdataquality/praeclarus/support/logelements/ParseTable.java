@@ -41,7 +41,7 @@ public class ParseTable {
 
 	private Table table;
 	public ArrayList<String> resources;
-	private int uniqueID;
+	int uniqueID;
 	private ArrayList<String> ignoreAttrs;
 	private String selectedColumnName;
 	private String caseIdColumnName;
@@ -270,6 +270,10 @@ public class ParseTable {
 		}
 		return minTimeIndex;
 
+	}
+	
+	public int getNumberOfEvents() {
+		return this.uniqueID;
 	}
 	
 	

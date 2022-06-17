@@ -23,9 +23,12 @@ import com.processdataquality.praeclarus.support.activitysimilaritymeasures.*;
 import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.logelements.ParseTable;
 import com.processdataquality.praeclarus.support.math.Pair;
+
+import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -63,7 +66,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		detect(table, getSelectedColumn(table), getSortColumnName(table));
 		return _detected;
 	}
-	
+
 	protected void addSimilarityResults(Table table) throws InvalidOptionException {
 		_detected = createResultTable();
 		for (int i = 0; i < parser.getActivities().size(); i++) {
@@ -72,9 +75,9 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 				Activity a2 = parser.getActivities().get(j);
 				if (activityContextSimilariy[i][j] > getOptions().get("Overall Context Similarity Threshold").asDouble()
 						&& ls[i][j] > getOptions().get("String Similarity Threshold").asDouble()) {
-					addResult(getSelectedColumn(table), a1.getName(), a2.getName(), activityContextSimilariy[i][j], ls[i][j], dcfs[i][j], rs[i][j],
-							ts[i][j], ds[i][j], eds[i][j]);
-					
+					addResult(getSelectedColumn(table), a1.getName(), a2.getName(), activityContextSimilariy[i][j],
+							ls[i][j], dcfs[i][j], rs[i][j], ts[i][j], ds[i][j], eds[i][j]);
+
 				}
 			}
 		}
@@ -124,7 +127,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		_detected.stringColumn(9).append(formatDouble(dus));
 		_detected.stringColumn(10).append(formatDouble(ds));
 	}
-	
+
 	protected void detect(Table table, StringColumn selectedColumn, String sortColName) throws InvalidOptionException {
 		parser = new ParseTable(table, selectedColumn.name(), sortColName);
 		parser.parse();
@@ -222,6 +225,65 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 			return "1";
 		}
 		return String.format("%.3f", d);
+	}
+
+	protected String getTimeAndDurationSimPrecent(double time, double duration) {
+		String res = "";
+		if (duration == -1 && time == -1) {
+			res = "NaN";
+		} else if (duration == -1 && time != -1) {
+			res = ((int) (time * 100)) + "%";
+		} else if (duration != -1 && time == -1) {
+			res = ((int) (duration * 100)) + "%";
+		} else {
+			double duW = getOptions().get("Duration Similarity Weight").asInt();
+			double tW = getOptions().get("Time Similarity Weight").asInt();
+			double avg = ((duW + tW != 0) ? ((duW * duration) + (tW * time)) / (duW + tW) : (time + duration) / 2);
+			res = ((int) avg) * 100 + "%";
+		}
+		return res;
+	}
+
+	protected String getSimPercent(double sim) {
+		String res = "";
+		if (sim != -1) {
+			res = ((int) (sim * 100)) + "%";
+		} else {
+			res = "NaN";
+		}
+		return res;
+	}
+
+	protected Table createActivitiesTable() {
+		Table actTable = Table.create("Activities").addColumns(IntColumn.create("ID"), StringColumn.create("Label"),
+				StringColumn.create("Abs Freq"), StringColumn.create("Rel Freq"));
+		for (Activity a : parser.getActivities()) {
+			actTable.intColumn(0).append(a.getIndex());
+			actTable.stringColumn(1).append(a.getName());
+			actTable.stringColumn(2).append(a.getAbsoluteFrequency() + "");
+			actTable.stringColumn(3).append(getRelativeFrequencyString(a));
+		}
+
+		return actTable;
+	}
+
+	protected double getRelativeFrequency(Activity a) {
+		double f = a.getAbsoluteFrequency();
+		if (parser.getNumberOfEvents() != 0)
+			return f / parser.getNumberOfEvents();
+		return 0;
+	}
+
+	protected String getRelativeFrequencyString(Activity a) {
+		double f = a.getAbsoluteFrequency();
+		if (parser.getNumberOfEvents() != 0) {
+			double d = f / parser.getNumberOfEvents();
+			DecimalFormat df = new DecimalFormat("##.##");
+			double temp = d * 100;
+			String res = df.format(temp);
+			return res + "%";
+		}
+		return "";
 	}
 
 }

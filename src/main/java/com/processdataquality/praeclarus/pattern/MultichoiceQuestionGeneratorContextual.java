@@ -76,6 +76,7 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 		super.detect(table, selectedColumn, sortColName);
 		double[] certainty = computeCertainties();
 		this.questionBank = createQuestions(selectedColumn, certainty);
+		getAuxiliaryDatasets().put("Activities", createActivitiesTable());
 		
 	}
 
@@ -190,14 +191,11 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 
 					if (!noMoreQuestionsCanBeMade) {
 						Activity main = parser.getActivities().get(selectedIndex);
-						String[] DCFS = getControlFlowSimilarities( main, trueOptions, falseOptions);
-						String[] RS = getResourceSimilarities(main, trueOptions, falseOptions);
-						String[] TS = getTemporalSimilarities(main, trueOptions, falseOptions);
-						String[] DS = getDataSimilarities(main, trueOptions, falseOptions);
+						String[][] similarities = getSimilarities( main, trueOptions, falseOptions);
 
-						MCQuestion q = new MCQuestion(n, main, trueOptions, falseOptions, DCFS, RS, TS, DS);
+						MCQuestion q = new MCQuestion(n, main, trueOptions, falseOptions, similarities);
 						res.add(q);
-						addQuestionToResult(selectedColumn, q, DCFS, RS, TS, DS);
+						addQuestionToResult(selectedColumn, q, similarities);
 						n++;
 					} else {
 						break;
@@ -233,23 +231,21 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 		return res;
 	}
 
-	private String[] getDataSimilarities(Activity main, ArrayList<Activity> trueOptions,
+	private String[][] getSimilarities(Activity main, ArrayList<Activity> trueOptions,
 			ArrayList<Activity> falseOptions) throws Exception {
 		ArrayList<Activity> all = new ArrayList<>(trueOptions);
 		all.addAll(falseOptions);
-		String[] res = new String[all.size()];
+		String[][] res = new String[4][all.size()];
 		int mainIndex = parser.getActivities().indexOf(main);
 		int iCounter = 0;
 		if (mainIndex != -1) {
 			for (Activity t : all) {
 				int index = parser.getActivities().indexOf(t);
 				if (index != -1) {
-					double d = eds[mainIndex][index];
-					if (d != -1) {
-						res[iCounter] = ((int) (d * 100)) + "%";
-					} else {
-						res[iCounter] = "NaN";
-					}
+					res[0][iCounter] = getSimPercent(dcfs[mainIndex][index]);
+					res[1][iCounter] = getSimPercent(rs[mainIndex][index]);
+					res[2][iCounter] = getTimeAndDurationSimPrecent(ts[mainIndex][index], ds[mainIndex][index]);			
+					res[3][iCounter] = getSimPercent(eds[mainIndex][index]);
 					iCounter++;
 				}
 			}
@@ -257,84 +253,7 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 		return res;
 	}
 
-	private String[] getTemporalSimilarities(Activity main, ArrayList<Activity> trueOptions,
-			ArrayList<Activity> falseOptions) throws Exception {
-		ArrayList<Activity> all = new ArrayList<>(trueOptions);
-		all.addAll(falseOptions);
-		String[] res = new String[all.size()];
-		int mainIndex = parser.getActivities().indexOf(main);
-		int iCounter = 0;
-		if (mainIndex != -1) {
-			for (Activity t : all) {
-				int index = parser.getActivities().indexOf(t);
-				if (index != -1) {
-
-					double time = ts[mainIndex][index];
-					double duration = ds[mainIndex][index];
-					if (duration == -1 && time == -1) {
-						res[iCounter] = "NaN";
-					} else if (duration == -1 && time != -1) {
-						res[iCounter] = ((int) (time * 100)) + "%";
-					} else if (duration != -1 && time == -1) {
-						res[iCounter] = ((int) (duration * 100)) + "%";
-					} else {
-						res[iCounter] = ((int) (((time + duration) / 2))) * 100 + "%";
-					}
-					iCounter++;
-				}
-			}
-		}
-		return res;
-	}
-
-	private String[] getResourceSimilarities(Activity main, ArrayList<Activity> trueOptions,
-			ArrayList<Activity> falseOptions) throws Exception {
-		ArrayList<Activity> all = new ArrayList<>(trueOptions);
-		all.addAll(falseOptions);
-		String[] res = new String[all.size()];
-		int mainIndex = parser.getActivities().indexOf(main);
-		int iCounter = 0;
-		if (mainIndex != -1) {
-			for (Activity t : all) {
-				int index = parser.getActivities().indexOf(t);
-				if (index != -1) {
-
-					double r = rs[mainIndex][index];
-					if (r != -1) {
-						res[iCounter] = ((int) (r * 100)) + "%";
-					} else {
-						res[iCounter] = "NaN";
-					}
-					iCounter++;
-
-				}
-			}
-		}
-		return res;
-	}
-
-	private String[] getControlFlowSimilarities( Activity main,
-			ArrayList<Activity> trueOptions, ArrayList<Activity> falseOptions) throws Exception {
-		ArrayList<Activity> all = new ArrayList<>(trueOptions);
-		all.addAll(falseOptions);
-		String[] res = new String[all.size()];
-		int mainIndex = parser.getActivities().indexOf(main);
-		int iCounter = 0;
-		if (mainIndex != -1) {
-			for (Activity t : all) {
-				int index = parser.getActivities().indexOf(t);
-				if (index != -1) {
-
-					res[iCounter] = ((int) (dcfs[mainIndex][index] * 100)) + "%";
-					iCounter++;
-				}
-			}
-		}
-		return res;
-	}
-
-	private void addQuestionToResult(StringColumn selectedColumn, MCQuestion q, String[] DCFS,
-			String[] RS, String[] TS, String[] DS) {
+	private void addQuestionToResult(StringColumn selectedColumn, MCQuestion q, String[][] sims) {
 
 		String main = "(" + parser.getActivities().indexOf(q.getMain()) + ")" + q.getMain().getName();
 		ArrayList<String> options = new ArrayList<>();
@@ -346,7 +265,6 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 			String cell = "(" + parser.getActivities().indexOf(q.getFalseOptions().get(i)) + ")f" + q.getFalseOptions().get(i).getName();
 			options.add(cell);
 		}
-		String[][] sims = { DCFS, RS, TS, DS };
 		String[] res = new String[4];
 		for (int i = 0; i < res.length; i++) {
 			res[i] = "[";
