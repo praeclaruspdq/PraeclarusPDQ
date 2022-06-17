@@ -41,6 +41,10 @@ public interface PDQPlugin extends HasOptions {
     int getMaxOutputs();
 
 
+    /**
+     * @return a default name for this plugin, either the name provided in the plugin's
+     * metadata, or the simple name of the plugin class
+     */
     default String getName() {
         Plugin metaData = getClass().getAnnotation(Plugin.class);
         return metaData != null ? metaData.name() : getClass().getSimpleName();
