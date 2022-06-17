@@ -23,20 +23,26 @@ import com.processdataquality.praeclarus.support.activitysimilaritymeasures.*;
 import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.logelements.ParseTable;
 import com.processdataquality.praeclarus.support.math.Pair;
+
+import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
  * Overrides base class to add similarity scores
+ * 
  * @author Sareh Sadeghianasl, Michael Adams
  * @date 10/2/2022
  */
 public abstract class AbstractImperfectLabelContextual extends AbstractImperfectLabel {
 
 	protected double[][] rs, ds, ts, dcfs, eds, ls;
-
+	protected double[][] activityContextSimilariy;
+	protected boolean[][] grouped;
+	protected ParseTable parser;
 
 	protected AbstractImperfectLabelContextual() {
 		super();
@@ -48,12 +54,12 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		options.addDefault(new ColumnNameListOption("Sort Column"));
 		options.addDefault("Direct Control Flow Noise Threshold", 0.05);
 		options.addDefault("Overall Context Similarity Threshold", 0.6);
+		options.addDefault("Data Attribute Name Similarity Threshold", 0.8);
 	}
 
-	
 	@Override
-	protected void detect(StringColumn column, String s1, String s2) { }
-
+	protected void detect(StringColumn column, String s1, String s2) {
+	}
 
 	@Override
 	public Table detect(Table table) throws InvalidOptionException {
@@ -61,6 +67,21 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		return _detected;
 	}
 
+	protected void addSimilarityResults(Table table) throws InvalidOptionException {
+		_detected = createResultTable();
+		for (int i = 0; i < parser.getActivities().size(); i++) {
+			for (int j = 0; j < parser.getActivities().size(); j++) {
+				Activity a1 = parser.getActivities().get(i);
+				Activity a2 = parser.getActivities().get(j);
+				if (activityContextSimilariy[i][j] > getOptions().get("Overall Context Similarity Threshold").asDouble()
+						&& ls[i][j] > getOptions().get("String Similarity Threshold").asDouble()) {
+					addResult(getSelectedColumn(table), a1.getName(), a2.getName(), activityContextSimilariy[i][j],
+							ls[i][j], dcfs[i][j], rs[i][j], ts[i][j], ds[i][j], eds[i][j]);
+
+				}
+			}
+		}
+	}
 
 	/**
 	 * Creates the table that will receive the imperfect values detected along with
@@ -71,18 +92,12 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 	@Override
 	protected Table createResultTable() {
 		Table result = super.createResultTable();
-		result.addColumns(
-				StringColumn.create("Overall Context Similarity"),
-				StringColumn.create("String Similarity"),
-				StringColumn.create("Control Flow Similarity"),
-				StringColumn.create("Resource Similarity"),
-				StringColumn.create("Time Similarity"),
-				StringColumn.create("Duration Similarity"),
-				StringColumn.create("Data Similarity")
-		);
+		result.addColumns(StringColumn.create("Overall Context Similarity"), StringColumn.create("String Similarity"),
+				StringColumn.create("Control Flow Similarity"), StringColumn.create("Resource Similarity"),
+				StringColumn.create("Time Similarity"), StringColumn.create("Duration Similarity"),
+				StringColumn.create("Data Similarity"));
 		return result;
 	}
-
 
 	/**
 	 * Adds distorted labels to the results table, as well as the frequency of each
@@ -92,7 +107,8 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 	 * @param s1     the label
 	 * @param s2     the distorted label
 	 * @param os     the overall similarity of s1 and s2 (the average of the
-	 *               following context dimension similarities except the string similarity)
+	 *               following context dimension similarities except the string
+	 *               similarity)
 	 * @param ss     the string similarity of s1 and s2
 	 * @param dcfs   the direct control flow similarity of s1 and s2
 	 * @param rs     the resource similarity of s1 and s2
@@ -100,9 +116,8 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 	 * @param dus    the duration similarity of s1 and s2
 	 * @param ds     the data attribute similarity of s1 and s2
 	 */
-	protected void addResult(StringColumn column, String s1, String s2, double os,
-							 double ss, double dcfs, double rs, double ts,
-							 double dus, double ds) {
+	protected void addResult(StringColumn column, String s1, String s2, double os, double ss, double dcfs, double rs,
+			double ts, double dus, double ds) {
 		super.addResult(column, s1, s2);
 		_detected.stringColumn(4).append(formatDouble(os));
 		_detected.stringColumn(5).append(formatDouble(ss));
@@ -113,34 +128,27 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		_detected.stringColumn(10).append(formatDouble(ds));
 	}
 
-
-	protected void detect(Table table, StringColumn selectedColumn, String sortColName) {
-		_detected = createResultTable();
-		ParseTable parser = new ParseTable(table, selectedColumn.name(), sortColName);
+	protected void detect(Table table, StringColumn selectedColumn, String sortColName) throws InvalidOptionException {
+		parser = new ParseTable(table, selectedColumn.name(), sortColName);
 		parser.parse();
 		rs = new ResourceSimilarity(parser.getActivities()).getSimilarity();
 		ds = new DurationSimilarity(parser.getActivities()).getSimilarity();
 		ts = new TimeSimilarity(parser.getActivities()).getSimilarity();
 		dcfs = new ControlFlowSimilarity(parser.getActivities(), parser.getTraces(),
 				getOptions().get("Direct Control Flow Noise Threshold").asDouble()).getDirectControlFlowSimilarity();
-		eds = new EventDataSimilarity(parser.getActivities(),0).getSimilarity();
+		eds = new EventDataSimilarity(parser.getActivities(),
+				getOptions().get("Data Attribute Name Similarity Threshold").asDouble()).getSimilarity();
 		ls = new StringSimilarity(parser.getActivities()).getSimilarity();
 
-		ArrayList<Pair<Activity, Activity>> res = new ArrayList<Pair<Activity, Activity>>();
-		double[][] grouped = new double[parser.getActivities().size()][parser.getActivities().size()];
-		double[][] activityContextSimilariy = new double[parser.getActivities().size()][parser.getActivities().size()];
+		grouped = new boolean[parser.getActivities().size()][parser.getActivities().size()];
+		activityContextSimilariy = new double[parser.getActivities().size()][parser.getActivities().size()];
 		for (int i = 0; i < parser.getActivities().size(); i++) {
 			for (int j = 0; j < parser.getActivities().size(); j++) {
-				Activity a1 = parser.getActivities().get(i);
-				Activity a2 = parser.getActivities().get(j);
 				if (j > i) {
 					double overS = overallSimilarity(i, j);
 					activityContextSimilariy[i][j] = overS;
-					if (overS > getOptions().get("Overall Context Similarity Threshold").asDouble() &&
-							ls[i][j]> getOptions().get("String Similarity Threshold").asDouble()) {
-						res.add(new Pair<Activity, Activity>(a1, a2));
-						addResult(selectedColumn, a1.getName(), a2.getName(), overS, ls[i][j], dcfs[i][j], rs[i][j], ts[i][j], ds[i][j], eds[i][j]);
-						grouped[i][j] = overS;
+					if (overS > getOptions().get("Overall Context Similarity Threshold").asDouble()) {
+						grouped[i][j] = true;
 					}
 				} else if (j < i) {
 					activityContextSimilariy[i][j] = activityContextSimilariy[j][i];
@@ -151,10 +159,9 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		}
 	}
 
-
 	protected String getSortColumnName(Table table) throws InvalidOptionException {
 		String colName = getSelectedColumnNameValue("Sort Column");
-		if (! table.columnNames().contains(colName)) {
+		if (!table.columnNames().contains(colName)) {
 			throw new InvalidOptionException("No column named '" + colName + "' in table");
 		}
 		return colName;
@@ -169,7 +176,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 	 * @return the average context similarity
 	 */
 
-	double overallSimilarity(int i, int j) {
+	protected double overallSimilarity(int i, int j) {
 		double score = 0;
 		double duW = getOptions().get("Duration Similarity Weight").asInt();
 		double tW = getOptions().get("Time Similarity Weight").asInt();
@@ -200,24 +207,83 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 		return score;
 	}
 
-
 	/**
 	 * Converts the similarity double score to a string with a well-formatted value.
-	 * @param d 	the input double
-	 * @return		the formatted string
+	 * 
+	 * @param d the input double
+	 * @return the formatted string
 	 */
 
-	private String formatDouble(double d) {
-		if(d == -1) {
+	protected String formatDouble(double d) {
+		if (d == -1) {
 			return "N/A";
 		}
-		if(d == 0) {
+		if (d == 0) {
 			return "0";
 		}
-		if(d == 1) {
+		if (d == 1) {
 			return "1";
 		}
 		return String.format("%.3f", d);
+	}
+
+	protected String getTimeAndDurationSimPrecent(double time, double duration) {
+		String res = "";
+		if (duration == -1 && time == -1) {
+			res = "NaN";
+		} else if (duration == -1 && time != -1) {
+			res = ((int) (time * 100)) + "%";
+		} else if (duration != -1 && time == -1) {
+			res = ((int) (duration * 100)) + "%";
+		} else {
+			double duW = getOptions().get("Duration Similarity Weight").asInt();
+			double tW = getOptions().get("Time Similarity Weight").asInt();
+			double avg = ((duW + tW != 0) ? ((duW * duration) + (tW * time)) / (duW + tW) : (time + duration) / 2);
+			res = ((int) avg) * 100 + "%";
+		}
+		return res;
+	}
+
+	protected String getSimPercent(double sim) {
+		String res = "";
+		if (sim != -1) {
+			res = ((int) (sim * 100)) + "%";
+		} else {
+			res = "NaN";
+		}
+		return res;
+	}
+
+	protected Table createActivitiesTable() {
+		Table actTable = Table.create("Activities").addColumns(IntColumn.create("ID"), StringColumn.create("Label"),
+				StringColumn.create("Abs Freq"), StringColumn.create("Rel Freq"));
+		for (Activity a : parser.getActivities()) {
+			actTable.intColumn(0).append(a.getIndex());
+			actTable.stringColumn(1).append(a.getName());
+			actTable.stringColumn(2).append(a.getAbsoluteFrequency() + "");
+			actTable.stringColumn(3).append(getRelativeFrequencyString(a));
+		}
+
+		return actTable;
+	}
+
+	protected double getRelativeFrequency(Activity a) {
+		double f = a.getAbsoluteFrequency();
+		if (parser.getNumberOfEvents() != 0)
+			return f / parser.getNumberOfEvents();
+		return 0;
+	}
+
+	protected String getRelativeFrequencyString(Activity a) {
+		double f = a.getAbsoluteFrequency();
+		if (parser.getNumberOfEvents() != 0) {
+			double d = f / parser.getNumberOfEvents();
+			DecimalFormat df = new DecimalFormat("##.##");
+			double temp = d * 100;
+			String res = df.format(temp);
+			return res + "%";
+		}
+		return "";
 	}
 
 }

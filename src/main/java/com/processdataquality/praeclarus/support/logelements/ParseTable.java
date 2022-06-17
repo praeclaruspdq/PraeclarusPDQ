@@ -41,7 +41,7 @@ public class ParseTable {
 
 	private Table table;
 	public ArrayList<String> resources;
-	private int uniqueID;
+	int uniqueID;
 	private ArrayList<String> ignoreAttrs;
 	private String selectedColumnName;
 	private String caseIdColumnName;
@@ -115,9 +115,10 @@ public class ParseTable {
 						setAvailableTimes(e);
 					}
 					for(String attr: columnNames) {
-						if (!(attr.startsWith("case") || attr.startsWith("lifecycle") || attr.startsWith("org") || attr.startsWith("time")
-								|| attr.startsWith("concept") || ignoreAttrs.contains(attr))) 
-							e.addCompleteAttribute(attr, row.getString(attr));
+						if (attr.startsWith("data")) { 
+							ArrayList<ArrayList<String>> attributes = parseData(row.getString(attr));
+							e.addCompleteAttributes(attributes, ignoreAttrs);
+						}
 					}
 					eventsPerTrace.add(e);
 					uniqueID++;
@@ -131,9 +132,10 @@ public class ParseTable {
 				}
 				setAvailableTimes(e);
 				for(String attr: columnNames) {
-					if (!(attr.startsWith("case") || attr.startsWith("lifecycle") || attr.startsWith("org") || attr.startsWith("time")
-							|| attr.startsWith("concept") || ignoreAttrs.contains(attr))) 
-						e.addCompleteAttribute(attr, row.getString(attr));
+					if (attr.startsWith("data")) { 
+						ArrayList<ArrayList<String>> attributes = parseData(row.getString(attr));
+						e.addCompleteAttributes(attributes, ignoreAttrs);
+					}
 				}
 				eventsPerTrace.add(e);
 				uniqueID++;
@@ -145,6 +147,20 @@ public class ParseTable {
 			a.compute(resources, availableHours, availableDays, availableMonths);
 		}
 		
+	}
+	
+	private ArrayList<ArrayList<String>> parseData(String data) {
+		ArrayList<ArrayList<String>> res = new ArrayList();
+		StringTokenizer st = new StringTokenizer(data,";");  
+	     while (st.hasMoreTokens()) {  
+	         ArrayList<String> attr = new ArrayList();
+	         StringTokenizer st1 = new StringTokenizer(st.nextToken(),",");
+	         while (st1.hasMoreTokens()) { 
+	        	 attr.add(st1.nextToken());
+	         }
+	         res.add(attr);
+	     }  
+		return res;
 	}
 
 	private void addToActivities(ArrayList<Event> eventsPerTrace) {
@@ -254,6 +270,10 @@ public class ParseTable {
 		}
 		return minTimeIndex;
 
+	}
+	
+	public int getNumberOfEvents() {
+		return this.uniqueID;
 	}
 	
 	
