@@ -42,7 +42,7 @@ public abstract class AbstractImperfectLabel extends AbstractDataPattern {
     protected AbstractImperfectLabel() {
         super();
         getOptions().addDefault(new ColumnNameListOption("Column Name"));
-//        _detected = createResultTable();
+        //_detected = createResultTable();
     }
 
     // To be implemented by subclasses to detect distortion between two strings
