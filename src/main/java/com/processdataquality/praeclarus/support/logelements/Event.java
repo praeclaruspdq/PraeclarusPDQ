@@ -20,17 +20,21 @@ import tech.tablesaw.api.Row;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.deckfour.xes.model.XAttributeTimestamp;
 
 /**
  * @author Sareh Sadeghianasl
  * @date 7/1/22
  */
 
-public class Event implements Comparable<Event>{
-	
+public class Event implements Comparable<Event> {
+
 	private Row se;
 	private Row ce;
 	private double duration;
@@ -45,7 +49,7 @@ public class Event implements Comparable<Event>{
 	private int totalIndex;
 	private Event le;
 	private Event ne;
-	
+
 	public Event(String selectedColumnName, Row se, Row ce, String cid, String resource, int rIndex, int totalIndex) {
 		setStartEvent(se);
 		setCompleteEvent(ce);
@@ -63,7 +67,7 @@ public class Event implements Comparable<Event>{
 		this(other.name, other.se, other.ce, other.cid, other.resource, other.rIndex, other.totalIndex);
 		this.setLastEvent(other.le);
 		this.setNextEvent(other.ne);
-		
+
 		this.startAttributes.putAll(other.startAttributes);
 		this.completeAttributes.putAll(other.completeAttributes);
 	}
@@ -153,8 +157,42 @@ public class Event implements Comparable<Event>{
 	}
 
 	public void addCompleteAttribute(String key, Object value) {
-			this.completeAttributes.put(key, value);
-			System.out.println("Data attribute "+ key+" added!");
+		this.completeAttributes.put(key, value);
+		
+	}
+
+	public void addCompleteAttributes(ArrayList<ArrayList<String>> attributes, ArrayList<String> ignoreAttrs) {
+		for (ArrayList<String> atrr : attributes) {
+			if (atrr.size() == 3) {
+				String type = atrr.get(0);
+				String key = atrr.get(1);
+				String value = atrr.get(2);
+				switch (type) {
+					case "date":
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss"); 
+						LocalDateTime dateTime = LocalDateTime.parse(value, formatter);
+						Date d = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+						this.completeAttributes.put(key, d);
+						break;
+					case "long":
+						int in = Integer.parseInt(value);
+						this.completeAttributes.put(key, in);
+						break;
+					case "double":
+						double dou = Double.parseDouble(value);
+						this.completeAttributes.put(key, dou);
+						break;
+					case "boolean":
+						boolean bool = Boolean.parseBoolean(value);
+						this.completeAttributes.put(key, bool);
+						break;	
+					default: //string
+						this.completeAttributes.put(key, value);
+						break;
+				}
+			}
+		}
+		
 	}
 
 	public Map<String, Object> getCompleleAttributes() {

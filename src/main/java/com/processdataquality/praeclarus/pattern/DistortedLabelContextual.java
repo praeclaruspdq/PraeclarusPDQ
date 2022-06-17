@@ -18,8 +18,10 @@ package com.processdataquality.praeclarus.pattern;
 
 import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.option.Options;
 import tech.tablesaw.api.StringColumn;
+import tech.tablesaw.api.Table;
 
 /**
  * @author Sareh Sadeghianasl
@@ -57,6 +59,12 @@ public class DistortedLabelContextual extends AbstractImperfectLabelContextual {
 		options.addDefault("Time Similarity Weight", 1);
 		options.addDefault("Duration Similarity Weight", 1);
 
+	}
+	
+	@Override
+	protected void detect(Table table, StringColumn selectedColumn, String sortColName) throws InvalidOptionException {
+		super.detect(table, selectedColumn, sortColName);
+		super.addSimilarityResults(table);
 	}
 
 
