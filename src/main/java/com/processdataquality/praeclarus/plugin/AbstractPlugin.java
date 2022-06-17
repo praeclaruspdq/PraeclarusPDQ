@@ -22,7 +22,9 @@ import com.processdataquality.praeclarus.option.OptionValueChangeListener;
 import com.processdataquality.praeclarus.option.Options;
 import tech.tablesaw.api.Table;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +34,7 @@ import java.util.Map;
 public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeListener {
 
     private final Map<String, Table> auxiliaryDatasets = new HashMap<>();
+    private final List<Table> inputs = new ArrayList<>();
     private final Options options = new Options();
     private String label = getName();                        // default from interface
     private String id = getId();                             // default from interface
@@ -53,6 +56,8 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
 
 
     public Map<String, Table> getAuxiliaryDatasets() { return auxiliaryDatasets; }
+
+    public List<Table> getInputs() { return inputs; }
 
 
     // can be overridden by plugins that have to effect the value change immediately

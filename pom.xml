@@ -141,6 +141,12 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+<!--        <dependency>-->
+<!--          <groupId>org.apache.tomcat.embed</groupId>-->
+<!--          <artifactId>tomcat-embed-jasper</artifactId>-->
+<!--          <version>9.0.63</version>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
