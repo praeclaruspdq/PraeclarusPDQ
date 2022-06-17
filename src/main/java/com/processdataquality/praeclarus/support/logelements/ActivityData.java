@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.support.logelements;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.deckfour.xes.model.XAttributeBoolean;
 import org.deckfour.xes.model.XAttributeContinuous;
@@ -52,14 +53,16 @@ public class ActivityData {
 
 	private void setType() {
 		Object o = values.get(0);
-		if (o instanceof XAttributeLiteral)
+		if (o instanceof String)
 			this.type = "String";
-		else if (o instanceof XAttributeBoolean)
+		else if (o instanceof Boolean)
 			this.type = "Boolean";
-		else if (o instanceof XAttributeDiscrete)
+		else if (o instanceof Integer)
 			this.type = "Integer";
-		else if (o instanceof XAttributeContinuous)
+		else if (o instanceof Double)
 			this.type = "Float";
+		else if (o instanceof Date)
+			this.type = "Date";
 		else
 			this.type = "String";
 		//		if (this.type.equalsIgnoreCase("String")) {
