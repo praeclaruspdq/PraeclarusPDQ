@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.repo.Repo;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -356,7 +357,7 @@ public abstract class Node {
 
     private void commit(Table t) {
         try {
-            _commitID = Repo.commit(t, getCommitMessage(), "author");
+            _commitID = Repo.commit(t, getCommitMessage(), EventLogger.loggedOnUserName());
         }
         catch (IOException | GitAPIException e) {
             System.out.println("Failed to commit table to repo: " + e.getMessage());

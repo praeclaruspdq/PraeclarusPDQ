@@ -20,11 +20,8 @@ import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.embedded.tomcat.TomcatWebServer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
 import java.util.HashMap;
@@ -35,13 +32,13 @@ import java.util.Map;
  * @date 16/6/2022
  */
 
-@Configuration
+//@Configuration
 public class TomcatConfig {
 
     private static final Map<String, Context> loaded = new HashMap<>();
 
-    @Bean
-    @ConditionalOnProperty(name = "external.war.file")
+//    @Bean
+//    @ConditionalOnProperty(name = "external.war.file")
     public TomcatServletWebServerFactory servletContainerFactory(
             @Value("${external.war.file}") String path,
             @Value("${external.war.context}") String contextPath) {
