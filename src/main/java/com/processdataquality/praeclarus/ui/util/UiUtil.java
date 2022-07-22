@@ -103,9 +103,9 @@ public class UiUtil {
 
 
     public static Grid<Row> tableToGrid(Table table) {
-        if (table.rowCount() == 0) {
-            return emptyTableToGrid(table);
-        }
+//        if (table.rowCount() == 0) {
+//            return emptyTableToGrid(table);
+//        }
         Grid<Row> grid = new Grid<>();
         grid.setColumnReorderingAllowed(true);
         for (String name : table.columnNames()) {
@@ -142,8 +142,8 @@ public class UiUtil {
                 column = grid.addColumn(row -> row.getObject(name));
             }
 
-            column.setHeader(new Html("<b>" + name + "</b>")).setAutoWidth(true);
-            column.setSortable(true);
+            column.setHeader(new Html("<b>" + name + "</b>"))
+                    .setAutoWidth(true).setSortable(true);
         }
 
         List<Row> rows = new ArrayList<>();
