@@ -188,22 +188,22 @@
         <dependency>
             <groupId>tech.tablesaw</groupId>
             <artifactId>tablesaw-core</artifactId>
-            <version>0.42.0</version>
+            <version>0.43.1</version>
         </dependency>
         <dependency>
             <groupId>tech.tablesaw</groupId>
             <artifactId>tablesaw-html</artifactId>
-            <version>0.41.0</version>
+            <version>0.43.1</version>
         </dependency>
         <dependency>
             <groupId>tech.tablesaw</groupId>
             <artifactId>tablesaw-json</artifactId>
-            <version>0.41.0</version>
+            <version>0.43.1</version>
         </dependency>
         <dependency>
             <groupId>tech.tablesaw</groupId>
             <artifactId>tablesaw-jsplot</artifactId>
-            <version>0.41.0</version>
+            <version>0.43.1</version>
         </dependency>
 
         <!-- XES -->
@@ -227,11 +227,18 @@
 <!--            <artifactId>gson</artifactId>-->
 <!--        </dependency>-->
 
+<!--        for OWL Writer-->
+        <dependency>
+            <groupId>net.sourceforge.owlapi</groupId>
+            <artifactId>owlapi-distribution</artifactId>
+            <version>5.1.20</version>
+        </dependency>
+
         <!-- JGit -->
         <dependency>
           <groupId>org.eclipse.jgit</groupId>
           <artifactId>org.eclipse.jgit</artifactId>
-          <version>5.13.0.202109080827-r</version>
+          <version>6.2.0.202206071550-r</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>

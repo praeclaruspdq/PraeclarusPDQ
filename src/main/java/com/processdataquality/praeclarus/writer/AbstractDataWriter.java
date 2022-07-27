@@ -18,6 +18,7 @@ package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.option.FileOption;
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
+import com.processdataquality.praeclarus.util.DataCollection;
 import org.apache.commons.io.output.WriterOutputStream;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.Destination;
@@ -46,7 +47,7 @@ public abstract class AbstractDataWriter extends AbstractPlugin implements DataW
 
 
     @Override
-    public void write(Table table) throws IOException {
+    public void write(Table table, DataCollection auxData) throws IOException {
         table.write().usingOptions(getWriteOptions());
     }
 

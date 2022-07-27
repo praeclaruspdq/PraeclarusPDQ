@@ -42,7 +42,7 @@ public class WriterNode extends Node {
         setState(NodeState.EXECUTING);
 
         Table input = getInputs().get(0);     // a writer node has only one input
-        ((DataWriter) getPlugin()).write(input);
+        ((DataWriter) getPlugin()).write(input, getAuxiliaryInputs());
         setOutput(input);
 
         setState(NodeState.COMPLETED);

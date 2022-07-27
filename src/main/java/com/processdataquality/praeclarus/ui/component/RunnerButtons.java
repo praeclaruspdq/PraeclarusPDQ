@@ -150,7 +150,8 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
                 // unlikely this will happen
             }
             _runner.reset();
-            String msg = "Error in node '" + _selectedNode.getLabel()  + "': " +  e.getMessage();
+            String msg = "Error in node '" + _selectedNode.getLabel()  + "': " +
+                    e.getMessage() + "; Caused by: " + e.getCause().getMessage();
             Announcement.error(msg);
             LOG.error(msg, e);
         }

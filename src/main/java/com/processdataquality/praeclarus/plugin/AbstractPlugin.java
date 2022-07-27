@@ -20,12 +20,11 @@ import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.OptionValueChangeListener;
 import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.util.DataCollection;
 import tech.tablesaw.api.Table;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The base abstract class for plugins - all plugins must extend from this class.
@@ -40,7 +39,7 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
 
     // a map that a plugin may use to store and retrieve secondary datasets (besides the
     // primary log dataset) that are passed to subsequent plugins
-    private final Map<String, Table> auxiliaryDatasets = new HashMap<>();
+    private final DataCollection auxiliaryDatasets = new DataCollection();
 
     // a concatenated list of input tables from all immediately prior plugins
     private final List<Table> inputs = new ArrayList<>();
@@ -79,7 +78,7 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
     /**
      * @return this plugin's map of secondary datasets
      */
-    public Map<String, Table> getAuxiliaryDatasets() { return auxiliaryDatasets; }
+    public DataCollection getAuxiliaryDatasets() { return auxiliaryDatasets; }
 
 
     /**
