@@ -20,6 +20,7 @@ import com.processdataquality.praeclarus.repo.LogEntry;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Image;
@@ -102,10 +103,11 @@ public class UiUtil {
 
 
     public static Grid<Row> tableToGrid(Table table) {
-        if (table.rowCount() == 0) {
-            return emptyTableToGrid(table);
-        }
+//        if (table.rowCount() == 0) {
+//            return emptyTableToGrid(table);
+//        }
         Grid<Row> grid = new Grid<>();
+        grid.setColumnReorderingAllowed(true);
         for (String name : table.columnNames()) {
             ColumnType colType = table.column(name).type();
             Grid.Column<Row> column;
@@ -140,7 +142,8 @@ public class UiUtil {
                 column = grid.addColumn(row -> row.getObject(name));
             }
 
-            column.setHeader(name).setAutoWidth(true);
+            column.setHeader(new Html("<b>" + name + "</b>"))
+                    .setAutoWidth(true).setSortable(true);
         }
 
         List<Row> rows = new ArrayList<>();

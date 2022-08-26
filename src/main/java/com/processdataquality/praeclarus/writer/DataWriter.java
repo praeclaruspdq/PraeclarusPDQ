@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.writer;
 
+import com.processdataquality.praeclarus.util.DataCollection;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.Destination;
 
@@ -31,7 +32,7 @@ public interface DataWriter {
      * Writes the data in a Table object to a sink (file, stream, etc)
      * @throws IOException if anything goes wrong
      */
-    void write(Table table) throws IOException;
+    void write(Table table, DataCollection auxData) throws IOException;
 
     /**
      * @return the stored output destination for this writer (if any)

@@ -1,11 +1,8 @@
 //This code is taken from https://gist.github.com/ShobhinGoyal/15edd0967cc0f7704c36b65f431b707c.
 
-package com.processdataquality.praeclarus.support.logelements;
+package com.processdataquality.praeclarus.support.gameelements;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-
 import java.util.LinkedList;
 
 public class ActivityGraph {

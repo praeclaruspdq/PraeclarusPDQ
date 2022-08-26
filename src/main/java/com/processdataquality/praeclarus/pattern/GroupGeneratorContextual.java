@@ -17,24 +17,17 @@
 package com.processdataquality.praeclarus.pattern;
 
 import java.util.ArrayList;
+
 import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.ControlFlowSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.DurationSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.EventDataSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.ResourceSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.StringSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.TimeSimilarity;
+import com.processdataquality.praeclarus.support.gameelements.ActivityGroup;
 import com.processdataquality.praeclarus.support.logelements.Activity;
-import com.processdataquality.praeclarus.support.logelements.ActivityGroup;
-import com.processdataquality.praeclarus.support.logelements.ParseTable;
-import com.processdataquality.praeclarus.support.math.Pair;
 
+import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
-import tech.tablesaw.columns.Column;
 
 /**
  * @author Sareh Sadeghianasl
@@ -74,6 +67,7 @@ public class GroupGeneratorContextual extends AbstractImperfectLabelContextual {
 		for (ActivityGroup group : this.questionBank) {
 			addGroupToResult(selectedColumn, group);
 		}
+		getAuxiliaryDatasets().put("Questions", _detected);
 		getAuxiliaryDatasets().put("Activities", createActivitiesTable());
 	}
 
@@ -148,7 +142,7 @@ public class GroupGeneratorContextual extends AbstractImperfectLabelContextual {
 			}
 			res[i] = res[i] + "]";
 		}
-		addResult(selectedColumn, "" + g.getId() + "", acts, res[0], res[1], res[2], res[3]);
+		addResult(selectedColumn, g.getId() , acts, res[0], res[1], res[2], res[3]);
 	}
 
 	/**
@@ -158,7 +152,7 @@ public class GroupGeneratorContextual extends AbstractImperfectLabelContextual {
 	 */
 	@Override
 	protected Table createResultTable() {
-		Table result = Table.create("Result").addColumns(StringColumn.create("GID"), StringColumn.create("Activity 1"),
+		Table result = Table.create("Result").addColumns(IntColumn.create("GID"), StringColumn.create("Activity 1"),
 				StringColumn.create("Activity 2"));
 		int max = getMaxGroupSize();
 		for (int i = 2; i < max; i++) {
@@ -166,7 +160,8 @@ public class GroupGeneratorContextual extends AbstractImperfectLabelContextual {
 		}
 		result.addColumns(StringColumn.create("Control Flow Similarities"),
 				StringColumn.create("Resource Similarities"), StringColumn.create("Time Similarities"),
-				StringColumn.create("Data Similarities"));
+				StringColumn.create("Data Similarities"), IntColumn.create("Topic"),
+				IntColumn.create("Level"));
 		return result;
 	}
 
@@ -187,19 +182,21 @@ public class GroupGeneratorContextual extends AbstractImperfectLabelContextual {
 	 * @param gid    the group id
 	 * @param acts   the list of activity labels in the group
 	 */
-	protected void addResult(StringColumn column, String gid, ArrayList<String> acts, String dcfs, String rs, String ts,
+	protected void addResult(StringColumn column, int gid, ArrayList<String> acts, String dcfs, String rs, String ts,
 			String ds) {
-		_detected.stringColumn(0).append(gid);
+		_detected.intColumn(0).append(gid);
 		for (int i = 0; i < acts.size(); i++) {
 			_detected.stringColumn(i + 1).append(acts.get(i));
 		}
-		for (int j = acts.size() + 1; j < _detected.columnCount() - 4; j++) {
+		for (int j = acts.size() + 1; j < _detected.columnCount() - 6; j++) {
 			_detected.stringColumn(j).append("-");
 		}
-		_detected.stringColumn(_detected.columnCount() - 4).append(dcfs);
-		_detected.stringColumn(_detected.columnCount() - 3).append(rs);
-		_detected.stringColumn(_detected.columnCount() - 2).append(ts);
-		_detected.stringColumn(_detected.columnCount() - 1).append(ds);
+		_detected.stringColumn(_detected.columnCount() - 6).append(dcfs);
+		_detected.stringColumn(_detected.columnCount() - 5).append(rs);
+		_detected.stringColumn(_detected.columnCount() - 4).append(ts);
+		_detected.stringColumn(_detected.columnCount() - 3).append(ds);
+		_detected.intColumn(_detected.columnCount() - 2).append(-1);
+		_detected.intColumn(_detected.columnCount() - 1).append(-1);
 	}
 
 	/**

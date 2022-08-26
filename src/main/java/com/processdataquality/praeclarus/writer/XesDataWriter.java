@@ -18,6 +18,7 @@ package com.processdataquality.praeclarus.writer;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
+import com.processdataquality.praeclarus.util.DataCollection;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
@@ -72,7 +73,7 @@ public class XesDataWriter extends AbstractDataWriter {
     }
 
     @Override
-    public void write(Table table) throws IOException {
+    public void write(Table table, DataCollection auxData) throws IOException {
         XLog log = createXLog(table);
         write(log);
     }

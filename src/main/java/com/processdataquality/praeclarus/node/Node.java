@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2021 Queensland University of Technology
  *
@@ -17,8 +18,10 @@
 package com.processdataquality.praeclarus.node;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.repo.Repo;
+import com.processdataquality.praeclarus.util.DataCollection;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -285,8 +288,8 @@ public abstract class Node {
     /**
      * @return a map of auxiliary datasets from all predecessor nodes
      */
-    public Map<String, Table> getAuxiliaryInputs() {
-        Map<String, Table> auxInputs = new HashMap<>();
+    public DataCollection getAuxiliaryInputs() {
+        DataCollection auxInputs = new DataCollection();
         _previous.forEach(node -> auxInputs.putAll(node.getAuxiliaryDatasets()));
         return auxInputs;
     }
@@ -323,7 +326,7 @@ public abstract class Node {
     }
 
     
-    protected Map<String, Table> getAuxiliaryDatasets() {
+    protected DataCollection getAuxiliaryDatasets() {
         return _plugin.getAuxiliaryDatasets();
     }
 
@@ -356,7 +359,7 @@ public abstract class Node {
 
     private void commit(Table t) {
         try {
-            _commitID = Repo.commit(t, getCommitMessage(), "author");
+            _commitID = Repo.commit(t, getCommitMessage(), EventLogger.loggedOnUserName());
         }
         catch (IOException | GitAPIException e) {
             System.out.println("Failed to commit table to repo: " + e.getMessage());
