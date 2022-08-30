@@ -18,8 +18,8 @@ package com.processdataquality.praeclarus.reader;
 
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.io.ReadOptions;
 import tech.tablesaw.io.Source;
 import tech.tablesaw.io.jdbc.SqlResultSetReader;
 
@@ -36,11 +36,16 @@ import java.sql.*;
         version = "1.0",
         synopsis = "Loads a log stored as a table in a database."
 )
-public class SqlDataReader extends AbstractPlugin implements DataReader {
+public class SqlDataReader extends AbstractDataReader {
 
     public SqlDataReader() {
         super();
         addDefaultOptions();
+    }
+
+    @Override
+    protected ReadOptions getReadOptions() throws InvalidOptionValueException {
+        return null;
     }
 
     @Override
@@ -62,7 +67,7 @@ public class SqlDataReader extends AbstractPlugin implements DataReader {
         return null;
     }
 
-    private void addDefaultOptions() {
+    protected void addDefaultOptions() {
         getOptions().addDefault("DB Type", "MySQL");
         getOptions().addDefault("DB URL", "jdbc:mysql://localhost/DB");
         getOptions().addDefault("User Name", "");

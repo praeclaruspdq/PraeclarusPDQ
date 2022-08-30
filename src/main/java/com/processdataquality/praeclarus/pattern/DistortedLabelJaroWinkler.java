@@ -40,7 +40,8 @@ public class DistortedLabelJaroWinkler extends AbstractImperfectLabel {
         super();
         getOptions().addDefault("Threshold", 0.7);
     }
-    
+
+
     @Override
     protected void detect(StringColumn column, String s1, String s2) {
         double threshold = getOptions().get("Threshold").asDouble();

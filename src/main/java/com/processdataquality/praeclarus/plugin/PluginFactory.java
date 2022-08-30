@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
+ * Loads plugin classes of a specified type, and creates instances of them as requested
  * @author Michael Adams
  * @date 14/4/21
  */
@@ -35,6 +36,7 @@ public class PluginFactory<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginFactory.class);
 
+    // a map of [name, plugin class] for all detected plugins of the specified type
     private final Map<String, Class<T>> _classMap;
 
 
@@ -43,11 +45,17 @@ public class PluginFactory<T> {
     }
 
 
+    /**
+     * @return a list of the names of all detected plugins 
+     */
     public List<String> getPluginNames() {
         return new ArrayList<>(_classMap.keySet());
     }
 
 
+    /**
+     * @return a list of metadata objects for all detected plugins
+     */
     public List<Plugin> getMetaDataList() {
         List<Plugin> list = new ArrayList<>();
         for (Class<?> clazz : _classMap.values()) {
@@ -60,6 +68,11 @@ public class PluginFactory<T> {
     }
 
 
+    /**
+     * Gets the metadata for a specified plugin class
+     * @param className the class name 
+     * @return the metadata for the class
+     */
     public Plugin getPluginAnnotation(String className) {
         Class<?> clazz = _classMap.get(className);
         if (clazz != null) {
@@ -69,6 +82,11 @@ public class PluginFactory<T> {
     }
 
 
+    /**
+     * Gets the metadata for a plugin's specified patterns (pattern groupings)
+     * @param className the class name
+     * @return the metadata for the class's patterns
+     */
     public List<Pattern> getPatternAnnotations(String className) {
         Class<?> clazz = _classMap.get(className);
         if (clazz != null) {
@@ -80,7 +98,15 @@ public class PluginFactory<T> {
     }
 
 
-    // ensure the plugin class is known to the framework
+    /**
+     * Creates a new instantiation of a plugin class
+     * @param className the class name
+     * @return a new instance of the class, if the provided class is valid
+     * @throws NoSuchMethodException if the plugin does not have a valid constructor
+     * @throws InvocationTargetException if the plugin's constructor throws an exception
+     * @throws InstantiationException if the class is abstract or not found
+     * @throws IllegalAccessException if the plugin's constructor is inaccessible
+     */
     public T newInstance(String className) throws NoSuchMethodException,
             InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<T> clazz = _classMap.get(className);
@@ -91,6 +117,11 @@ public class PluginFactory<T> {
     }
 
 
+    /**
+     * Creates a map of names and plugins of the specified type
+     * @param type the class type
+     * @return the populated map
+     */
     private Map<String, Class<T>> buildMap(Class<T> type) {
         try {
             PluginLoader loader = new PluginLoader(new PluginConfig().getPaths());

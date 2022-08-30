@@ -69,4 +69,6 @@ public class OwlWriter extends AbstractDataWriter {
                 "Unable to locate ontology data within plugin's auxiliary data sets");
     }
     
+
 }
+

@@ -19,21 +19,30 @@ package com.processdataquality.praeclarus.option;
 import java.util.UUID;
 
 /**
+ * An interface for objects providing user-configurable options (parameters) at runtime
  * @author Michael Adams
  * @date 5/5/2022
  */
 public interface HasOptions {
 
     /**
-     * @return A map of configuration parameters for plugins and other objects that
-     * have configurable parameters.
+     * @return A map of configuration parameters that may be populated by implementers.
      */
     Options getOptions();
 
 
+    /**
+     * A default identifier for the implementing object. Expected to be overridden, but
+     * overriding is not mandatory
+     * @return a UUID representing a unique identifier for the implementing object
+     */
     default String getId() { return UUID.randomUUID().toString(); }
 
 
+    /**
+     * All implementers must provide a name
+     * @return the name (or label) of the implementing object
+     */
     String getName();
 
 }
