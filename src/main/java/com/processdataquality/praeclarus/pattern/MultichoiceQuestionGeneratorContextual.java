@@ -23,20 +23,13 @@ import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.ControlFlowSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.DurationSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.EventDataSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.ResourceSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.StringSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.TimeSimilarity;
+import com.processdataquality.praeclarus.support.gameelements.MCQuestion;
 import com.processdataquality.praeclarus.support.logelements.Activity;
-import com.processdataquality.praeclarus.support.logelements.MCQuestion;
-import com.processdataquality.praeclarus.support.logelements.ParseTable;
 import com.processdataquality.praeclarus.support.math.Pair;
 
+import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
-import tech.tablesaw.columns.Column;
 
 /**
  * @author Sareh Sadeghianasl
@@ -76,6 +69,7 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 		super.detect(table, selectedColumn, sortColName);
 		double[] certainty = computeCertainties();
 		this.questionBank = createQuestions(selectedColumn, certainty);
+		getAuxiliaryDatasets().put("Questions", _detected);
 		getAuxiliaryDatasets().put("Activities", createActivitiesTable());
 		
 	}
@@ -276,7 +270,7 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 			}
 			res[i] = res[i] + "]";
 		}
-		addResult(selectedColumn, String.valueOf(q.getId()) , main, options, res[0], res[1], res[2], res[3]);
+		addResult(selectedColumn, q.getId() , main, options, res[0], res[1], res[2], res[3]);
 
 	}
 
@@ -289,7 +283,7 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 	 */
 	@Override
 	protected Table createResultTable() {
-		Table result = Table.create("Result").addColumns(StringColumn.create("QID"),
+		Table result = Table.create("Result").addColumns(IntColumn.create("QID"),
 				StringColumn.create("Main Activity"));
 		for (int i = 0; i < getOptions().get("Number of Options").asInt(); i++) {
 			String temp = "Option"+String.valueOf(i);
@@ -315,9 +309,9 @@ public class MultichoiceQuestionGeneratorContextual extends AbstractImperfectLab
 	 * @param ts      the time similarity of main and each of the options
 	 * @param ds      the data attribute similarity of main and each of the options
 	 */
-	protected void addResult(StringColumn column, String qid, String main, ArrayList<String> options, String dcfs,
+	protected void addResult(StringColumn column, int qid, String main, ArrayList<String> options, String dcfs,
 			String rs, String ts, String ds) {	
-		_detected.stringColumn(0).append(qid);
+		_detected.intColumn(0).append(qid);
 		_detected.stringColumn(1).append(main);
 		for (int i = 0; i < options.size(); i++) {
 			_detected.stringColumn(2 + i).append(options.get(i));

@@ -87,6 +87,11 @@ public class Activity {
 		eventLevelData = new ArrayList<ActivityData>();
 		
 	}
+	
+	public Activity(String name, int index) {
+		this.name = name;
+		this.index = index;
+	}
 
 	public void addAllEvents(ArrayList<Event> pl) {
 		this.events.addAll(pl);

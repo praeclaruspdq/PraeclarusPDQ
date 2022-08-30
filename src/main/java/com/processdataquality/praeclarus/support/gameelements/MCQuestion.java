@@ -14,11 +14,12 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.support.logelements;
+package com.processdataquality.praeclarus.support.gameelements;
 
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.math.EditDistanceRecursive;
 
 /**
@@ -45,10 +46,12 @@ public class MCQuestion {
 		this.trueOptions = trueOptions;
 		this.falseOptions = falseOptions;
 		this.id = id;
-		this.DCFS = Sims[0];
-		this.RS = Sims[1];
-		this.TS = Sims[2];
-		this.DS = Sims[3];
+		if (Sims != null) {
+			this.DCFS = Sims[0];
+			this.RS = Sims[1];
+			this.TS = Sims[2];
+			this.DS = Sims[3];
+		}
 		this.allOptions = new ArrayList<>(trueOptions);
 		allOptions.addAll(falseOptions);
 	}
@@ -72,7 +75,7 @@ public class MCQuestion {
 		}
 		return res;
 	}
-	
+
 	public ArrayList<Activity> getAllOptionsPlusMain() {
 		ArrayList<Activity> all = new ArrayList<>(allOptions);
 		all.add(main);
@@ -187,7 +190,7 @@ public class MCQuestion {
 	public void setDS(String[] dS) {
 		DS = dS;
 	}
-	
+
 	public int getRealIndexOf(Activity a) {
 		return allOptions.indexOf(a);
 	}

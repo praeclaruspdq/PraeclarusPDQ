@@ -23,18 +23,11 @@ import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.ControlFlowSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.DurationSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.EventDataSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.ResourceSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.StringSimilarity;
-import com.processdataquality.praeclarus.support.activitysimilaritymeasures.TimeSimilarity;
+import com.processdataquality.praeclarus.support.gameelements.ActivityGraph;
+import com.processdataquality.praeclarus.support.gameelements.ActivityGroup;
 import com.processdataquality.praeclarus.support.logelements.Activity;
-import com.processdataquality.praeclarus.support.logelements.ActivityGroup;
-import com.processdataquality.praeclarus.support.logelements.ActivityGraph;
-import com.processdataquality.praeclarus.support.logelements.ParseTable;
-import com.processdataquality.praeclarus.support.math.Pair;
 
+import tech.tablesaw.api.IntColumn;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
@@ -76,6 +69,7 @@ public class PairGeneratorContextual extends AbstractImperfectLabelContextual {
 		ArrayList<ActivityGroup> pairs = convertToList();
 		Collections.sort(pairs);
 		createPairs(graph, selectedColumn, pairs);
+		getAuxiliaryDatasets().put("Questions", _detected);
 		getAuxiliaryDatasets().put("Activities", createActivitiesTable());
 	}
 
@@ -120,7 +114,7 @@ public class PairGeneratorContextual extends AbstractImperfectLabelContextual {
 		int j = parser.getActivities().indexOf(g.getActs().get(1));
 		String act1 = "(" + i + ")" + g.getActs().get(0).getName();
 		String act2 = "(" + j + ")" + g.getActs().get(1).getName();
-		addResult(selectedColumn, "" + g.getId() + "", act1, act2, dcfs[i][j], rs[i][j], ts[i][j],ds[i][j], eds[i][j]);
+		addResult(selectedColumn,  g.getId(), act1, act2, dcfs[i][j], rs[i][j], ts[i][j],ds[i][j], eds[i][j]);
 
 	}
 
@@ -133,7 +127,7 @@ public class PairGeneratorContextual extends AbstractImperfectLabelContextual {
 	@Override
 	protected Table createResultTable() {
 		Table result = Table.create("Result").addColumns(
-				StringColumn.create("GID"), StringColumn.create("Activity 1"),
+				IntColumn.create("GID"), StringColumn.create("Activity 1"),
 				StringColumn.create("Activity 2"), StringColumn.create("Control Flow Similarity"),
 				StringColumn.create("Resource Similarity"), StringColumn.create("Time Similarity"),
 				StringColumn.create("Data Similarity"));
@@ -152,9 +146,9 @@ public class PairGeneratorContextual extends AbstractImperfectLabelContextual {
 	 * @param ts     the time similarity of act1 and act2
 	 * @param eds     the data attribute similarity of act1 and act2
 	 */
-	protected void addResult(StringColumn column, String gid, String act1, String act2, double dcfs,
+	protected void addResult(StringColumn column, int gid, String act1, String act2, double dcfs,
 			double rs, double ts, double ds, double eds) {
-		_detected.stringColumn(0).append(gid);
+		_detected.intColumn(0).append(gid);
 		_detected.stringColumn(1).append(act1);
 		_detected.stringColumn(2).append(act2);
 		_detected.stringColumn(3).append(getSimPercent(dcfs));
