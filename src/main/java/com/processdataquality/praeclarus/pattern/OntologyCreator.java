@@ -16,8 +16,6 @@
 
 package com.processdataquality.praeclarus.pattern;
 
-import java.util.ArrayList;
-
 import com.processdataquality.praeclarus.annotations.Pattern;
 import com.processdataquality.praeclarus.annotations.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
@@ -27,16 +25,18 @@ import com.processdataquality.praeclarus.support.gameelements.ActivityOntology;
 import com.processdataquality.praeclarus.support.gameelements.RDFAnswer;
 import com.processdataquality.praeclarus.support.logelements.Activity;
 import com.processdataquality.praeclarus.support.math.Pair;
-
 import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
+
+import java.util.ArrayList;
 
 /**
  * @author Sareh Sadeghianasl
  * @date 23/5/22
  */
-@Plugin(name = "Ontology Creator", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Creates an activity ontology using the anwers of the Quality Gaurdian Rosebud game")
+@Plugin(name = "Ontology Creator", author = "Sareh Sadeghianasl", version = "1.0",
+		synopsis = "Creates an activity ontology using the answers of the Quality Guardian Rosebud game")
 @Pattern(group = PatternGroup.SYNONYMOUS_LABELS)
 
 public class OntologyCreator extends AbstractImperfectLabelGameRepair {
