@@ -16,6 +16,7 @@
 
 package com.processdataquality.praeclarus.ui.repo;
 
+import com.processdataquality.praeclarus.exception.WorkflowNotFoundException;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Component;
@@ -45,6 +46,10 @@ public class WorkflowStore {
         List<StoredWorkflow> list = new ArrayList<>();
         repository.findAll().forEach(list::add);
         return list;
+    }
+
+    public static StoredWorkflow findById(String id) throws WorkflowNotFoundException {
+        return repository.findById(id).orElseThrow(() -> new WorkflowNotFoundException(id));
     }
 
     public static List<StoredWorkflow> findPrivate(String owner) {

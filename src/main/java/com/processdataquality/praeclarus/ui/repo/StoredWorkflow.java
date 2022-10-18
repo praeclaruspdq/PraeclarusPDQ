@@ -100,6 +100,8 @@ public class StoredWorkflow {
         return parseString("lastSavedTime");
     }
 
+    public String toString() { return getJson(); }
+
 
     private String parseString(String field) {
         try {
