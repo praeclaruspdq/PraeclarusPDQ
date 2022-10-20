@@ -48,7 +48,7 @@ public class PluginFactory<T> {
     /**
      * @return a list of the names of all detected plugins 
      */
-    public List<String> getPluginNames() {
+    public List<String> getPluginClassNames() {
         return new ArrayList<>(_classMap.keySet());
     }
 

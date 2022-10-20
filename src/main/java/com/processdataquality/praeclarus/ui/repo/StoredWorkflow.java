@@ -60,6 +60,9 @@ public class StoredWorkflow {
         this.owner = owner;
     }
 
+    public boolean hasOwner(String owner) { return getOwner().equals(owner); }
+
+
     public boolean isShared() {
         return shared;
     }
@@ -68,11 +71,11 @@ public class StoredWorkflow {
         this.shared = shared;
     }
 
-    public String getJson() {
+    public String getWorkflowJson() {
         return json;
     }
 
-    public void setJson(String json) {
+    public void setWorkflowJson(String json) {
         this.json = json;
     }
 
@@ -100,7 +103,20 @@ public class StoredWorkflow {
         return parseString("lastSavedTime");
     }
 
-    public String toString() { return getJson(); }
+    public String toString() { return getWorkflowJson(); }
+
+
+    public JSONObject toSummaryJson() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("id", getId());
+        json.put("name", getName());
+        json.put("owner", owner);
+        json.put("public", isShared());
+        json.put("description", getDescription());
+        json.put("creationTime", getCreationTime());
+        json.put("lastSavedTime", getLastSavedTime());
+        return json;
+    }
 
 
     private String parseString(String field) {

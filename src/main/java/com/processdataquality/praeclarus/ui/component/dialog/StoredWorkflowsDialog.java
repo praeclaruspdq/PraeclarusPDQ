@@ -129,7 +129,7 @@ public class StoredWorkflowsDialog extends Dialog {
 
 
     private Grid<StoredWorkflow> createSharedGrid() {
-        return createGrid(WorkflowStore.findShared());
+        return createGrid(WorkflowStore.findPublic());
     }
 
 
@@ -242,7 +242,7 @@ public class StoredWorkflowsDialog extends Dialog {
 
 
     private void loadSelected() {
-        parentWorkflow.fileLoaded(selectedWorkflow.getJson());
+        parentWorkflow.fileLoaded(selectedWorkflow.getWorkflowJson());
         Announcement.success("'" + selectedWorkflow.getName() + "' successfully loaded.");
         EventLogger.graphLoadEvent(parentWorkflow.getGraph());
     }

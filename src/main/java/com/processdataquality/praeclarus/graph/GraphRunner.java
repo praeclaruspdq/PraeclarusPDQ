@@ -79,7 +79,7 @@ public class GraphRunner implements NodeStateChangeListener {
     public void setGraph(Graph graph) { _graph = graph; }
 
 
-    private void run(Node node) throws NodeRunnerException {
+    public void run(Node node) throws NodeRunnerException {
         launch(node, RunnerState.RUNNING);
     }
 

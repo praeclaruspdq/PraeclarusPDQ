@@ -78,7 +78,7 @@ public class TreeData {
     
     private List<TreeItem> createItems(PluginFactory<?> factory, TreeItem parent) {
         List<TreeItem> items = new ArrayList<>();
-        for (String name : factory.getPluginNames()) {
+        for (String name : factory.getPluginClassNames()) {
             Plugin metaData = factory.getPluginAnnotation(name);
             String label = metaData != null ? metaData.name() :
                     name.substring(name.lastIndexOf('.'));
@@ -91,7 +91,7 @@ public class TreeData {
     private List<TreeItem> createPatternItems(PluginFactory<?> factory, TreeItem patterns) {
         List<TreeItem> items = new ArrayList<>();
         Map<PatternGroup, TreeItem> patternMap = new HashMap<>();
-        for (String name : factory.getPluginNames()) {
+        for (String name : factory.getPluginClassNames()) {
             Plugin pluginMetaData = factory.getPluginAnnotation(name);
             List<Pattern> patternList = factory.getPatternAnnotations(name);
             if (patternList.isEmpty()) {

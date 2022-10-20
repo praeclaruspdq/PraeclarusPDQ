@@ -28,11 +28,12 @@ import java.util.List;
 @Repository
 public interface WorkflowRepository extends CrudRepository<StoredWorkflow, String> {
 
-
     List<StoredWorkflow> findByOwner(String owner);
 
     List<StoredWorkflow> findBySharedTrue();
 
     List<StoredWorkflow> findByOwnerAndSharedFalse(String owner);
+
+    List<StoredWorkflow> findByOwnerOrSharedTrue(String owner);
 
 }

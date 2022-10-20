@@ -56,9 +56,14 @@ public class WorkflowStore {
         return repository.findByOwnerAndSharedFalse(owner);
     }
 
-    public static List<StoredWorkflow> findShared() {
+    public static List<StoredWorkflow> findPublic() {
         return repository.findBySharedTrue();
     }
+
+    public static List<StoredWorkflow> findPrivateOrPublic(String owner) {
+        return repository.findByOwnerOrSharedTrue(owner);
+    }
+
 
     public static StoredWorkflow save(Workflow workflow) throws JSONException {
         workflow.getGraph().updateLastSavedTime();
