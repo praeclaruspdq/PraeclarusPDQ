@@ -49,7 +49,7 @@ public class Controller {
 //    private final WorkflowModelAssembler _assembler;
 //
 //    Controller(WorkflowModelAssembler assembler) {
-//        _assembler = assembler;
+//        _as sembler = assembler;
 //    }
 
     @GetMapping("/workflows")
