@@ -58,12 +58,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import tech.tablesaw.api.Table;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.eclipsesource.json.WriterConfig.PRETTY_PRINT;
 
 /**
  * @author Michael Adams
@@ -345,29 +346,16 @@ public class WorkflowPanel extends VerticalLayout
     }
 
     private boolean downloadWorkflow() {
-        try {
-            _workflow.getGraph().updateLastSavedTime();
-            String jsonStr = _workflow.asJson().toString(3);
-            _canvas.saveToFile(jsonStr);
-            _workflow.setChanged(false);
-            EventLogger.graphDownloadEvent(_workflow.getGraph());
-            return true;
-        }
-        catch (JSONException je) {
-            Announcement.error("Failed to download file: " + je.getMessage());
-            LOG.error("Failed to download file", je);
-        }
-        return false;
+        _workflow.getGraph().updateLastSavedTime();
+        String jsonStr = _workflow.asJson().toString(PRETTY_PRINT);
+        _canvas.saveToFile(jsonStr);
+        _workflow.setChanged(false);
+        EventLogger.graphDownloadEvent(_workflow.getGraph());
+        return true;
     }
 
     private void storeWorkflow() {
-        try {
-            _workflow.store();
-        }
-        catch (JSONException je) {
-            Announcement.error("Failed to store file: " + je.getMessage());
-            LOG.error("Failed to store file", je);
-        }
+        _workflow.store();
     }
 
 
@@ -377,14 +365,8 @@ public class WorkflowPanel extends VerticalLayout
 
 
     private void saveThenLoadNewWorkflow() {
-        try {
-            String jsonStr = _workflow.asJson().toString(3);
-            _canvas.saveThenLoadFile(jsonStr);
-        }
-        catch (JSONException je) {
-            Announcement.error("Failed to save file: " + je.getMessage());
-            LOG.error("Failed to save file", je);
-        }
+        String jsonStr = _workflow.asJson().toString(PRETTY_PRINT);
+        _canvas.saveThenLoadFile(jsonStr);
     }
 
 

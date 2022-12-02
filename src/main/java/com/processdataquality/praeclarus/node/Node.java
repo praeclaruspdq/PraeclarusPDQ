@@ -17,21 +17,23 @@
 
 package com.processdataquality.praeclarus.node;
 
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.eclipsesource.json.JsonObject;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.repo.Repo;
 import com.processdataquality.praeclarus.util.DataCollection;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import tech.tablesaw.api.Table;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * A node in a workflow, representing a plugin. This class provides base functionality
+ * A node in a graph, encapsulating a plugin. This class provides base functionality
  * to be used and/or extended by subclasses.
  *
  * @author Michael Adams
@@ -373,15 +375,15 @@ public abstract class Node {
     }
 
 
-    public JSONObject asJson() throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("id", getID());
-        json.put("label", _label);
-        if (_commitID != null) json.put("commitID", _commitID);
-        if (_tableID != null) json.put("tableID", _tableID);
+    public JsonObject asJson() {
+        JsonObject json = new JsonObject();
+        json.add("id", getID());
+        json.add("label", _label);
+        if (_commitID != null) json.add("commitID", _commitID);
+        if (_tableID != null) json.add("tableID", _tableID);
 
-        json.put("plugin", _plugin.getClass().getName());
-        json.put("options", _plugin.getOptions().getChangesAsJson());
+        json.add("plugin", _plugin.getClass().getName());
+        json.add("options", _plugin.getOptions().getChangesAsJson());
         return json;
     }
 

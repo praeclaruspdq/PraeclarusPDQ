@@ -17,7 +17,7 @@
 package com.processdataquality.praeclarus.reader;
 
 
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
 import tech.tablesaw.io.csv.CsvReadOptions;
 

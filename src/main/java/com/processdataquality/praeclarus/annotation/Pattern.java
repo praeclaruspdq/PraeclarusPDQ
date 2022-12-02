@@ -14,21 +14,20 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.annotations;
+package com.processdataquality.praeclarus.annotation;
 
+import com.processdataquality.praeclarus.pattern.PatternGroup;
+
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * @author Michael Adams
- * @date 30/3/21
+ * @date 14/6/21
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Plugin {
-    String name();
-    String author();
-    String synopsis();
-    String description() default "";
-    String version() default "0.1";
-    String fileDescriptors() default "";
+@Repeatable(Patterns.class)
+public @interface Pattern {
+    PatternGroup group() default PatternGroup.UNGROUPED;
 }

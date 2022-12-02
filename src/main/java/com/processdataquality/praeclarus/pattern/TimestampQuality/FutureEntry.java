@@ -18,8 +18,8 @@ package com.processdataquality.praeclarus.pattern.TimestampQuality;
 
 import java.time.LocalDateTime;
 
-import com.processdataquality.praeclarus.annotations.Pattern;
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Pattern;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.OptionException;
 import com.processdataquality.praeclarus.pattern.PatternGroup;
 

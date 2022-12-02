@@ -36,7 +36,6 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 
 import java.util.List;
 import java.util.Optional;
@@ -231,13 +230,7 @@ public class StoredWorkflowsDialog extends Dialog {
 
 
     private void storeExistingWorkflow() {
-        try {
-            parentWorkflow.store();
-        }
-        catch (JSONException je) {
-            Announcement.error("Failed to store workflow: " + je.getMessage());
-            LOG.error("Failed to store workflow: ",  je);
-        }
+        parentWorkflow.store();
     }
 
 

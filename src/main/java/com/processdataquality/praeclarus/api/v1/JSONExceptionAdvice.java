@@ -16,12 +16,7 @@
 
 package com.processdataquality.praeclarus.api.v1;
 
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * @author Michael Adams
@@ -30,11 +25,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class JSONExceptionAdvice {
 
-    @ResponseBody
-    @ExceptionHandler(JSONException.class)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    String jsonExceptionHandler(JSONException je) {
-        return je.getMessage();
-    }
+//    @ResponseBody
+//    @ExceptionHandler(JSONException.class)
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    String jsonExceptionHandler(JSONException je) {
+//        return je.getMessage();
+//    }
 }
 

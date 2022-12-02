@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.pattern;
 
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.OptionException;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;

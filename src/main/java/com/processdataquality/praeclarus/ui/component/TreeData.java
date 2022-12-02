@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
-import com.processdataquality.praeclarus.annotations.Pattern;
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Pattern;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.pattern.PatternGroup;
 import com.processdataquality.praeclarus.plugin.PluginFactory;
 import com.processdataquality.praeclarus.plugin.PluginService;

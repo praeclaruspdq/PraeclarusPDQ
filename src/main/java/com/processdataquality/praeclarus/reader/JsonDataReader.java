@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.reader;
 
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
 import tech.tablesaw.io.json.JsonReadOptions;
 
@@ -35,6 +35,7 @@ public class JsonDataReader extends AbstractDataReader {
     public JsonDataReader() {
         super();
     }
+
     protected JsonReadOptions getReadOptions() throws InvalidOptionValueException {
         return JsonReadOptions.builder(getSource())
                 .missingValueIndicator(getOptions().get("Missing Value").asString())

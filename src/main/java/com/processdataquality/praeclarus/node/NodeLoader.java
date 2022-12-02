@@ -16,17 +16,15 @@
 
 package com.processdataquality.praeclarus.node;
 
+import com.eclipsesource.json.JsonObject;
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.plugin.PluginFactory;
 import com.processdataquality.praeclarus.plugin.PluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 
 /**
  * @author Michael Adams
@@ -37,15 +35,15 @@ public class NodeLoader {
     private static final Logger LOG = LoggerFactory.getLogger(NodeLoader.class);
 
     
-    public Node fromJson(JSONObject json) throws JSONException, IOException {
+    public Node fromJson(JsonObject json) throws IOException {
         Node node = null;
-        AbstractPlugin plugin = newPluginInstance(json.getString("plugin"));
+        AbstractPlugin plugin = newPluginInstance(json.getString("plugin", ""));
         if (plugin != null) {
-            addOptions(plugin, json.getJSONObject("options"));
-            String nodeID = json.getString("id");
-            String label = json.getString("label");
-            String commitID = json.optString("commitID");
-            String tableID = json.optString("tableID");
+            addOptions(plugin, json.get("options").asObject());
+            String nodeID = json.getString("id", "");
+            String label = json.getString("label", "");
+            String commitID = json.getString("commitID", "");
+            String tableID = json.getString("tableID", "");
             node = NodeFactory.create(plugin, nodeID);
             node.setLabel(label);
             if (!commitID.isEmpty()) {
@@ -81,16 +79,12 @@ public class NodeLoader {
     }
 
 
-    @SuppressWarnings("unchecked")
-    private void addOptions(AbstractPlugin plugin, JSONObject jsonOptions) throws JSONException {
+    private void addOptions(AbstractPlugin plugin, JsonObject jsonOptions) {
         if (jsonOptions != null) {
-            Iterator<String> keys = jsonOptions.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
+            for (String key : jsonOptions.names()) {
                 plugin.getOptions().add(key, jsonOptions.get(key));
             }
         }
     }
-
 
 }

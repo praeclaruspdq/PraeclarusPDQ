@@ -51,6 +51,7 @@ public class Option implements Comparable<Option> {
 
     public Object value() { return _value; }
 
+
     public void setValue(Object v) {
         _prevValue = _value;
         _value = v;

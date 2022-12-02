@@ -16,8 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+
+import com.eclipsesource.json.JsonObject;
 
 /**
  * A directed arc between two nodes. Also handles rendering
@@ -87,12 +87,11 @@ public class Connector implements CanvasPrimitive {
 
     /**
      * @return a JSON representation of this connector
-     * @throws JSONException if there's any problem building the JSON object
      */
-    public JSONObject asJson() throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("source", getSource().getID());
-        json.put("target", getTarget().getID());
+    public JsonObject asJson() {
+        JsonObject json = new JsonObject();
+        json.add("source", getSource().getID());
+        json.add("target", getTarget().getID());
         return json;
     }
 

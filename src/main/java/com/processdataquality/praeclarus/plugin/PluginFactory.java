@@ -17,8 +17,8 @@
 package com.processdataquality.praeclarus.plugin;
 
 
-import com.processdataquality.praeclarus.annotations.Pattern;
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Pattern;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.config.PluginConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

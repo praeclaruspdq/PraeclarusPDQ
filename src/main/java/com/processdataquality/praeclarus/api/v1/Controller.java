@@ -16,6 +16,9 @@
 
 package com.processdataquality.praeclarus.api.v1;
 
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.WriterConfig;
 import com.processdataquality.praeclarus.exception.WorkflowNotFoundException;
 import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.graph.GraphRunner;
@@ -25,9 +28,6 @@ import com.processdataquality.praeclarus.plugin.PluginService;
 import com.processdataquality.praeclarus.repo.graph.GraphStore;
 import com.processdataquality.praeclarus.ui.repo.StoredWorkflow;
 import com.processdataquality.praeclarus.ui.repo.WorkflowStore;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,7 +49,7 @@ public class Controller {
 //    private final WorkflowModelAssembler _assembler;
 //
 //    Controller(WorkflowModelAssembler assembler) {
-//        _as sembler = assembler;
+//        _assembler = assembler;
 //    }
 
     @GetMapping("/workflows")
@@ -94,36 +94,36 @@ public class Controller {
 
 
     @GetMapping("/readers")
-    String findAllReaders() throws JSONException {
-        JSONArray array = new PluginJsonizer().jsonize(PluginService.readers());
+    String findAllReaders() {
+        JsonArray array = new PluginJsonizer().jsonize(PluginService.readers());
         return summarisePlugins(array, "readers");
     }
 
 
     @GetMapping("/writers")
-    String findAllWriters() throws JSONException {
-        JSONArray array = new PluginJsonizer().jsonize(PluginService.writers());
+    String findAllWriters() {
+        JsonArray array = new PluginJsonizer().jsonize(PluginService.writers());
         return summarisePlugins(array, "writers");
     }
 
 
     @GetMapping("/actions")
-    String findAllActions() throws JSONException {
-        JSONArray array = new PluginJsonizer().jsonize(PluginService.actions());
+    String findAllActions() {
+        JsonArray array = new PluginJsonizer().jsonize(PluginService.actions());
         return summarisePlugins(array, "actions");
     }
 
 
     @GetMapping("/patterns")
-    String findAllPatterns() throws JSONException {
-        JSONArray array = new PluginJsonizer().jsonize(PluginService.patterns());
+    String findAllPatterns() {
+        JsonArray array = new PluginJsonizer().jsonize(PluginService.patterns());
         return summarisePlugins(array, "patterns");
     }
 
 
     @GetMapping("/patterns/groups/{group}")
-    String findPatternsInGroup(@PathVariable PatternGroup group) throws JSONException {
-        JSONArray array = new PluginJsonizer().jsonize(PluginService.patterns(), group);
+    String findPatternsInGroup(@PathVariable PatternGroup group) {
+        JsonArray array = new PluginJsonizer().jsonize(PluginService.patterns(), group);
         return summarisePlugins(array, group.name() + "_patterns");
     }
 
@@ -139,23 +139,16 @@ public class Controller {
 
 
     private String summariseWorkflows(List<StoredWorkflow> workflows) {
-        JSONArray array = new JSONArray();
-        workflows.forEach(w -> {
-            try {
-                array.put(w.toSummaryJson());
-            }
-            catch (JSONException e) {
-                //
-            }
-        });
+        JsonArray array = new JsonArray();
+        workflows.forEach(w -> array.add(w.toSummaryJson()));
         return array.toString();
     }
 
 
-    private String summarisePlugins(JSONArray array, String prefix) throws JSONException {
-            JSONObject object = new JSONObject();
-            object.put(prefix, array);
-            return object.toString(3);
+    private String summarisePlugins(JsonArray array, String prefix) {
+            JsonObject object = new JsonObject();
+            object.add(prefix, array);
+            return object.toString(WriterConfig.PRETTY_PRINT);
     }
 
 }

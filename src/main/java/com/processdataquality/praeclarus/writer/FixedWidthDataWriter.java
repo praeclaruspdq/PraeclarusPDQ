@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.writer;
 
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import tech.tablesaw.io.WriteOptions;
 import tech.tablesaw.io.fixed.FixedWidthWriteOptions;
 

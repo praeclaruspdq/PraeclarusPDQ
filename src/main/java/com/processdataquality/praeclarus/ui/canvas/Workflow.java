@@ -16,6 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
 import com.processdataquality.praeclarus.graph.Graph;
 import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.node.Node;
@@ -26,9 +28,6 @@ import com.processdataquality.praeclarus.ui.component.dialog.VertexLabelDialog;
 import com.processdataquality.praeclarus.ui.repo.WorkflowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -143,7 +142,7 @@ public class Workflow implements CanvasEventListener, NodeStateChangeListener {
             Announcement.success("Workflow successfully uploaded.");
             EventLogger.graphUploadEvent(getGraph());
         }
-        catch (JSONException | IOException je) {
+        catch (IOException je) {
             Announcement.error("Failed to load file: " + je.getMessage());
             LOG.error("Failed to load file: ", je);
             clear();
@@ -316,18 +315,18 @@ public class Workflow implements CanvasEventListener, NodeStateChangeListener {
     protected void setName(String name) { _graph.updateName(name); }
 
 
-    public JSONObject asJson() throws JSONException {
-        JSONArray vertexArray = new JSONArray();
+    public JsonObject asJson() {
+        JsonArray vertexArray = new JsonArray();
         for (Vertex vertex : _vertices) {
-            vertexArray.put(vertex.asJson());
+            vertexArray.add(vertex.asJson());
         }
-        JSONArray connectorArray = new JSONArray();
+        JsonArray connectorArray = new JsonArray();
         for (Connector connector : _connectors) {
-            connectorArray.put(connector.asJson());
+            connectorArray.add(connector.asJson());
         }
-        JSONObject json = _graph.asJson();
-        json.put("vertices", vertexArray);
-        json.put("connectors", connectorArray);
+        JsonObject json = _graph.asJson();
+        json.add("vertices", vertexArray);
+        json.add("connectors", connectorArray);
         return json;
     }
 
@@ -344,7 +343,7 @@ public class Workflow implements CanvasEventListener, NodeStateChangeListener {
     }
 
 
-    public void store() throws JSONException {
+    public void store() {
         WorkflowStore.save(this);
         setChanged(false);
         EventLogger.graphStoreEvent(getGraph());

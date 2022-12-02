@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.plugin;
 
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.option.HasOptions;
 
 /**

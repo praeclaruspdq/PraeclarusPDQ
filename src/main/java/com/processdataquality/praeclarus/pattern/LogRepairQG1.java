@@ -19,8 +19,8 @@ package com.processdataquality.praeclarus.pattern;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import com.processdataquality.praeclarus.annotations.Pattern;
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Pattern;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.option.Options;
 import com.processdataquality.praeclarus.support.gameelements.MCAnswer;

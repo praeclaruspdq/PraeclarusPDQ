@@ -16,8 +16,9 @@
 
 package com.processdataquality.praeclarus.ui.repo;
 
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,7 +41,7 @@ public class StoredWorkflow {
     private String json;
 
     @Transient
-    JSONObject jsonObject;
+    JsonObject jsonObject;
 
 
     public StoredWorkflow() { }
@@ -106,36 +107,28 @@ public class StoredWorkflow {
     public String toString() { return getWorkflowJson(); }
 
 
-    public JSONObject toSummaryJson() throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("id", getId());
-        json.put("name", getName());
-        json.put("owner", owner);
-        json.put("public", isShared());
-        json.put("description", getDescription());
-        json.put("creationTime", getCreationTime());
-        json.put("lastSavedTime", getLastSavedTime());
+    public JsonObject toSummaryJson() {
+        JsonObject json = new JsonObject();
+        json.add("id", getId());
+        json.add("name", getName());
+        json.add("owner", owner);
+        json.add("public", isShared());
+        json.add("description", getDescription());
+        json.add("creationTime", getCreationTime());
+        json.add("lastSavedTime", getLastSavedTime());
         return json;
     }
 
 
     private String parseString(String field) {
-        try {
-            String value = getJsonObject().optString(field);
-            if (value != null) {
-                return value;
-            }
-        }
-        catch (JSONException e) {
-            //desc not found;
-        }
-        return "No " + field;
+        String value = getJsonObject().getString(field, null);
+        return value != null ? value : "No " + field;
     }
 
 
-    private JSONObject getJsonObject() throws JSONException {
+    private JsonObject getJsonObject() {
         if (jsonObject == null) {
-            jsonObject = new JSONObject(json);
+            jsonObject = Json.parse(json).asObject();
         }
         return jsonObject;
     }

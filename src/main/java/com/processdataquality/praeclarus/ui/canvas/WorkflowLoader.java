@@ -16,15 +16,15 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
-import com.processdataquality.praeclarus.logging.EventLogger;
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
 import com.processdataquality.praeclarus.graph.Graph;
+import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.node.NodeLoader;
 import com.processdataquality.praeclarus.repo.graph.GraphStore;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -46,24 +46,24 @@ public class WorkflowLoader {
     }
 
 
-    public void load(String jsonStr) throws JSONException, IOException {
+    public void load(String jsonStr) throws IOException {
         EventLogger.ignoreEvents();                  // suppress events while loading
-        JSONObject json = new JSONObject(jsonStr);
+        JsonObject json = Json.parse(jsonStr).asObject();
         Graph graph = loadGraph(json, jsonStr);
         _workflow.clear(graph);
         _workflow.setLoading(true);
-        Map<String, Vertex> vertices = loadVertices(json.getJSONArray("vertices"));
-        loadConnectors(json.getJSONArray("connectors"), vertices);
+        Map<String, Vertex> vertices = loadVertices(json.get("vertices").asArray());
+        loadConnectors(json.get("connectors").asArray(), vertices);
         _workflow.setLoading(false);
         EventLogger.captureEvents();
         selectHeadVertex(vertices, graph);
     }
 
 
-    private Graph loadGraph(JSONObject json, String content) throws JSONException {
+    private Graph loadGraph(JsonObject json, String content) {
 
         // check if this one is persisted
-        String id = json.getString("id");
+        String id = json.getString("id", "-1");
         Optional<Graph> optional = GraphStore.get(id);
         if (optional.isPresent()) {
             Graph graph = optional.get();
@@ -72,19 +72,19 @@ public class WorkflowLoader {
         }
 
         // unknown to this deployment
-        Graph.Builder builder = new Graph.Builder(json.getString("creator"))
+        Graph.Builder builder = new Graph.Builder(json.getString("creator", ""))
                 .id(id)
-                .name(json.getString("name"))
-                .owner(json.getString("owner"))
-                .creationTime(strToDateTime(json.getString("creationTime")))
+                .name(json.getString("name", ""))
+                .owner(json.getString("owner", ""))
+                .creationTime(strToDateTime(json.getString("creationTime", "0")))
                 .userContent(content);
 
-        String description = json.optString("description");
+        String description = json.getString("description", "");
         if (StringUtils.isNotEmpty(description)) {
             builder.description(description);
         }
 
-        String lastSaved = json.optString("lastSavedTime");
+        String lastSaved = json.getString("lastSavedTime", "");
         if (StringUtils.isNotEmpty(lastSaved)) {
             builder.lastSavedTime(strToDateTime(lastSaved));
         }
@@ -93,15 +93,14 @@ public class WorkflowLoader {
     }
 
 
-    private Map<String, Vertex> loadVertices(JSONArray array)
-            throws JSONException, IOException {
+    private Map<String, Vertex> loadVertices(JsonArray array) throws IOException {
         Map<String, Vertex> vertexMap = new HashMap<>();
         NodeLoader nodeLoader = new NodeLoader();
-        for (int i=0; i < array.length(); i++) {
-            JSONObject json = array.getJSONObject(i);
-            double x = json.getDouble("x");
-            double y = json.getDouble("y");
-            Node node = nodeLoader.fromJson(json.getJSONObject("node"));
+        for (int i=0; i < array.size(); i++) {
+            JsonObject json = array.get(i).asObject();
+            double x = json.getDouble("x", 0);
+            double y = json.getDouble("y", 0);
+            Node node = nodeLoader.fromJson(json.get("node").asObject());
             if (node != null) {
                 Vertex vertex = new Vertex(x, y, node);
                 _workflow.addVertex(vertex);
@@ -115,12 +114,11 @@ public class WorkflowLoader {
     }
 
 
-    private void loadConnectors(JSONArray array, Map<String, Vertex> vertices)
-            throws JSONException {
-        for (int i=0; i < array.length(); i++) {
-            JSONObject json = array.getJSONObject(i);
-            String sourceID = json.getString("source");
-            String targetID = json.getString("target");
+    private void loadConnectors(JsonArray array, Map<String, Vertex> vertices) {
+        for (int i=0; i < array.size(); i++) {
+            JsonObject json = array.get(i).asObject();
+            String sourceID = json.getString("source", "-1");
+            String targetID = json.getString("target", "-1");
             Vertex source = vertices.get(sourceID);
             Vertex target = vertices.get(targetID);
             if (! (source == null || target == null)) {

@@ -18,7 +18,6 @@ package com.processdataquality.praeclarus.ui.repo;
 
 import com.processdataquality.praeclarus.exception.WorkflowNotFoundException;
 import com.processdataquality.praeclarus.ui.canvas.Workflow;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class WorkflowStore {
     }
 
 
-    public static StoredWorkflow save(Workflow workflow) throws JSONException {
+    public static StoredWorkflow save(Workflow workflow) {
         workflow.getGraph().updateLastSavedTime();
         String json = workflow.asJson().toString();      // also triggers props update
         return save(new StoredWorkflow(

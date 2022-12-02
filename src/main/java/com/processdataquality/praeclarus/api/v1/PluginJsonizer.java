@@ -16,13 +16,12 @@
 
 package com.processdataquality.praeclarus.api.v1;
 
-import com.processdataquality.praeclarus.annotations.Pattern;
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
+import com.processdataquality.praeclarus.annotation.Pattern;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.pattern.PatternGroup;
 import com.processdataquality.praeclarus.plugin.PluginFactory;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.List;
 
@@ -33,26 +32,26 @@ import java.util.List;
 public class PluginJsonizer {
 
 
-    public JSONArray jsonize(PluginFactory<?> factory) throws JSONException {
-        JSONArray array = new JSONArray();
+    public JsonArray jsonize(PluginFactory<?> factory) {
+        JsonArray array = new JsonArray();
         for (String className : factory.getPluginClassNames()) {
             Plugin plugin = factory.getPluginAnnotation(className);
             List<Pattern> patterns = factory.getPatternAnnotations(className);
-            array.put(jsonizePlugin(className, plugin, patterns));
+            array.add(jsonizePlugin(className, plugin, patterns));
         }
         return array;
     }
 
 
     // filters patterns on a specified group
-    public JSONArray jsonize(PluginFactory<?> factory, PatternGroup group) throws JSONException {
-        JSONArray array = new JSONArray();
+    public JsonArray jsonize(PluginFactory<?> factory, PatternGroup group) {
+        JsonArray array = new JsonArray();
         for (String className : factory.getPluginClassNames()) {
             List<Pattern> patterns = factory.getPatternAnnotations(className);
             for (Pattern pattern : patterns) {
                  if (pattern.group().equals(group)) {
                      Plugin plugin = factory.getPluginAnnotation(className);
-                     array.put(jsonizePlugin(className, plugin, patterns));
+                     array.add(jsonizePlugin(className, plugin, patterns));
                 }
             }
         }
@@ -60,19 +59,19 @@ public class PluginJsonizer {
     }
 
 
-    public JSONObject jsonizePlugin(String className, Plugin plugin,
-                                    List<Pattern> patternGroups) throws JSONException {
-        JSONObject pluginObject = new JSONObject();
-        pluginObject.put("classname", className);
-        pluginObject.put("name", plugin.name());
-        pluginObject.put("author", plugin.author());
-        pluginObject.put("synopsis", plugin.synopsis());
-        pluginObject.put("description", plugin.description());
-        pluginObject.put("version", plugin.version());
+    public JsonObject jsonizePlugin(String className, Plugin plugin,
+                                    List<Pattern> patternGroups) {
+        JsonObject pluginObject = new JsonObject();
+        pluginObject.add("classname", className);
+        pluginObject.add("name", plugin.name());
+        pluginObject.add("author", plugin.author());
+        pluginObject.add("synopsis", plugin.synopsis());
+        pluginObject.add("description", plugin.description());
+        pluginObject.add("version", plugin.version());
         if (! patternGroups.isEmpty()) {
-            JSONArray array = new JSONArray();
-            patternGroups.forEach(pattern -> array.put(pattern.group().name()));
-            pluginObject.put("pattern_groups", array);
+            JsonArray array = new JsonArray();
+            patternGroups.forEach(pattern -> array.add(pattern.group().name()));
+            pluginObject.add("pattern_groups", array);
         }
         return pluginObject;
     }

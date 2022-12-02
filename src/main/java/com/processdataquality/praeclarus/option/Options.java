@@ -16,10 +16,9 @@
 
 package com.processdataquality.praeclarus.option;
 
+import com.eclipsesource.json.JsonObject;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.List;
@@ -106,10 +105,26 @@ public class Options extends HashMap<String, Option> {         // key is Option'
     }
 
 
-    public JSONObject getChangesAsJson() throws JSONException {
-        JSONObject json = new JSONObject();
+    public JsonObject getChangesAsJson() {
+        JsonObject json = new JsonObject();
         for (String key : changes.keySet()) {
-             json.put(key, changes.get(key).value());
+            Option change = changes.get(key);
+            Object value = change.value();
+            if (value instanceof Integer) {
+                json.add(key, change.asInt());
+            }
+            else if (value instanceof Double) {
+                json.add(key, change.asDouble());
+            }
+            else if (value instanceof Boolean) {
+                json.add(key, change.asBoolean());
+            }
+            else if (value instanceof Character) {
+                json.add(key, change.asChar());
+            }
+            else {
+                json.add(key, change.asString());
+            }
         }
         return json;
     }
@@ -118,15 +133,16 @@ public class Options extends HashMap<String, Option> {         // key is Option'
     public List<Option> sort() {
         return values().stream().sorted().collect(Collectors.toList());
     }
-    
+
 
     private void saveChanges(Option option) {
-         Option existing = get(option.key());
-         if (! (existing == null || existing.equals(option.value()))) {
-             changes.put(option.key(), option);
-             if (listener != null) listener.optionValueChanged(option);
-         }
-     }
+        Option existing = get(option.key());
+        if (! (existing == null || existing.equals(option.value()))) {
+            changes.put(option.key(), option);
+            if (listener != null) listener.optionValueChanged(option);
+        }
+    }
+
 
 
      // just a little test 

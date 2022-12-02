@@ -14,11 +14,8 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.annotations;
+package com.processdataquality.praeclarus.annotation;
 
-import com.processdataquality.praeclarus.pattern.PatternGroup;
-
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -27,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
  * @date 14/6/21
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(Patterns.class)
-public @interface Pattern {
-    PatternGroup group() default PatternGroup.UNGROUPED;
+public @interface Patterns {
+    Pattern[] value();
 }

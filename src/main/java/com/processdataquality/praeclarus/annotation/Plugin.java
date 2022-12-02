@@ -14,16 +14,21 @@
  * governing permissions and limitations under the License.
  */
 
-package com.processdataquality.praeclarus.annotations;
+package com.processdataquality.praeclarus.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * @author Michael Adams
- * @date 14/6/21
+ * @date 30/3/21
  */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Patterns {
-    Pattern[] value();
+public @interface Plugin {
+    String name();
+    String author();
+    String synopsis();
+    String description() default "";
+    String version() default "0.1";
+    String fileDescriptors() default "";
 }

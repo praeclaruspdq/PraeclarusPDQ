@@ -16,7 +16,7 @@
 
 package com.processdataquality.praeclarus.writer;
 
-import com.processdataquality.praeclarus.annotations.Plugin;
+import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.util.DataCollection;
 import org.apache.commons.lang3.math.NumberUtils;

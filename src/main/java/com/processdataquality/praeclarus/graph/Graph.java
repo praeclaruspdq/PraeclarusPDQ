@@ -16,12 +16,11 @@
 
 package com.processdataquality.praeclarus.graph;
 
+import com.eclipsesource.json.JsonObject;
 import com.processdataquality.praeclarus.logging.EventLogger;
 import com.processdataquality.praeclarus.node.Node;
 import com.processdataquality.praeclarus.option.*;
 import com.processdataquality.praeclarus.repo.graph.GraphStore;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -151,18 +150,18 @@ public class Graph implements HasOptions, OptionValueChangeListener {
     public void updateLastSavedTime() { lastSavedTime = LocalDateTime.now(); }
 
     
-    public JSONObject asJson() throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("id", id);
-        json.put("name", name);
-        json.put("creator", creator);
-        json.put("owner", owner);
-        json.put("creationTime", creationTime.format(EventLogger.dtFormatter));
+    public JsonObject asJson() {
+        JsonObject json = new JsonObject();
+        json.add("id", id);
+        json.add("name", name);
+        json.add("creator", creator);
+        json.add("owner", owner);
+        json.add("creationTime", creationTime.format(EventLogger.dtFormatter));
         if (description != null) {
-            json.put("description", description);
+            json.add("description", description);
         }
         if (lastSavedTime != null) {
-            json.put("lastSavedTime", lastSavedTime.format(EventLogger.dtFormatter));
+            json.add("lastSavedTime", lastSavedTime.format(EventLogger.dtFormatter));
         }
         return json;
     }

@@ -16,9 +16,8 @@
 
 package com.processdataquality.praeclarus.ui.canvas;
 
+import com.eclipsesource.json.JsonObject;
 import com.processdataquality.praeclarus.node.Node;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 /**
  * @author Michael Adams
@@ -95,11 +94,11 @@ public class Vertex implements CanvasPrimitive {
     }
 
 
-    public JSONObject asJson() throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("x", _x);
-        json.put("y", _y);
-        json.put("node", _node.asJson());
+    public JsonObject asJson() {
+        JsonObject json = new JsonObject();
+        json.add("x", _x);
+        json.add("y", _y);
+        json.add("node", _node.asJson());
         return json;
     }
 
