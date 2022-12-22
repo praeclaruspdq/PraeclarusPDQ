@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Records node execution times
  * @author Michael Adams
  * @date 20/5/2022
  */
@@ -30,6 +31,8 @@ public class NodeStopWatch {
     private static final double NANO = Math.pow(10, 9);
 
     private long started;
+
+    // A node may start and pause execution several times
     private final List<Pair<Long, Long>> stages = new ArrayList<>();
 
 
@@ -46,6 +49,7 @@ public class NodeStopWatch {
     }
     
 
+    /** @return the duration of a single, unpaused, execution */
     public long getDuration() {
         return getDuration(0);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import com.processdataquality.praeclarus.ui.canvas.Workflow;
 import com.processdataquality.praeclarus.ui.component.announce.Announcement;
 import com.processdataquality.praeclarus.ui.component.dialog.MessageDialog;
 import com.processdataquality.praeclarus.ui.component.dialog.StoredWorkflowsDialog;
+import com.processdataquality.praeclarus.ui.component.dialog.UploadDialog;
 import com.processdataquality.praeclarus.ui.component.layout.VerticalScrollLayout;
 import com.processdataquality.praeclarus.ui.component.plugin.PluginUIDialog;
 import com.processdataquality.praeclarus.ui.component.plugin.PluginUIListener;
@@ -53,14 +54,21 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.server.InputStreamFactory;
+import com.vaadin.flow.server.StreamResource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.tablesaw.api.Table;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,6 +99,8 @@ public class WorkflowPanel extends VerticalLayout
     private final Button _uploadButton = createUploadButton();
     private final Button _searchButton = createSearchButton();
     private final Button _clearButton = createClearButton();
+
+    private String _fileName = null;
 
 
     public WorkflowPanel(MainView parent) {
@@ -164,10 +174,12 @@ public class WorkflowPanel extends VerticalLayout
         buttons.addSeparator();
         buttons.addButton(_uploadButton);
         buttons.addButton(_downloadButton);
+        buttons.addSeparator();
+        buttons.addLabel();
         return buttons;
     }
 
-    
+
     private VerticalLayout createCanvasContainer() {
         DropTarget<Canvas> dropTarget = DropTarget.create(_canvas);
         dropTarget.setDropEffect(DropEffect.COPY);
@@ -311,6 +323,7 @@ public class WorkflowPanel extends VerticalLayout
                 _workflow.clear();
             }
             changedSelected(null);
+            _runnerButtons.clearLabel();
         });
     }
 
@@ -341,18 +354,44 @@ public class WorkflowPanel extends VerticalLayout
         dialog.open();
     }
 
+
     private void loadFromFile() {
-        _canvas.loadFromFile();
+        UploadDialog dialog = new UploadDialog(e -> {
+            if (e.successful) {
+                try {
+                    String content = new String(e.inputStream.readAllBytes(),
+                            StandardCharsets.UTF_8);
+                    _workflow.fileLoaded(content);
+                    _fileName = e.fileName;
+                    _runnerButtons.setLabel(e.fileName);
+                }
+                catch (IOException ex) {
+                    Announcement.error("Failed to load file: " + ex.getMessage());
+                }
+            }
+        }, new String[] {".pwf", ".json"});
+        dialog.open();
+
+ //       _canvas.loadFromFile();                *requires https for direct fs access
     }
+
 
     private boolean downloadWorkflow() {
         _workflow.getGraph().updateLastSavedTime();
         String jsonStr = _workflow.asJson().toString(PRETTY_PRINT);
-        _canvas.saveToFile(jsonStr);
+        
+    //    _canvas.saveToFile(jsonStr);                       *requires https as above
+
+        if (_fileName == null) {
+            _fileName = _workflow.getGraph().getName() + ".pwf";
+        }
+        downloadFile(_fileName, jsonStr.getBytes(StandardCharsets.UTF_8));
+
         _workflow.setChanged(false);
         EventLogger.graphDownloadEvent(_workflow.getGraph());
         return true;
     }
+
 
     private void storeWorkflow() {
         _workflow.store();
@@ -401,5 +440,26 @@ public class WorkflowPanel extends VerticalLayout
 
     public void addVertexSelectionListener(CanvasSelectionListener listener) {
         _workflow.addVertexSelectionListener(listener);
+    }
+
+
+    protected void downloadFile(String fileName, byte[] content) {
+        InputStreamFactory isFactory = () -> new ByteArrayInputStream(content);
+        StreamResource resource = new StreamResource(fileName, isFactory);
+        resource.setContentType("multipart/form-data");
+        resource.setCacheTime(0);
+        resource.setHeader("Content-Disposition",
+                "attachment;filename=\"" + fileName + "\"");
+
+        Anchor downloadAnchor = new Anchor(resource, "");
+        Element element = downloadAnchor.getElement();
+        element.setAttribute("download", true);
+        element.getStyle().set("display", "none");
+        add(downloadAnchor);
+
+        // simulate a click & remove anchor after file downloaded
+        element.executeJs("return new Promise(resolve =>{this.click(); " +
+                "setTimeout(() => resolve(true), 150)})", element)
+                .then(jsonValue -> remove(downloadAnchor));
     }
 }

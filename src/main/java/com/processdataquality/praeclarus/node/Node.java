@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A node in a graph, encapsulating a plugin. This class provides base functionality
- * to be used and/or extended by subclasses.
+ * A node in a graph, encapsulating a plugin. This abstract class provides base
+ * functionality to be used and/or extended by subclasses.
  *
  * @author Michael Adams
  * @date 12/5/21
@@ -45,19 +45,19 @@ public abstract class Node {
 
     private String _commitID;           // the commit version of the table in the repo
     private String _tableID;            // the file name of the table in the repo
-    private String _label;
+    private String _label;              // a name for this node
 
     private Set<Node> _next;      // set of immediate target nodes for this node
     private Set<Node> _previous;  // set of immediate source nodes for this node
 
-    private AbstractPlugin _plugin;
+    private AbstractPlugin _plugin;      // the plugin this node encapsulates
     private List<NodeStateChangeListener> _listeners;
-    private NodeState _state;
+    private NodeState _state;            // the current execution state
     private Table _output;        // a table with the result of running this plugin
     private NodeTask _preTask;          // optional code to run before plugin is run
     private NodeTask _postTask;         // optional code to run after plugin is run
 
-    
+
     protected Node() { }
 
     protected Node(AbstractPlugin plugin) {
@@ -69,33 +69,33 @@ public abstract class Node {
     }
 
 
-    /**
-     * Implemented by subclasses to run a plugin's algorithm
-     */
+    /** Implemented by subclasses to execute a plugin */
     public abstract void run() throws Exception;
 
 
-    public void addStateListener(NodeStateChangeListener listener) { _listeners.add(listener); }
+    /** Listen for state changes */
+    public void addStateListener(NodeStateChangeListener listener) {
+        _listeners.add(listener);
+    }
 
     public boolean removeStateListener(NodeStateChangeListener listener) {
         return _listeners.remove(listener);
     }
 
 
+    /** Update the execution state of this plugin */
     protected void setState(NodeState state) throws Exception {
         if (_state != state) {
             _state = state;
             _stopWatch.stateChange(state);
-             announceStateChange();
+            announceStateChange();
         }
     }
 
-    /**
-     * @return the current state of this node
-     */
+    /** @return the current state of this node */
     public NodeState getState() { return _state; }
 
-
+    /** @return the list of execution timings for this node */
     public NodeStopWatch getStopWatch() { return _stopWatch; }
 
 
@@ -107,7 +107,7 @@ public abstract class Node {
 
 
     /**
-     * Runs a pre-task, if one is defined
+     * Run a pre-task, if one is defined
      * @return true if the run was successful or the task hasn't been set
      */
     public boolean runPreTask() {
@@ -123,7 +123,7 @@ public abstract class Node {
 
 
     /**
-     * Runs a prost-task, if one is defined
+     * Run a post-task, if one is defined
      * @return true if the run was successful or the task hasn't been set
      */
     public boolean runPostTask() {
@@ -131,62 +131,54 @@ public abstract class Node {
     }
 
 
-    /**
-     * @return the set of Nodes immediately following this node (its flows-into set)
-     */
+    /** @return the set of Nodes immediately following this node (its flows-into set) */
     public Set<Node> next() {return _next; }
 
 
     /**
-     * Adds a Node to this node's flows-into set
+     * Add a Node to this node's flows-into set
      * @param node the node to add
      */
     public void addNext(Node node) { _next.add(node); }
 
 
     /**
-     * Removes a Node from this node's flows-into set
+     * Remove a Node from this node's flows-into set
      * @param node the Node to remove
      * @return true if the Node was in the set and successfully removed
      */
     public boolean removeNext(Node node) { return _next.remove(node); }
 
 
-    /**
-     * @return true if this node is not the last node in the workflow
-     */
+    /** @return true if this node is not the last node in the workflow */
     public boolean hasNext() { return !isTail(); }
 
 
-    /**
-     * @return the set of Nodes immediately preceding this node (its flows-from set)
-     */
+    /** @return the set of Nodes immediately preceding this node (its flows-from set) */
     public Set<Node> previous() { return _previous; }
 
 
     /**
-     * Adds a Node to this node's flows-from set
+     * Add a Node to this node's flows-from set
      * @param node the node to add
      */
     public void addPrevious(Node node) { _previous.add(node); }
 
 
     /**
-     * Removes a Node from this node's flows-from set
+     * Remove a Node from this node's flows-from set
      * @param node the Node to remove
      * @return true if the Node was in the set and successfully removed
      */
     public boolean removePrevious(Node node) { return _previous.remove(node); }
 
 
-    /**
-     * @return true if this node is not the first node in the workflow
-     */
+    /** @return true if this node is not the first node in the workflow */
     public boolean hasPrevious() { return !isHead(); }
 
 
     /**
-     * Connects this node to a target node
+     * Connect this node to a target node
      * @param target the target node of the directed connection
      */
     public void connect(Node target) {
@@ -196,7 +188,7 @@ public abstract class Node {
 
 
     /**
-     * Disconnects this node to from a target node
+     * Disconnect this node to from a target node
      * @param target the target node of the directed connection
      */
     public void disconnect(Node target) {
@@ -205,35 +197,33 @@ public abstract class Node {
     }
 
 
-    /**
-     * @return true if this node has no predecessors
-     */
+    /** @return true if this node has no predecessors */
     public boolean isHead() { return _previous.isEmpty(); }
 
 
-    /**
-     * @return true if this node has no successors
-     */
+    /** @return true if this node has no successors */
     public boolean isTail() { return _next.isEmpty(); }
 
 
     /**
-     * May be overridden by plugins with multi-part run actions
-     * @return true if the current run of this node has completed
+     * May be overridden by plugins with multi-stage run actions
+     * @return true if the current execution of this node has completed
      */
     public boolean hasCompleted() { return _state == NodeState.COMPLETED; }
 
 
+    /** @return true if this node has not yet begun execution */
     public boolean canStart() { return _state == NodeState.UNSTARTED; }
 
-    /**
-     * @return the plugin contained within this node
-     */
+
+    /** @return the plugin contained within this node */
     public AbstractPlugin getPlugin() { return _plugin; }
 
 
+    /** @return the unique identifier of this plugin */
     public String getID() { return _plugin.getID(); }
 
+    
     public String getCommitID() { return _commitID; }
 
     public void setCommitID(String id) { _commitID = id; }
@@ -296,7 +286,7 @@ public abstract class Node {
         return auxInputs;
     }
 
-    
+
     /**
      * Returns this node to its pre-run state
      */
@@ -327,7 +317,7 @@ public abstract class Node {
         commit(t);
     }
 
-    
+
     protected DataCollection getAuxiliaryDatasets() {
         return _plugin.getAuxiliaryDatasets();
     }

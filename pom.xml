@@ -5,7 +5,7 @@
     <groupId>com.processdataquality</groupId>
     <artifactId>praeclarusPDQ</artifactId>
     <name>Praeclarus Data Quality Framework</name>
-    <version>1.0-RC</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <properties>

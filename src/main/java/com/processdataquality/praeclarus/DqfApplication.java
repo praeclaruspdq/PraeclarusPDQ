@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,15 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.processdataquality.praeclarus.repo.user",
         "com.processdataquality.praeclarus.ui.repo"
 })
-//@ConfigurationPropertiesScan("com.processdataquality.praeclarus.config")
 public class DqfApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
+// These lines are required to enable ssl (and so https)
+//        SpringApplication application = new SpringApplication(DqfApplication.class);
+//        application.setAdditionalProfiles("ssl");
+//        application.run(args);
 
         SpringApplication.run(DqfApplication.class, args);
-
     }
 
 }

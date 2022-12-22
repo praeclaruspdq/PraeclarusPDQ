@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +50,15 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     private Button _backButton;
     private Button _stopButton;
 
+    private final Span _label = new Span();
+
 
     public RunnerButtons(GraphRunner runner) {
         _runner = runner;
         _state = GraphRunner.RunnerState.IDLE;
         createButtons();
         UiUtil.removeTopMargin(this);
+        setWidthFull();
     }
 
 
@@ -95,6 +98,20 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
     public void addSeparator() { add(new Label("      "));}
 
 
+    public void addLabel() {
+        _label.getStyle().set("margin-left", "30px");
+        _label.getStyle().set("font-style", "italic");
+        add(_label);
+    }
+
+    public void setLabel(String text) {
+        clearLabel();
+        _label.add(text);
+    }
+
+    public void clearLabel() { _label.removeAll(); }
+
+
     protected void setState(GraphRunner.RunnerState state) {
         if (_state != state) {
             _state = state;
@@ -119,11 +136,8 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 
     private Button createButton(VaadinIcon icon, GraphRunner.RunnerAction runnerAction,
                                 String tooltip)  {
-        Icon runIcon = UiUtil.createIcon(icon);
-        Button button = new Button(runIcon, e -> action(runnerAction));
-        UiUtil.setTooltip(button, tooltip);
-        button.setEnabled(false);
-        return button;
+        return UiUtil.createToolButton(icon, tooltip, false,
+                e -> action(runnerAction));
     }
 
 
@@ -151,8 +165,10 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
             }
             _runner.reset();
             String msg = "Error in node '" + _selectedNode.getLabel()  + "': " +
-                    e.getMessage() + "; Caused by: " + e.getCause().getMessage();
-            Announcement.error(msg);
+                    e.getMessage();
+            String cause = e.getCause() == null ? "" :
+                    "; Caused by: " + e.getCause().getMessage();
+            Announcement.error(msg + cause);
             LOG.error(msg, e);
         }
     }

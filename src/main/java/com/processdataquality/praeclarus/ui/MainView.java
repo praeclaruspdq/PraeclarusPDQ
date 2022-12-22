@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,16 +79,20 @@ public class MainView extends VerticalLayout {
     }
     
 
-    private SplitLayout leftPanel() {
-        SplitLayout leftLayout = new SplitLayout();
-        leftLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
+    private VerticalLayout leftPanel() {
+        VerticalLayout layout = new VerticalLayout(titleBar());
+        SplitLayout splitLayout = new SplitLayout();
+        splitLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
 
         // title image added here to save wasted space across page top
-        leftLayout.addToPrimary(getTitleBar(), new PluginsPanel());
-        leftLayout.addToSecondary(_propsPanel);
-        leftLayout.setWidth("23%");
-        leftLayout.addSplitterDragendListener(e -> _workflowPanel.onResize());
-        return leftLayout;
+        splitLayout.addToPrimary(new PluginsPanel());
+        splitLayout.addToSecondary(_propsPanel);
+        splitLayout.addSplitterDragendListener(e -> _workflowPanel.onResize());
+        splitLayout.setWidth("100%");
+        layout.add(splitLayout);
+        layout.setWidth("23%");
+        layout.setPadding(false);
+        return layout;
     }
 
 
@@ -103,7 +107,7 @@ public class MainView extends VerticalLayout {
     }
 
     
-    private HorizontalLayout getTitleBar() {
+    private HorizontalLayout titleBar() {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setWidthFull();
         layout.getStyle().set("flex-wrap", "wrap-reverse");
