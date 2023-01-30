@@ -33,6 +33,7 @@ public enum PatternGroup {
     DISTORTED_LABEL("Distorted Label"),
     SYNONYMOUS_LABELS("Synonymous Labels"),
     HOMONYMOUS_LABELS("Homonymous Labels"),
+    ANOMALOUS_TRACES("Anomalous Traces"),
     UNGROUPED("Ungrouped");
 
     private final String _name;
