@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2021-2022 Queensland University of Technology
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+
 package com.processdataquality.praeclarus.pattern;
 
 import java.util.ArrayList;
@@ -99,23 +115,23 @@ public class LeverageM1 extends AbstractAnomalousTrace {
         
         
         if (table.column(caseIdLabel).type() == ColumnType.INTEGER) {
-        	_log.info("Creating string case id column (from integer) ....");
+        	// _log.info("Creating string case id column (from integer) ....");
         	StringColumn caseIdColumn = table.column(caseIdLabel).asStringColumn();
         	caseIdColumn.setName(caseIdLabelUn);
         	table.addColumns(caseIdColumn);
         }
         else {
-        	_log.info("Creating string case id column (from string) ....");
+        	// _log.info("Creating string case id column (from string) ....");
         	StringColumn caseIdColumn = (StringColumn) table.column(caseIdLabel).copy();
         	caseIdColumn.setName(caseIdLabelUn);
         	table.addColumns(caseIdColumn);
         }
         
-        _log.info("Number of cases in this log: "+tb.stringColumn(caseIdLabelUn).countUnique());
+        // _log.info("Number of cases in this log: "+tb.stringColumn(caseIdLabelUn).countUnique());
  
         
         // ONE-HOT ENCODING & ZERO-PADDING 
-        _log.info("Starting one hot encoding and zero padding ....");
+        // _log.info("Starting one hot encoding and zero padding ....");
         
         List<String> UniqueActivity = tb.stringColumn(activityLabel).unique().asList();
         List<String> UniqueCase = getCaseIdColumnAsString(tb, caseIdLabelUn).unique().asList();
@@ -128,7 +144,7 @@ public class LeverageM1 extends AbstractAnomalousTrace {
         
         
         int maxTrace = (int) lenTrace.intColumn("Count").max();
-        _log.info("DONE");
+        // _log.info("DONE");
 
         long startTime = System.currentTimeMillis();
         
@@ -166,7 +182,7 @@ public class LeverageM1 extends AbstractAnomalousTrace {
         }
         
         
-        _log.info("Calculating leverage values ...");
+        // _log.info("Calculating leverage values ...");
         // Leverage
         double[][] onehotmatrix_t = IntStream.range(0, onehotmatrix_o[0].length)
             .mapToObj(i -> Stream.of(onehotmatrix_o).mapToDouble(row -> row[i]).toArray())
@@ -216,8 +232,8 @@ public class LeverageM1 extends AbstractAnomalousTrace {
         }
 
         long stopTime = System.currentTimeMillis();
-        _log.info("It took "+Long.toString(stopTime- startTime)+"ms");
-        _log.info("DONE");
+        // _log.info("It took "+Long.toString(stopTime- startTime)+"ms");
+        // _log.info("DONE");
 
        
         // Create output
@@ -234,14 +250,14 @@ public class LeverageM1 extends AbstractAnomalousTrace {
         _detected = output;
         
         
-        _log.info("Assembling detected table...");
+        // _log.info("Assembling detected table...");
         Double threshold = 0.1;
         
         _detected = _detected.where( Adjusted_Score.isGreaterThan(threshold) );
         //System.out.println( anomaly.print() );
         
-        _log.info("Number of anomalous cases in this log: "+_detected.rowCount());
-        _log.info("Detect completed");
+        // _log.info("Number of anomalous cases in this log: "+_detected.rowCount());
+        // _log.info("Detect completed");
     	
     	
         return _detected;
