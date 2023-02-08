@@ -38,123 +38,109 @@ import org.slf4j.LoggerFactory;
  */
 public class RunnerButtons extends Div implements CanvasSelectionListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RunnerButtons.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RunnerButtons.class);
 
-    private final GraphRunner _runner;
+	private final GraphRunner _runner;
 
-    private GraphRunner.RunnerState _state;
-    private Node _selectedNode;
-    
-    private Button _runButton;
-    private Button _stepButton;
-    private Button _backButton;
-    private Button _stopButton;
+	private GraphRunner.RunnerState _state;
+	private Node _selectedNode;
 
+	private Button _runButton;
+	private Button _stepButton;
+	private Button _backButton;
+	private Button _stopButton;
 
-    public RunnerButtons(GraphRunner runner) {
-        _runner = runner;
-        _state = GraphRunner.RunnerState.IDLE;
-        createButtons();
-        UiUtil.removeTopMargin(this);
-    }
+	public RunnerButtons(GraphRunner runner) {
+		_runner = runner;
+		_state = GraphRunner.RunnerState.IDLE;
+		createButtons();
+		UiUtil.removeTopMargin(this);
+	}
 
+	@Override
+	public void canvasSelectionChanged(CanvasPrimitive selected) {
+		_selectedNode = (selected instanceof Vertex) ? ((Vertex) selected).getNode() : null;
+		enable();
+	}
 
-    @Override
-    public void canvasSelectionChanged(CanvasPrimitive selected) {
-        _selectedNode = (selected instanceof Vertex) ? ((Vertex) selected).getNode() : null;
-        enable();
-    }
+	public void enable() {
+		switch (_state) {
+		case RUNNING:
+		case STEPPING: {
+			_runButton.setEnabled(false);
+			_stepButton.setEnabled(false);
+			_backButton.setEnabled(false);
+			_stopButton.setEnabled(true);
+			break;
+		}
+		case IDLE: {
+			_runButton.setEnabled(_selectedNode != null);
+			_stepButton.setEnabled(canRunSelectedNode());
+			_backButton.setEnabled(canStepBackSelectedNode());
+			_stopButton.setEnabled(false);
+			break;
+		}
+		}
+	}
 
+	public void addButton(Button b) {
+		add(b);
+	}
 
-    public void enable() {
-        switch (_state) {
-            case RUNNING:
-            case STEPPING: {
-                _runButton.setEnabled(false);
-                _stepButton.setEnabled(false);
-                _backButton.setEnabled(false);
-                _stopButton.setEnabled(true);
-                break;
-            }
-            case IDLE: {
-                _runButton.setEnabled(_selectedNode != null);
-                _stepButton.setEnabled(canRunSelectedNode());
-                _backButton.setEnabled(canStepBackSelectedNode());
-                _stopButton.setEnabled(false);
-                break;
-            }
-        }
-    }
+	public void addSeparator() {
+		add(new Label("      "));
+	}
 
+	protected void setState(GraphRunner.RunnerState state) {
+		if (_state != state) {
+			_state = state;
+			enable();
+		}
+	}
 
-    public void addButton(Button b) {
-        add(b);
-    }
+	private void createButtons() {
+		_runButton = createButton(VaadinIcon.PLAY, GraphRunner.RunnerAction.RUN, "Run");
+		_stepButton = createButton(VaadinIcon.STEP_FORWARD, GraphRunner.RunnerAction.STEP, "Step fwd");
+		_backButton = createButton(VaadinIcon.STEP_BACKWARD, GraphRunner.RunnerAction.STEP_BACK, "Step back");
+		_stopButton = createButton(VaadinIcon.STOP, GraphRunner.RunnerAction.STOP, "Stop");
 
+		add(_runButton, _stepButton, _backButton, _stopButton);
+	}
 
-    public void addSeparator() { add(new Label("      "));}
+	private Button createButton(VaadinIcon icon, GraphRunner.RunnerAction runnerAction, String tooltip) {
+		Icon runIcon = UiUtil.createIcon(icon);
+		Button button = new Button(runIcon, e -> action(runnerAction));
+		UiUtil.setTooltip(button, tooltip);
+		button.setEnabled(false);
+		return button;
+	}
 
+	private boolean canRunSelectedNode() {
+		return !(_selectedNode == null || _selectedNode.hasCompleted());
+	}
 
-    protected void setState(GraphRunner.RunnerState state) {
-        if (_state != state) {
-            _state = state;
-            enable();
-        }
-    }
+	private boolean canStepBackSelectedNode() {
+		return _selectedNode != null && _selectedNode.hasCompleted();
+	}
 
-
-    private void createButtons() {
-        _runButton = createButton(VaadinIcon.PLAY,
-                GraphRunner.RunnerAction.RUN,"Run");
-        _stepButton = createButton(VaadinIcon.STEP_FORWARD,
-                GraphRunner.RunnerAction.STEP, "Step fwd");
-        _backButton = createButton(VaadinIcon.STEP_BACKWARD,
-                GraphRunner.RunnerAction.STEP_BACK, "Step back");
-        _stopButton = createButton(VaadinIcon.STOP,
-                GraphRunner.RunnerAction.STOP, "Stop");
-
-        add(_runButton, _stepButton, _backButton, _stopButton);
-    }
-
-
-    private Button createButton(VaadinIcon icon, GraphRunner.RunnerAction runnerAction,
-                                String tooltip)  {
-        Icon runIcon = UiUtil.createIcon(icon);
-        Button button = new Button(runIcon, e -> action(runnerAction));
-        UiUtil.setTooltip(button, tooltip);
-        button.setEnabled(false);
-        return button;
-    }
-
-
-    private boolean canRunSelectedNode() {
-        return ! (_selectedNode == null || _selectedNode.hasCompleted());
-    }
-
-
-    private boolean canStepBackSelectedNode() {
-        return _selectedNode != null && _selectedNode.hasCompleted();
-    }
-
-
-    private void action(GraphRunner.RunnerAction runnerAction) {
-        try {
-            _runner.action(runnerAction, _selectedNode);
-            Announcement.success(_selectedNode.getLabel() + " completed successfully");
-        }
-        catch (NodeRunnerException e) {
-            try {
-                _selectedNode.reset();
-            }
-            catch (Exception ex) {
-                // unlikely this will happen
-            }
-            _runner.reset();
-            String msg = "Error in node '" + _selectedNode.getLabel()  + "': " +
-                    e.getMessage() + "; Caused by: " + e.getCause().getMessage();
-            Announcement.error(msg);
-            LOG.error(msg, e);
-        }
-    }
+	private void action(GraphRunner.RunnerAction runnerAction) {
+		try {
+			_runner.action(runnerAction, _selectedNode);
+			Announcement.success(_selectedNode.getLabel() + " completed successfully");
+		} catch (NodeRunnerException e) {
+			try {
+				_selectedNode.reset();
+			} catch (Exception ex) {
+				// unlikely this will happen
+			}
+			_runner.reset();
+			String msg = "Error in node '" + _selectedNode.getLabel() + "': " + e.getMessage() + ";";
+			if (e.getCause() != null) {
+				msg = msg + " Caused by: " + e.getCause().getMessage();
+			}
+			Announcement.error(msg);
+			LOG.error(msg, e);
+		}
+	}
 
 }

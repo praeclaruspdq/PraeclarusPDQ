@@ -18,42 +18,42 @@ package com.processdataquality.praeclarus.action;
 
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
+
 import tech.tablesaw.api.Table;
 
 import java.util.List;
 
 /**
- * @author Michael Adams
+ * @author Michael Adams, Sareh Sadeghianasl
  * @date 21/5/21
  */
-@Plugin(
-        name = "Inner Join",
-        author = "Michael Adams",
-        version = "1.0",
-        synopsis = "Performs an inner join on a set of tables."
-)
+@Plugin(name = "Inner Join", author = "Michael Adams, Sareh Sadeghianasl", version = "1.0", synopsis = "Performs an inner join on a set of tables (they must have a column of the same name)")
 public class InnerJoin extends AbstractAction {
 
-    public InnerJoin() {
-        super();
-        getOptions().addDefault("Columns", "");
-    }
+	public InnerJoin() {
+		super();
+		getOptions().addDefault(new ColumnNameListOption("Column"));
+	}
 
-    @Override
-    public Table run(List<Table> inputList) throws InvalidOptionValueException {
-        if (inputList.size() < 2) {
-            throw new IllegalArgumentException("This action requires at least two tables as input.");
-        }
-        Table t1 = inputList.remove(0);
-        String colNames = getOptions().get("Columns").asString();
-        return t1.joinOn(colNames).inner(true,
-                inputList.toArray(new Table[] {}));
-    }
+	@Override
+	public Table run(List<Table> inputList) throws InvalidOptionValueException {
+		if (inputList.size() < 2) {
+			throw new InvalidOptionValueException("This action requires at least two tables as input.");
+		}
+		String colName = getSelectedColumnNameValue("Column");
+		for (Table t : inputList) {
+			if (!t.containsColumn(colName))
+				throw new InvalidOptionValueException("The selected column is not a shared column among input tables");
+		}
+		Table t1 = inputList.remove(0);
+		return t1.joinOn(colName).inner(true, inputList.toArray(new Table[] {}));
 
+	}
 
-    @Override
-    public int getMaxInputs() {
-        return 2;
-    }
+	@Override
+	public int getMaxInputs() {
+		return 2;
+	}
 
 }

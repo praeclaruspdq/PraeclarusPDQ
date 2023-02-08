@@ -17,6 +17,7 @@
 package com.processdataquality.praeclarus.ui.parameter;
 
 import com.processdataquality.praeclarus.option.*;
+import com.processdataquality.praeclarus.support.math.Pair;
 import com.processdataquality.praeclarus.ui.parameter.editor.*;
 import com.processdataquality.praeclarus.writer.DataWriter;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -41,6 +42,18 @@ public class EditorFactory {
         else if (option instanceof ColumnNameListOption) {
             if (option.value() instanceof List<?>) {
                 return new ImmutableListEditor(container, option);
+            }
+        }
+        
+        else if (option instanceof ListOption) {
+            if (option.value() instanceof List<?>) {
+                return new ImmutableListEditor(container, option);
+            }
+        }
+        
+        else if (option instanceof ColumnNameListAndStringOption) {
+            if (option.value() instanceof Pair<?, ?>) {
+                return new ListAndStringEditor(container, option);
             }
         }
         else if (option instanceof MultiLineOption) {

@@ -57,7 +57,7 @@ public class MainView extends VerticalLayout {
     public MainView(SecurityService service) {
         setId("mainview");
         _securityService = service;
-        _propsPanel = new PropertiesPanel();
+        _propsPanel = new PropertiesPanel(this);
         _workflowPanel = new WorkflowPanel(this);
         SplitLayout masterLayout = new SplitLayout();
         masterLayout.addToPrimary(leftPanel());

@@ -16,12 +16,21 @@
 
 package com.processdataquality.praeclarus.ui.component;
 
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Lettuce.Cluster.Refresh;
+
+import com.fasterxml.jackson.databind.JsonMappingException.Reference;
+import com.processdataquality.praeclarus.graph.GraphRunner;
 import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.ui.MainView;
 import com.processdataquality.praeclarus.ui.component.layout.VerticalScrollLayout;
 import com.processdataquality.praeclarus.ui.parameter.EditorFactory;
+import com.processdataquality.praeclarus.ui.util.UiUtil;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
@@ -31,10 +40,22 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public class PropertiesPanel extends VerticalLayout {
 
     private final EditorFactory _factory = new EditorFactory();
+    private final MainView _parent;
     private VerticalScrollLayout _form = null;
 
-    public PropertiesPanel() {
-        add(new H4("Parameters"));
+    public PropertiesPanel(MainView parent) { 
+    	_parent = parent;
+    	H4 title = new H4("Parameters");
+    	Button refreshButton = new Button(UiUtil.createIcon(VaadinIcon.REFRESH), e -> {
+    		_parent.getWorkflowPanel().showPluginProperties(_parent.getWorkflowPanel().getWorkflow().getSelectedNode());
+    	});
+    	HorizontalLayout hl = new HorizontalLayout(); 
+    	hl.add(title);
+        hl.add(refreshButton);
+        hl.setSpacing(false);
+        hl.setWidthFull();
+    	hl.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        add(hl);
         setSizeFull();
     }
 

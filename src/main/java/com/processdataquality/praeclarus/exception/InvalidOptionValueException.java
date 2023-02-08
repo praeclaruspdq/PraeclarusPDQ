@@ -27,6 +27,7 @@ public class InvalidOptionValueException extends RuntimeException {
 
     public InvalidOptionValueException(String message) {
         super(message);
+        super.initCause(getCause());
     }
 
     public InvalidOptionValueException(String message, Throwable cause) {

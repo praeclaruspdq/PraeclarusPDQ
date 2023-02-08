@@ -17,10 +17,16 @@
 package com.processdataquality.praeclarus.action;
 
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
+import com.processdataquality.praeclarus.option.ColumnNameListAndStringOption;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
+import com.processdataquality.praeclarus.option.ListOption;
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
+import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author Michael Adams
@@ -28,9 +34,62 @@ import java.util.List;
  */
 public abstract class AbstractAction extends AbstractPlugin {
 
-    protected AbstractAction() {
-        super();
-    }
+	protected AbstractAction() {
+		super();
+	}
 
-    public abstract Table run(List<Table> inputSet) throws InvalidOptionValueException;
+	public abstract Table run(List<Table> inputSet) throws InvalidOptionValueException;
+
+	protected String getSelectedColumnNameValue(String name) {
+		return ((ColumnNameListOption) getOptions().get(name)).getSelected();
+	}
+	
+	protected String getSelectedValue(String name) {
+		return ((ListOption) getOptions().get(name)).getSelected();
+	}
+
+	protected String getSelectedColumn(String name) {
+		return ((ColumnNameListAndStringOption) getOptions().get(name)).getSelected().getKey();
+	}
+
+	protected String getNewName(String name) {
+		return ((ColumnNameListAndStringOption) getOptions().get(name)).getSelected().getValue();
+	}
+
+	protected List<String> tokenize(String str, String delim) {
+		List<String> tokens = new ArrayList<String>();
+		StringTokenizer st = new StringTokenizer(str, delim);
+		while (st.hasMoreTokens()) {
+			tokens.add(st.nextToken());
+		}
+		return tokens;
+	}
+
+	protected String readStringValue(Row row, String colName) { // add other types
+		String res = "";
+		String colTypeName = row.getColumnType(colName).name();
+		switch (colTypeName) {
+		case "STRING":
+			res = row.getString(colName);
+			break;
+		case "INTEGER":
+			res = String.valueOf(row.getInt(colName));
+			break;
+		case "DOUBLE":
+			res = String.valueOf(row.getDouble(colName));
+			break;
+		case "BOOLEAN":
+			res = String.valueOf(row.getBoolean(colName));
+			break;
+		case "DATE":
+			res = String.valueOf(row.getDate(colName));
+			break;
+		default:
+			res = row.getString(colName);
+			break;
+		}
+
+		return res;
+	}
+
 }
