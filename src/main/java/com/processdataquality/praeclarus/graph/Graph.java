@@ -70,8 +70,7 @@ public class Graph implements HasOptions, OptionValueChangeListener {
         lastSavedTime = builder.lastSavedTime;
         description = builder.description;
         userContent = builder.userContent;
-        _options = refreshOptions();
-        _options.setValueChangeListener(this);
+        refreshOptions();
         EventLogger.graphCreatedEvent(this);
         GraphStore.addIfNew(this);
     }
@@ -238,12 +237,12 @@ public class Graph implements HasOptions, OptionValueChangeListener {
    }
 
 
-    public Options refreshOptions() {
-        Options options = new Options();
-        options.addDefault("Name", getName());
-        options.addDefault("Public", isShared());
-        options.addDefault(new MultiLineOption("Description", getDescription()));
-        return options;
+    public void refreshOptions() {
+        _options = new Options();
+        _options.addDefault("Name", getName());
+        _options.addDefault("Public", isShared());
+        _options.addDefault(new MultiLineOption("Description", getDescription()));
+        _options.setValueChangeListener(this);
     }
 
 

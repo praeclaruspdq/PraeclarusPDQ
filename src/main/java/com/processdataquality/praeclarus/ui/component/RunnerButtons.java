@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.processdataquality.praeclarus.ui.util.UiUtil;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import org.slf4j.Logger;
@@ -45,17 +46,23 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 	private GraphRunner.RunnerState _state;
 	private Node _selectedNode;
 
+
 	private Button _runButton;
 	private Button _stepButton;
 	private Button _backButton;
 	private Button _stopButton;
 
-	public RunnerButtons(GraphRunner runner) {
-		_runner = runner;
-		_state = GraphRunner.RunnerState.IDLE;
-		createButtons();
-		UiUtil.removeTopMargin(this);
-	}
+
+    private final Span _label = new Span();
+
+
+    public RunnerButtons(GraphRunner runner) {
+        _runner = runner;
+        _state = GraphRunner.RunnerState.IDLE;
+        createButtons();
+        UiUtil.removeTopMargin(this);
+        setWidthFull();
+    }
 
 	@Override
 	public void canvasSelectionChanged(CanvasPrimitive selected) {
@@ -90,6 +97,10 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 	public void addSeparator() {
 		add(new Label("      "));
 	}
+	
+	private boolean canStepBackSelectedNode() {
+		return _selectedNode != null && _selectedNode.hasCompleted();
+	}
 
 	protected void setState(GraphRunner.RunnerState state) {
 		if (_state != state) {
@@ -98,30 +109,6 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 		}
 	}
 
-	private void createButtons() {
-		_runButton = createButton(VaadinIcon.PLAY, GraphRunner.RunnerAction.RUN, "Run");
-		_stepButton = createButton(VaadinIcon.STEP_FORWARD, GraphRunner.RunnerAction.STEP, "Step fwd");
-		_backButton = createButton(VaadinIcon.STEP_BACKWARD, GraphRunner.RunnerAction.STEP_BACK, "Step back");
-		_stopButton = createButton(VaadinIcon.STOP, GraphRunner.RunnerAction.STOP, "Stop");
-
-		add(_runButton, _stepButton, _backButton, _stopButton);
-	}
-
-	private Button createButton(VaadinIcon icon, GraphRunner.RunnerAction runnerAction, String tooltip) {
-		Icon runIcon = UiUtil.createIcon(icon);
-		Button button = new Button(runIcon, e -> action(runnerAction));
-		UiUtil.setTooltip(button, tooltip);
-		button.setEnabled(false);
-		return button;
-	}
-
-	private boolean canRunSelectedNode() {
-		return !(_selectedNode == null || _selectedNode.hasCompleted());
-	}
-
-	private boolean canStepBackSelectedNode() {
-		return _selectedNode != null && _selectedNode.hasCompleted();
-	}
 
 	private void action(GraphRunner.RunnerAction runnerAction) {
 		try {
@@ -142,5 +129,48 @@ public class RunnerButtons extends Div implements CanvasSelectionListener {
 			LOG.error(msg, e);
 		}
 	}
+
+    public void addLabel() {
+        _label.getStyle().set("margin-left", "30px");
+        _label.getStyle().set("font-style", "italic");
+        add(_label);
+    }
+
+    public void setLabel(String text) {
+        clearLabel();
+        _label.add(text);
+    }
+
+    public void clearLabel() { _label.removeAll(); }
+
+
+
+    private void createButtons() {
+        _runButton = createButton(VaadinIcon.PLAY,
+                GraphRunner.RunnerAction.RUN,"Run");
+        _stepButton = createButton(VaadinIcon.STEP_FORWARD,
+                GraphRunner.RunnerAction.STEP, "Step fwd");
+        _backButton = createButton(VaadinIcon.STEP_BACKWARD,
+                GraphRunner.RunnerAction.STEP_BACK, "Step back");
+        _stopButton = createButton(VaadinIcon.STOP,
+                GraphRunner.RunnerAction.STOP, "Stop");
+
+        add(_runButton, _stepButton, _backButton, _stopButton);
+    }
+
+
+    private Button createButton(VaadinIcon icon, GraphRunner.RunnerAction runnerAction,
+                                String tooltip)  {
+        return UiUtil.createToolButton(icon, tooltip, false,
+                e -> action(runnerAction));
+    }
+
+
+    private boolean canRunSelectedNode() {
+        return ! (_selectedNode == null || _selectedNode.hasCompleted());
+    }
+
+
+
 
 }

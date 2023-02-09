@@ -123,7 +123,7 @@
       "workbox-core": "6.5.0",
       "workbox-precaching": "6.5.0"
     },
-    "hash": "640a5355fa11d310805d3eabb3c92b1e4a6b673b826ca55bb799fb56a73c285e"
+    "hash": "af965cd75778635fcc3bf5b799730c69532fe661477b8dd78e40f5435e140817"
   },
   "dependencies": {
     "@polymer/iron-icon": "3.0.1",

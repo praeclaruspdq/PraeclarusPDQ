@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,9 @@ import java.util.List;
  */
 public class UiUtil {
 
-    public static final String VAADIN_BLUE = "2C68EC";
-    public static final String DISABLED_COLOUR = "BDC3CC";
+ //   public static final String VAADIN_BLUE = "2C68EC";
+    public static final String DISABLED_COLOUR = "#BDC3CC";
+    public static final String DEFAULT_BLUE = "#4A9AE9";
 
 
     public static Image getLargeLogo() {
@@ -80,7 +81,7 @@ public class UiUtil {
 
 
     public static Icon createIcon(VaadinIcon vIcon) {
-        return createIcon(vIcon, VAADIN_BLUE);
+        return createIcon(vIcon, DEFAULT_BLUE);
     }
 
     public static Icon createIcon(VaadinIcon vIcon, String colour) {
@@ -94,12 +95,11 @@ public class UiUtil {
     public static Button createToolButton(VaadinIcon vIcon, String tip, boolean enabled,
                                           ComponentEventListener<ClickEvent<Button>> clickEvent) {
         Icon icon = createIcon(vIcon);
-        Button button = new Button(icon, clickEvent);
+        Button button = new ToolButton(icon, clickEvent);
         button.setEnabled(enabled);
         setTooltip(button, tip);
         return button;
     }
-
 
 
     public static Grid<Row> tableToGrid(Table table) {
@@ -194,6 +194,20 @@ public class UiUtil {
         grid.addColumn(LogEntry::getMessage).setHeader("Message").setAutoWidth(true);
         grid.setItems(entries);
         return grid;
+    }
+
+
+    static class ToolButton extends Button {
+
+        public ToolButton(Component icon, ComponentEventListener<ClickEvent<Button>> clickListener) {
+            super(icon, clickListener);
+        }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+            ((Icon) getIcon()).setColor(enabled ? DEFAULT_BLUE : DISABLED_COLOUR);
+            super.setEnabled(enabled);
+        }
     }
     
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2022 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,8 +78,10 @@ public class PropertiesPanel extends VerticalLayout {
     private VerticalScrollLayout createForm(HasOptions container) {
         VerticalScrollLayout form = new VerticalScrollLayout();
         Options options = container.getOptions();
-        for (Option option : options.sort()) {
-            form.add(_factory.create(container, option));
+        if (options != null) {
+            for (Option option : options.sort()) {
+                form.add(_factory.create(container, option));
+            }
         }
         return form;
     }
