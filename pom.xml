@@ -245,6 +245,13 @@
             <version>1.4.5.519</version>
         </dependency>
         
+        <!-- Nashorn JavaScript -->
+		<dependency>
+			<groupId>org.openjdk.nashorn</groupId>
+			<artifactId>nashorn-core</artifactId>
+			<version>15.4</version>
+		</dependency>
+        
         <!-- JGit -->
         <dependency>
           <groupId>org.eclipse.jgit</groupId>
