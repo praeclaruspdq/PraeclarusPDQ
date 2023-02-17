@@ -133,6 +133,10 @@ public class Options extends HashMap<String, Option> {         // key is Option'
     public List<Option> sort() {
         return values().stream().sorted().collect(Collectors.toList());
     }
+    
+    public List<Option> unsortedlist() {
+        return values().stream().collect(Collectors.toList());
+    }
 
 
     private void saveChanges(Option option) {

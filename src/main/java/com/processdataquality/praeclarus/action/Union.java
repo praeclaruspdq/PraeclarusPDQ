@@ -16,24 +16,22 @@
 
 package com.processdataquality.praeclarus.action;
 
+import java.util.List;
+
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.ColumnNameListOption;
 
 import tech.tablesaw.api.Table;
 
-import java.util.List;
-
 /**
- * @author Michael Adams, Sareh Sadeghianasl
+ * @author Sareh Sadeghianasl
  * @date 21/5/21
  */
-@Plugin(name = "Inner Join", author = "Michael Adams, Sareh Sadeghianasl", version = "1.0", synopsis = "Performs an inner join on a set of tables (they must have a column of the same name)")
-public class InnerJoin extends AbstractAction {
+@Plugin(name = "Union", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Returns the union of a set of tables (they must have the same schema)")
+public class Union extends AbstractAction {
 
-	public InnerJoin() {
+	public Union() {
 		super();
-		getOptions().addDefault(new ColumnNameListOption("Column"));
 	}
 
 	@Override
@@ -41,14 +39,18 @@ public class InnerJoin extends AbstractAction {
 		if (inputList.size() < 2) {
 			throw new InvalidOptionValueException("This action requires at least two tables as input.");
 		}
-		String colName = getSelectedColumnNameValue("Column");
-		for (Table t : inputList) {
-			if (!t.containsColumn(colName))
-				throw new InvalidOptionValueException("The selected column is not a shared column among input tables");
+		if (!sameSchema(inputList)) {
+			throw new InvalidOptionValueException("Input tables do not have the same schema");
 		}
+
 		Table t1 = inputList.remove(0);
-		Table t2 = t1.copy();
-		return t2.joinOn(colName).inner(true, inputList.toArray(new Table[] {}));
+		Table res = t1.copy();
+		for (Table t : inputList) {
+			res.append(t);
+			System.out.println("Appended " + res.rowCount());
+
+		}
+		return res.dropDuplicateRows();
 
 	}
 

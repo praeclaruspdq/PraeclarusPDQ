@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Queensland University of Technology
+ * Copyright (c) 2021-2023 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,23 @@
 
 package com.processdataquality.praeclarus.action;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.ColumnNameListAndStringOption;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
-import com.processdataquality.praeclarus.option.ListOption;
 import com.processdataquality.praeclarus.option.MultiLineOption;
 import com.processdataquality.praeclarus.option.Option;
 
 import tech.tablesaw.api.Row;
-import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
-import tech.tablesaw.columns.Column;
 import tech.tablesaw.selection.Selection;
-
-import javax.script.*;
 
 /**
  * @author Sareh Sadeghianasl
@@ -78,7 +75,7 @@ public class Select extends AbstractAction {
 			Invocable inv = (Invocable) engine;
 
 			for (Row row : t1) {
-				List<Object> sourceValues = getSourceValues(row, sourceColNames);
+				List<Object> sourceValues = getSourceValues(t1, row, sourceColNames);
 
 				String result = inv.invokeFunction("select", sourceValues).toString();
 				if (result.equalsIgnoreCase("true")) {
@@ -96,15 +93,6 @@ public class Select extends AbstractAction {
 		Table t2 = t1.where(isSelected);	
 		return t2;
 
-	}
-
-	private List<Object> getSourceValues(Row row, List<String> sourceColNames) {
-		List<Object> res = new ArrayList<Object>();
-		for (String col : sourceColNames) {
-			Object val = row.getObject(col);
-			res.add(val);
-		}
-		return res;
 	}
 
 

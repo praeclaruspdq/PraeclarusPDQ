@@ -73,7 +73,7 @@ public abstract class AbstractImperfectLabelContextual extends AbstractImperfect
 			for (int j = 0; j < parser.getActivities().size(); j++) {
 				Activity a1 = parser.getActivities().get(i);
 				Activity a2 = parser.getActivities().get(j);
-				if (activityContextSimilariy[i][j] > getOptions().get("Overall Context Similarity Threshold").asDouble()
+				if (i != j && activityContextSimilariy[i][j] > getOptions().get("Overall Context Similarity Threshold").asDouble()
 						&& ls[i][j] > getOptions().get("String Similarity Threshold").asDouble()) {
 					addResult(getSelectedColumn(table), a1.getName(), a2.getName(), activityContextSimilariy[i][j],
 							ls[i][j], dcfs[i][j], rs[i][j], ts[i][j], ds[i][j], eds[i][j]);

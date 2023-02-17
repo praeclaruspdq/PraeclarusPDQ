@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Queensland University of Technology
+ * Copyright (c) 2021-2023 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,19 @@
  */
 
 package com.processdataquality.praeclarus.ui.component;
+
+import static com.eclipsesource.json.WriterConfig.PRETTY_PRINT;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.processdataquality.praeclarus.exception.NodeRunnerException;
 import com.processdataquality.praeclarus.graph.GraphRunner;
@@ -62,19 +75,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import tech.tablesaw.api.Table;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.eclipsesource.json.WriterConfig.PRETTY_PRINT;
 
 /**
  * @author Michael Adams
@@ -101,7 +103,6 @@ public class WorkflowPanel extends VerticalLayout
 	private final Button _searchButton = createSearchButton();
 	private final Button _clearButton = createClearButton();
 
-
 	public WorkflowPanel(MainView parent) {
 		_parent = parent;
 		_canvas = new Canvas(1600, 800);
@@ -116,8 +117,7 @@ public class WorkflowPanel extends VerticalLayout
 		changedSelected(null); // init with default properties panel
 	}
 
-    private String _fileName = null;
-
+	private String _fileName = null;
 
 	@Override
 	public void pluginUICloseEvent(ButtonAction buttonAction, Node node) {
@@ -158,12 +158,10 @@ public class WorkflowPanel extends VerticalLayout
 		_parent.setUnsavedChanges(changed);
 	}
 
-
 	public void changedSelected(Node selected) {
 		showPluginProperties(selected);
 		_runnerButtons.enable();
 	}
-
 
 	public void canvasSelectionChanged(CanvasPrimitive selected) {
 		enableButtons(_runner.getState(), selected);
@@ -173,61 +171,69 @@ public class WorkflowPanel extends VerticalLayout
 		AbstractPlugin plugin = selected != null ? selected.getPlugin() : null;
 		if (plugin != null) {
 			addColumnListIfRequired(selected, plugin.getOptions());
+			addAdditionalOptions(selected, plugin);
 			_parent.getPropertiesPanel().set(plugin);
 		} else {
 			_parent.getPropertiesPanel().set(_workflow.getGraph());
 		}
 	}
 
-    private RunnerButtons initRunnerButtons() {
-        RunnerButtons buttons = new RunnerButtons(_runner);
-        buttons.addButton(_resetButton);
-        buttons.addSeparator();
-        buttons.addButton(_removeButton);
-        buttons.addSeparator();
-        buttons.addButton(_clearButton);
-        buttons.addSeparator();
-        buttons.addButton(_searchButton);
-        buttons.addButton(_storeButton);
-        buttons.addSeparator();
-        buttons.addButton(_uploadButton);
-        buttons.addButton(_downloadButton);
-        buttons.addSeparator();
-        buttons.addLabel();
-        return buttons;
-    }
+	private void addAdditionalOptions(Node node, AbstractPlugin plugin) {
+		if (plugin.getName().equals("Aggregate")) {
+			List<Table> inputs = node.getInputs();
+			if (!inputs.isEmpty()) {		
+				plugin.getAuxiliaryDatasets().put("inputTable", inputs.get(0));
+			}
+		}
+	}
 
+	private RunnerButtons initRunnerButtons() {
+		RunnerButtons buttons = new RunnerButtons(_runner);
+		buttons.addButton(_resetButton);
+		buttons.addSeparator();
+		buttons.addButton(_removeButton);
+		buttons.addSeparator();
+		buttons.addButton(_clearButton);
+		buttons.addSeparator();
+		buttons.addButton(_searchButton);
+		buttons.addButton(_storeButton);
+		buttons.addSeparator();
+		buttons.addButton(_uploadButton);
+		buttons.addButton(_downloadButton);
+		buttons.addSeparator();
+		buttons.addLabel();
+		return buttons;
+	}
 
-private VerticalLayout createCanvasContainer() {
-    DropTarget<Canvas> dropTarget = DropTarget.create(_canvas);
-    dropTarget.setDropEffect(DropEffect.COPY);
-    dropTarget.addDropListener(event -> {
-        if (event.getDropEffect() == DropEffect.COPY) {
-            if (event.getDragData().isPresent()) {
+	private VerticalLayout createCanvasContainer() {
+		DropTarget<Canvas> dropTarget = DropTarget.create(_canvas);
+		dropTarget.setDropEffect(DropEffect.COPY);
+		dropTarget.addDropListener(event -> {
+			if (event.getDropEffect() == DropEffect.COPY) {
+				if (event.getDragData().isPresent()) {
 
-                @SuppressWarnings("unchecked")
-                List<TreeItem> droppedItems = (List<TreeItem>) event.getDragData().get();
-                TreeItem item = droppedItems.get(0);     // only one is dropped
-                try {
-                    Node node = addPluginInstance(item);
-                    _workflow.addVertex(node);
-                    _runnerButtons.enable();
-                }
-                catch (InvocationTargetException | NoSuchMethodException |
-                       InstantiationException | IllegalAccessException e) {
-                    Announcement.error("Failed to create plugin: " + e.getMessage());
-                    LOG.error("Failed to create plugin: ", e);
-                }
+					@SuppressWarnings("unchecked")
+					List<TreeItem> droppedItems = (List<TreeItem>) event.getDragData().get();
+					TreeItem item = droppedItems.get(0); // only one is dropped
+					try {
+						Node node = addPluginInstance(item);
+						_workflow.addVertex(node);
+						_runnerButtons.enable();
+					} catch (InvocationTargetException | NoSuchMethodException | InstantiationException
+							| IllegalAccessException e) {
+						Announcement.error("Failed to create plugin: " + e.getMessage());
+						LOG.error("Failed to create plugin: ", e);
+					}
 
-            }
-        }
-    });
-    VerticalScrollLayout container = new VerticalScrollLayout();
-    container.add(_canvas);
-    UiUtil.removeTopPadding(container);
-    return container;
-    
-}
+				}
+			}
+		});
+		VerticalScrollLayout container = new VerticalScrollLayout();
+		container.add(_canvas);
+		UiUtil.removeTopPadding(container);
+		return container;
+
+	}
 
 	private Node addPluginInstance(TreeItem item)
 			throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
@@ -318,7 +324,7 @@ private VerticalLayout createCanvasContainer() {
 					}
 					if (!colNames.isEmpty()) {
 						Pair<List<String>, String> val = (Pair<List<String>, String>) option.value();
-						String colValue = String.valueOf(val.getKey());  // get any current value
+						String colValue = String.valueOf(val.getKey()); // get any current value
 						String nameValue = String.valueOf(val.getValue());
 						option.setValue(new Pair<List<String>, String>(colNames, ""));
 						if (!StringUtils.isEmpty(colValue) && colNames.contains(colValue)) {
@@ -336,142 +342,122 @@ private VerticalLayout createCanvasContainer() {
 		}
 	}
 
-
 	public Workflow getWorkflow() {
 		return _workflow;
 	}
 
-    private Button createStoreButton() {
-        return UiUtil.createToolButton(VaadinIcon.PLUS, "Store workflow",
-                false, e -> storeWorkflow());
-    }
+	private Button createStoreButton() {
+		return UiUtil.createToolButton(VaadinIcon.PLUS, "Store workflow", false, e -> storeWorkflow());
+	}
 
+	private Button createSearchButton() {
+		return UiUtil.createToolButton(VaadinIcon.DATABASE, "Search stored workflows", true,
+				e -> showStoredWorkflows());
+	}
 
-    private Button createSearchButton() {
-        return UiUtil.createToolButton(VaadinIcon.DATABASE, "Search stored workflows",
-                true, e -> showStoredWorkflows());
-    }
+	private Button createClearButton() {
+		return UiUtil.createToolButton(VaadinIcon.SUN_O, "Reset workflow canvas", false, e -> {
+			if (_workflow.hasChanges()) {
+				handleExistingWorkflow(s -> {
+					storeWorkflow();
+					_workflow.clear();
+				}, d -> _workflow.clear());
+			} else {
+				_workflow.clear();
+			}
+			changedSelected(null);
+			_runnerButtons.clearLabel();
+		});
+	}
 
+	private void enableButtons(GraphRunner.RunnerState state, CanvasPrimitive selected) {
+		boolean isIdle = state == GraphRunner.RunnerState.IDLE;
+		boolean hasContent = isIdle && _workflow != null && _workflow.hasContent();
+		_removeButton.setEnabled(isIdle && selected != null);
+		_downloadButton.setEnabled(hasContent);
+		_searchButton.setEnabled(isIdle);
+		_storeButton.setEnabled(hasContent);
+		_resetButton.setEnabled(hasContent);
+		_uploadButton.setEnabled(isIdle);
+		_clearButton.setEnabled(hasContent);
+	}
 
-    private Button createClearButton() {
-        return UiUtil.createToolButton(VaadinIcon.SUN_O, "Reset workflow canvas",
-                false,  e -> {
-            if (_workflow.hasChanges()) {
-                handleExistingWorkflow(s -> { storeWorkflow(); _workflow.clear(); },
-                        d -> _workflow.clear());
-            }
-            else {
-                _workflow.clear();
-            }
-            changedSelected(null);
-            _runnerButtons.clearLabel();
-        });
-    }
+	private void handleExistingWorkflow(ComponentEventListener<ClickEvent<Button>> confirmListener,
+			ComponentEventListener<ClickEvent<Button>> rejectListener) {
+		MessageDialog dialog = new MessageDialog("Save changes to existing workflow?");
+		dialog.setText("Click 'Store' to save changes, " + "'Discard' to discard changes, 'Cancel' to keep working.");
+		dialog.addConfirmButton(new Button("Store", confirmListener));
+		dialog.addRejectButton(new Button("Discard", rejectListener));
+		dialog.addCancelButton();
+		dialog.open();
+	}
 
+	private void loadFromFile() {
+		UploadDialog dialog = new UploadDialog(e -> {
+			if (e.successful) {
+				try {
+					String content = new String(e.inputStream.readAllBytes(), StandardCharsets.UTF_8);
+					_workflow.fileLoaded(content);
+					_fileName = e.fileName;
+					_runnerButtons.setLabel(e.fileName);
+				} catch (IOException ex) {
+					Announcement.error("Failed to load file: " + ex.getMessage());
+				}
+			}
+		}, new String[] { ".pwf", ".json" });
+		dialog.open();
 
-    private void enableButtons(GraphRunner.RunnerState state, CanvasPrimitive selected) {
-        boolean isIdle = state == GraphRunner.RunnerState.IDLE;
-        boolean hasContent = isIdle && _workflow != null && _workflow.hasContent();
-        _removeButton.setEnabled(isIdle && selected != null);
-        _downloadButton.setEnabled(hasContent);
-        _searchButton.setEnabled(isIdle);
-        _storeButton.setEnabled(hasContent);
-        _resetButton.setEnabled(hasContent);
-        _uploadButton.setEnabled(isIdle);
-        _clearButton.setEnabled(hasContent);
-    }
+		// _canvas.loadFromFile(); *requires https for direct fs access
+	}
 
+	private boolean downloadWorkflow() {
+		_workflow.getGraph().updateLastSavedTime();
+		String jsonStr = _workflow.asJson().toString(PRETTY_PRINT);
 
-    private void handleExistingWorkflow(
-            ComponentEventListener<ClickEvent<Button>> confirmListener,
-            ComponentEventListener<ClickEvent<Button>> rejectListener) {
-        MessageDialog dialog = new MessageDialog(
-                "Save changes to existing workflow?");
-        dialog.setText("Click 'Store' to save changes, " +
-                "'Discard' to discard changes, 'Cancel' to keep working.");
-        dialog.addConfirmButton(new Button("Store", confirmListener));
-        dialog.addRejectButton(new Button("Discard", rejectListener));
-        dialog.addCancelButton();
-        dialog.open();
-    }
+		// _canvas.saveToFile(jsonStr); *requires https as above
 
+		if (_fileName == null) {
+			_fileName = _workflow.getGraph().getName() + ".pwf";
+		}
+		downloadFile(_fileName, jsonStr.getBytes(StandardCharsets.UTF_8));
 
-    private void loadFromFile() {
-        UploadDialog dialog = new UploadDialog(e -> {
-            if (e.successful) {
-                try {
-                    String content = new String(e.inputStream.readAllBytes(),
-                            StandardCharsets.UTF_8);
-                    _workflow.fileLoaded(content);
-                    _fileName = e.fileName;
-                    _runnerButtons.setLabel(e.fileName);
-                }
-                catch (IOException ex) {
-                    Announcement.error("Failed to load file: " + ex.getMessage());
-                }
-            }
-        }, new String[] {".pwf", ".json"});
-        dialog.open();
+		_workflow.setChanged(false);
+		EventLogger.graphDownloadEvent(_workflow.getGraph());
+		return true;
+	}
 
- //       _canvas.loadFromFile();                *requires https for direct fs access
-    }
+	private void storeWorkflow() {
+		_workflow.store();
+	}
 
+	private void showStoredWorkflows() {
+		new StoredWorkflowsDialog(_workflow).open();
+	}
 
-    private boolean downloadWorkflow() {
-        _workflow.getGraph().updateLastSavedTime();
-        String jsonStr = _workflow.asJson().toString(PRETTY_PRINT);
-        
-    //    _canvas.saveToFile(jsonStr);                       *requires https as above
+	public void onResize() {
+		_workflow.render();
+	}
 
-        if (_fileName == null) {
-            _fileName = _workflow.getGraph().getName() + ".pwf";
-        }
-        downloadFile(_fileName, jsonStr.getBytes(StandardCharsets.UTF_8));
+	public void addVertexSelectionListener(CanvasSelectionListener listener) {
+		_workflow.addVertexSelectionListener(listener);
+	}
 
-        _workflow.setChanged(false);
-        EventLogger.graphDownloadEvent(_workflow.getGraph());
-        return true;
-    }
+	protected void downloadFile(String fileName, byte[] content) {
+		InputStreamFactory isFactory = () -> new ByteArrayInputStream(content);
+		StreamResource resource = new StreamResource(fileName, isFactory);
+		resource.setContentType("multipart/form-data");
+		resource.setCacheTime(0);
+		resource.setHeader("Content-Disposition", "attachment;filename=\"" + fileName + "\"");
 
+		Anchor downloadAnchor = new Anchor(resource, "");
+		Element element = downloadAnchor.getElement();
+		element.setAttribute("download", true);
+		element.getStyle().set("display", "none");
+		add(downloadAnchor);
 
-    private void storeWorkflow() {
-        _workflow.store();
-    }
-
-
-    private void showStoredWorkflows() {
-        new StoredWorkflowsDialog(_workflow).open();
-    }
-
-
-    public void onResize() {
-        _workflow.render();
-    }
-
-
-    public void addVertexSelectionListener(CanvasSelectionListener listener) {
-        _workflow.addVertexSelectionListener(listener);
-    }
-
-
-    protected void downloadFile(String fileName, byte[] content) {
-        InputStreamFactory isFactory = () -> new ByteArrayInputStream(content);
-        StreamResource resource = new StreamResource(fileName, isFactory);
-        resource.setContentType("multipart/form-data");
-        resource.setCacheTime(0);
-        resource.setHeader("Content-Disposition",
-                "attachment;filename=\"" + fileName + "\"");
-
-        Anchor downloadAnchor = new Anchor(resource, "");
-        Element element = downloadAnchor.getElement();
-        element.setAttribute("download", true);
-        element.getStyle().set("display", "none");
-        add(downloadAnchor);
-
-        // simulate a click & remove anchor after file downloaded
-        element.executeJs("return new Promise(resolve =>{this.click(); " +
-                "setTimeout(() => resolve(true), 150)})", element)
-                .then(jsonValue -> remove(downloadAnchor));
-    }
+		// simulate a click & remove anchor after file downloaded
+		element.executeJs("return new Promise(resolve =>{this.click(); " + "setTimeout(() => resolve(true), 150)})",
+				element).then(jsonValue -> remove(downloadAnchor));
+	}
 
 }
