@@ -85,12 +85,21 @@ public abstract class AbstractAction extends AbstractPlugin {
 		case "DOUBLE":
 			res = String.valueOf(row.getDouble(colName));
 			break;
+		case "NUMBER":
+			res = String.valueOf(row.getDouble(colName));
+			break;	
 		case "BOOLEAN":
 			res = String.valueOf(row.getBoolean(colName));
 			break;
-		case "DATE":
+		case "LOCAL_DATE":
 			res = String.valueOf(row.getDate(colName));
 			break;
+		case "LOCAL_TIME":
+			res = String.valueOf(row.getTime(colName));
+			break;
+		case "LOCAL_DATE_TIME":
+				res = String.valueOf(row.getDateTime(colName));
+				break;	
 		default:
 			res = row.getString(colName);
 			break;
@@ -305,17 +314,19 @@ public abstract class AbstractAction extends AbstractPlugin {
 			res = row.getInt(colName);
 		} else if (colType.equalsIgnoreCase("Double")) {
 			res = row.getDouble(colName);
+		}else if (colType.equalsIgnoreCase("Number")) {
+			res = row.getDouble(colName);	
 		} else if (colType.equalsIgnoreCase("Float")) {
 			res = row.getFloat(colName);
 		} else if (colType.equalsIgnoreCase("Short")) {
 			res = row.getShort(colName);
 		} else if (colType.equalsIgnoreCase("Long")) {
 			res = row.getLong(colName);
-		} else if (colType.equalsIgnoreCase("LocalDate")) {
+		} else if (colType.equalsIgnoreCase("Local_Date")) {
 			res = row.getDate(colName);
-		} else if (colType.equalsIgnoreCase("LocalTime")) {
+		} else if (colType.equalsIgnoreCase("Local_Time")) {
 			res = row.getTime(colName);
-		} else if (colType.equalsIgnoreCase("LocalDateTime")) {
+		} else if (colType.equalsIgnoreCase("Local_Date_Time")) {
 			res = row.getDateTime(colName);
 		} else if (colType.equalsIgnoreCase("Instant")) {
 			res = row.getInstant(colName);
@@ -395,9 +406,12 @@ public abstract class AbstractAction extends AbstractPlugin {
 
 	protected boolean areTimeValues(List<Object> functionArgs) {
 		for (Object o : functionArgs) {
+			if(o instanceof String) {
+			}
 			if (!(o instanceof LocalDate) && !(o instanceof LocalTime) && !(o instanceof LocalDateTime)
 					&& !(o instanceof Instant) && !(o instanceof String && textToTime((String) o) != null)) {
 				return false;
+				
 			}
 		}
 		return true;
@@ -405,23 +419,19 @@ public abstract class AbstractAction extends AbstractPlugin {
 
 	protected boolean sameSchema(List<Table> inputList) {
 		if (inputList.isEmpty()) {
-			System.out.println("Error 1");
 			return false;
 		}
 		Table first = inputList.get(0);
 		for (Table t : inputList) {
 			if (inputList.indexOf(t) > 0) {
 				if (first.columnCount() != t.columnCount()) {
-					System.out.println("Error 2");
 					return false;
 				}
 				for (int i = 0; i < t.columns().size(); i++) {
 					if (!t.columns().get(i).name().equals(first.columns().get(i).name())) {
-						System.out.println("Error 3 " + i);
 						return false;
 					}
 					if (!t.columns().get(i).type().name().equals(first.columns().get(i).type().name())) {
-						System.out.println("Error 4 "+ i);
 						return false;
 					}
 				}
