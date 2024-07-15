@@ -111,7 +111,7 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
     public String getID() { return id; }
 
     public void setID(String id) { this.id = id; }
-    
+
     protected LocalDateTime textToTime(String text) { // Add more formats
 		LocalDateTime dateTime = null;
 		LocalDate date = null;
@@ -130,6 +130,14 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
 		formats.add("H:mm");
 		formats.add("H:mm:ss");
 		formats.add("H:mm:ss.SSS");
+		formats.add("dd/MM/yyyy HH:mm:ss");
+		formats.add("dd/MM/yyyy HH:mm:ss.SSS");
+		formats.add("dd/MM/yyyy H:mm");
+		formats.add("dd/MM/yyyy H:mm:ss");
+		formats.add("dd/MM/yyyy H:mm:ss.SSS");
+		formats.add("dd/MM/yyyy");
+		formats.add("dd/MM/yyyy HH:mm");
+		formats.add("yyyy/MM/dd HH:mm:ss.SSS");
 		for (String f : formats) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(f);
 			try {
