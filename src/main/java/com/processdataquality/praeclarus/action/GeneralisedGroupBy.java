@@ -44,14 +44,14 @@ import tech.tablesaw.columns.Column;
  * @author Sareh Sadeghianasl
  * @date 10/2/2023
  */
-@Plugin(name = "Aggregate", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Aggregates rows")
-public class Aggregate extends AbstractAction {
+@Plugin(name = "Generalised Group-By", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Groups rows based on given conditions")
+public class GeneralisedGroupBy extends AbstractAction {
 
 	private int numberOfRows;
 	private String[] baseFunctionNames;
 	private ArrayList<String> baseFunctions = new ArrayList<String>();
 
-	public Aggregate() {
+	public GeneralisedGroupBy() {
 		super();
 		getOptions().addDefault(new ColumnNameListOption("CaseId Column"));
 		getOptions().addDefault(new ColumnNameListOption("Main Column"));
@@ -67,7 +67,6 @@ public class Aggregate extends AbstractAction {
 		baseFunctions.add("Last");
 		baseFunctions.add("Custom function");
 		numberOfRows = 0;
-
 	}
 
 	@Override
