@@ -30,12 +30,12 @@ import tech.tablesaw.api.Table;
 import tech.tablesaw.columns.Column;
 
 /**
- * @author Sareh Sadeghianasl
+ * @author root
  * @date 8/2/23
  */
 @Plugin(
         name = "Project",
-        author = "Sareh Sadeghianasl",
+        author = "Root",
         version = "1.0",
         synopsis = "Projects a number of columns from a table"
 )
