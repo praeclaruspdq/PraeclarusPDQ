@@ -41,7 +41,7 @@ import tech.tablesaw.api.Table;
 import tech.tablesaw.columns.Column;
 
 /**
- * @author Root
+ * @author root
  * @date 10/2/2023
  */
 @Plugin(name = "Generalised Group-By", author = "Root", version = "1.0", synopsis = "Groups rows based on given conditions")
