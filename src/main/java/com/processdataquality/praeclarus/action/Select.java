@@ -35,10 +35,10 @@ import tech.tablesaw.api.Table;
 import tech.tablesaw.selection.Selection;
 
 /**
- * @author Sareh Sadeghianasl
+ * @author root
  * @date 8/2/23
  */
-@Plugin(name = "Select", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Selects rows from a table that satisfy a condition")
+@Plugin(name = "Select", author = "Root", version = "1.0", synopsis = "Selects rows from a table that satisfy a condition")
 public class Select extends AbstractAction {
 
 	private int numberOfColumns;
