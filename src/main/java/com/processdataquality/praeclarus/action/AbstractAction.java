@@ -271,7 +271,7 @@ public abstract class AbstractAction extends AbstractPlugin {
 						return false;
 					}
 					if (!t.columns().get(i).type().name().equals(first.columns().get(i).type().name())) {
-						return false;
+					      return false;
 					}
 				}
 			}
