@@ -24,7 +24,7 @@ import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
 import tech.tablesaw.api.Table;
 
 /**
- * @author root
+ * @author Sareh Sadeghianasl
  * @date 21/5/21
  */
 @Plugin(name = "Union", author = "Root", version = "1.0", synopsis = "Returns the union of a set of tables (they must have the same schema)")
