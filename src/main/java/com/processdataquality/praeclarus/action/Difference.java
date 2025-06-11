@@ -29,7 +29,7 @@ import tech.tablesaw.api.Table;
  * @author Sareh Sadeghianasl
  * @date 21/5/21
  */
-@Plugin(name = "Difference", author = "Root", version = "1.0", synopsis = "Returns the difference of a two of tables (they must have the same schema)")
+@Plugin(name = "Difference", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Returns the difference of a two of tables (they must have the same schema)")
 public class Difference extends AbstractAction {
 
 	public Difference() {
