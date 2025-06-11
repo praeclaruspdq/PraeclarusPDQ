@@ -26,7 +26,7 @@ import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 
 /**
- * @author root
+ * @author Sareh Sadeghianasl
  * @date 21/5/21
  */
 @Plugin(name = "Difference", author = "Root", version = "1.0", synopsis = "Returns the difference of a two of tables (they must have the same schema)")
