@@ -27,7 +27,7 @@ import tech.tablesaw.api.Table;
  * @author Sareh Sadeghianasl
  * @date 21/5/21
  */
-@Plugin(name = "Union", author = "Root", version = "1.0", synopsis = "Returns the union of a set of tables (they must have the same schema)")
+@Plugin(name = "Union", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Returns the union of a set of tables (they must have the same schema)")
 public class Union extends AbstractAction {
 
 	public Union() {
