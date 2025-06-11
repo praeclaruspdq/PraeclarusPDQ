@@ -38,7 +38,7 @@ import java.util.stream.IntStream;
 import org.springframework.expression.spel.ast.Selection;
 
 /**
- * @author root
+ * @author Sareh Sadeghianasl
  * @date 10/2/2023
  */
 @Plugin(name = "Directly Precedes", author = "Root", version = "1.0", synopsis = "Applies direclty precedes operator to a log")
