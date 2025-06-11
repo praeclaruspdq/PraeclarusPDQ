@@ -28,7 +28,7 @@ import java.util.List;
  * @author Michael Adams
  * @date 21/5/21
  */
-@Plugin(name = "Inner Join", author = root", version = "1.0", synopsis = "Performs an inner join on a set of tables (they must have a column of the same name)")
+@Plugin(name = "Inner Join", author = "Michael Adams", version = "1.0", synopsis = "Performs an inner join on a set of tables (they must have a column of the same name)")
 public class InnerJoin extends AbstractAction {
 
 	public InnerJoin() {
