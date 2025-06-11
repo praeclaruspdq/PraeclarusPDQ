@@ -25,7 +25,7 @@ import tech.tablesaw.api.Table;
 import java.util.List;
 
 /**
- * @author root
+ * @author Michael Adams
  * @date 21/5/21
  */
 @Plugin(name = "Inner Join", author = root", version = "1.0", synopsis = "Performs an inner join on a set of tables (they must have a column of the same name)")
