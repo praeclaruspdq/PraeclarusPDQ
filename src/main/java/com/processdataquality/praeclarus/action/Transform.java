@@ -39,7 +39,7 @@ import tech.tablesaw.api.Table;
  * @author Sareh Sadeghianasl
  * @date 10/2/2023
  */
-@Plugin(name = "Transform", author = "Root", version = "1.0", synopsis = "Transforms a number of source columns to a destination column")
+@Plugin(name = "Transform", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Transforms a number of source columns to a destination column")
 public class Transform extends AbstractAction {
 
 	private int numberOfColumns;
