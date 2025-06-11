@@ -35,7 +35,7 @@ import tech.tablesaw.api.Table;
 import tech.tablesaw.selection.Selection;
 
 /**
- * @author root
+ * @author Sareh Sadeghianasl
  * @date 8/2/23
  */
 @Plugin(name = "Select", author = "Root", version = "1.0", synopsis = "Selects rows from a table that satisfy a condition")
