@@ -36,7 +36,7 @@ import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
 /**
- * @author root
+ * @author Sareh Sadeghianasl
  * @date 10/2/2023
  */
 @Plugin(name = "Transform", author = "Root", version = "1.0", synopsis = "Transforms a number of source columns to a destination column")
