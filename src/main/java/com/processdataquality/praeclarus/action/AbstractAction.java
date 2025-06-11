@@ -36,7 +36,7 @@ import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 
 /**
- * @author root
+ * @author Michael Adams
  * @date 21/5/21
  */
 public abstract class AbstractAction extends AbstractPlugin {
