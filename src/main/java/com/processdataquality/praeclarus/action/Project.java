@@ -35,7 +35,7 @@ import tech.tablesaw.columns.Column;
  */
 @Plugin(
         name = "Project",
-        author = "Root",
+        author = "Sareh Sadeghianasl",
         version = "1.0",
         synopsis = "Projects a number of columns from a table"
 )
