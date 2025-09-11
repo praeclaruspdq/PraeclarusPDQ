@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Queensland University of Technology
+ * Copyright (c) 2021-2025 Queensland University of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,74 +16,133 @@
 
 package com.processdataquality.praeclarus.action;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.deser.std.StringCollectionDeserializer;
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
+import com.processdataquality.praeclarus.option.ListOption;
+import com.processdataquality.praeclarus.option.MultiLineOption;
+import com.processdataquality.praeclarus.option.Option;
+import com.processdataquality.praeclarus.option.TableNameListOption;
 
+import tech.tablesaw.api.DateTimeColumn;
 import tech.tablesaw.api.Row;
+import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.columns.Column;
+import tech.tablesaw.selection.Selection;
 
 /**
  * @author Sareh Sadeghianasl
- * @date 21/5/21
+ * @date 29/7/25
  */
-@Plugin(name = "Difference", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Returns the difference of a two of tables (they must have the same schema)")
+@Plugin(name = "Difference", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Returns the difference of a two of tables: Table 1 - Table 2. The tables must have the same schema)")
 public class Difference extends AbstractAction {
+
+	private int numberOfTimestampColumns;
 
 	public Difference() {
 		super();
+		getOptions().addDefault(new TableNameListOption("Table 1"));
+		getOptions().addDefault(new TableNameListOption("Table 2"));
+		getOptions().addDefault("#Timestamp columns", 0);
 	}
 
 	@Override
 	public Table run(List<Table> inputList) throws InvalidOptionValueException {
+		long startTime = System.currentTimeMillis();
+
 		if (inputList.size() != 2) {
-			throw new InvalidOptionValueException("This action requires exactly two tables as input.");
+			throw new InvalidOptionValueException("This action requires exactly two tables as input");
 		}
+
 		if (!sameSchema(inputList)) {
 			throw new InvalidOptionValueException("Input tables do not have the same schema");
 		}
-		ArrayList<Integer> duplicateRows = new ArrayList<Integer>();
-		Table t1 = inputList.remove(0);
-		Table t2 = inputList.remove(0);
 
-		for (Row r : t1) {
-			if (containsRow(t2, r)) {
-				duplicateRows.add(r.getRowNumber());
-			}
+		String tab1 = getSelectedTable("Table 1");
+		String tab2 = getSelectedTable("Table 2");
+
+		if (tab1.equals(tab2)) {
+			throw new InvalidOptionValueException("Table 1 and Table 2 cannot be the same");
 		}
-		int[] rowIndices = new int[duplicateRows.size()];
-		for (int i = 0; i < duplicateRows.size(); i++) {
-			rowIndices[i] = duplicateRows.get(i);
+
+		String rc1 = tab1.substring(tab1.indexOf("(") + 1, tab1.indexOf("r") - 1);
+		String rc2 = tab2.substring(tab2.indexOf("(") + 1, tab2.indexOf("r") - 1);
+
+		int r1 = Integer.parseInt(rc1);
+		int r2 = Integer.parseInt(rc2);
+
+		Table temp1 = inputList.remove(0);
+		Table temp2 = inputList.remove(0);
+		temp1 = convertColsToString(temp1);
+		temp2 = convertColsToString(temp2);
+
+		
+		List<String> timestampColumnNames = new ArrayList<String>();
+		for (int i = 1; i <= numberOfTimestampColumns; i++) {
+			String colName = getSelectedColumnNameValue("Timestamp Column " + i);
+			timestampColumnNames.add(colName);
 		}
-		Table res = t1.dropRows(rowIndices);
+		temp1 = convertTimeColsToLocalDateTime(temp1,timestampColumnNames);
+		temp2 = convertTimeColsToLocalDateTime(temp2,timestampColumnNames);
+
+		Table t1, t2;
+		if (temp1.rowCount() == r1) {
+			t1 = temp1.sortAscendingOn(temp1.column(0).name());
+			t2 = temp2;
+		} else {
+			t1 = temp2.sortAscendingOn(temp2.column(0).name());
+			t2 = temp1;
+		}
+		
+
+		List<String> colNames = new ArrayList<>(t1.columnNames());
+		String[] joinKeys = colNames.toArray(new String[0]);
+		
+		Table t1LOT2 = t1.joinOn(joinKeys).leftOuter(t2, true, true, joinKeys);
+		Table res;
+		Selection missingT2 = t1LOT2.column(joinKeys.length).isMissing();
+		for (int i = 1; i < joinKeys.length; i++) {
+			missingT2 = missingT2
+					.and(t1LOT2.column(joinKeys.length + i).isMissing());
+		}
+		res = t1LOT2.where(missingT2);
+		res = res.selectColumns(joinKeys);
+		
+
+
+		
+		long stopTime = System.currentTimeMillis();
+		long elapsedTime = stopTime - startTime;
+		System.out.println("Execution time for Difference: " + elapsedTime);
 
 		return res;
 
-	}
 
-	private boolean containsRow(Table table, Row row) {
-		for (Row r : table) {
-			if (sameRow(table, r, row)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean sameRow(Table table, Row r1, Row r2) {
-		for (int i = 0; i < table.columnCount(); i++) {
-			Object o1 = readObject(table, r1, table.column(i).name());
-			Object o2 = readObject(table, r2, table.column(i).name());
-			if(!equalCells(o1,o2)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	
+
+
+	@Override
+	public void optionValueChanged(Option option) {
+
+		if (option.equals(getOptions().get("#Timestamp columns"))) {
+			numberOfTimestampColumns = option.asInt();
+			for (int i = 1; i <= numberOfTimestampColumns; i++) {
+				getOptions().addDefault(new ColumnNameListOption("Timestamp Column " + i));
+			}
+		}
+
+		super.optionValueChanged(option);
+
+	}
 
 	@Override
 	public int getMaxInputs() {

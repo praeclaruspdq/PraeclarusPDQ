@@ -43,6 +43,7 @@ import com.processdataquality.praeclarus.option.ColumnNameListAndStringOption;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.Option;
 import com.processdataquality.praeclarus.option.Options;
+import com.processdataquality.praeclarus.option.TableNameListOption;
 import com.processdataquality.praeclarus.pattern.AbstractDataPattern;
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 import com.processdataquality.praeclarus.plugin.PluginService;
@@ -179,7 +180,7 @@ public class WorkflowPanel extends VerticalLayout
 	}
 
 	private void addAdditionalOptions(Node node, AbstractPlugin plugin) {
-		if (plugin.getName().equals("Aggregate")) {
+		if (plugin.getName().equals("Generalised Group-By")) {
 			List<Table> inputs = node.getInputs();
 			if (!inputs.isEmpty()) {		
 				plugin.getAuxiliaryDatasets().put("inputTable", inputs.get(0));
@@ -312,6 +313,7 @@ public class WorkflowPanel extends VerticalLayout
 					}
 					if (!colNames.isEmpty()) {
 						String value = option.asString(); // get any current value
+						
 						option.setValue(colNames);
 						if (!StringUtils.isEmpty(value) && colNames.contains(value)) {
 							((ColumnNameListOption) option).setSelected(value);
@@ -336,6 +338,21 @@ public class WorkflowPanel extends VerticalLayout
 										.setSelected(new Pair<String, String>(colValue, ""));
 							}
 						}
+					}
+				}else if (option instanceof TableNameListOption) {
+					List<String> tabNames = new ArrayList<>();
+					int index = 1;
+					for (Table table : inputs) {
+						tabNames.add("Table "+ index+" (" + table.rowCount() + " rows)");
+						index++;
+					}
+					if (!tabNames.isEmpty()) {
+						String value = option.asString(); // get any current value
+						option.setValue(tabNames);
+						if (!StringUtils.isEmpty(value) && tabNames.contains(value)) {
+							((TableNameListOption) option).setSelected(value);
+						}
+						
 					}
 				}
 			}

@@ -30,10 +30,14 @@ import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
 import com.processdataquality.praeclarus.option.ColumnNameListAndStringOption;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.ListOption;
+import com.processdataquality.praeclarus.option.TableNameListOption;
 import com.processdataquality.praeclarus.plugin.AbstractPlugin;
 
+import tech.tablesaw.api.DateTimeColumn;
 import tech.tablesaw.api.Row;
+import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.columns.Column;
 
 /**
  * @author Michael Adams
@@ -57,6 +61,10 @@ public abstract class AbstractAction extends AbstractPlugin {
 
 	protected String getSelectedColumn(String name) {
 		return ((ColumnNameListAndStringOption) getOptions().get(name)).getSelected().getKey();
+	}
+	
+	protected String getSelectedTable(String name) {
+		return ((TableNameListOption) getOptions().get(name)).getSelected();
 	}
 
 	protected String getNewName(String name) {
@@ -249,8 +257,7 @@ public abstract class AbstractAction extends AbstractPlugin {
 			}
 			if (!(o instanceof LocalDate) && !(o instanceof LocalTime) && !(o instanceof LocalDateTime)
 					&& !(o instanceof Instant) && !(o instanceof String && textToTime((String) o) != null)) {
-				return false;
-				
+				return false;				
 			}
 		}
 		return true;
@@ -270,13 +277,39 @@ public abstract class AbstractAction extends AbstractPlugin {
 					if (!t.columns().get(i).name().equals(first.columns().get(i).name())) {
 						return false;
 					}
-					if (!t.columns().get(i).type().name().equals(first.columns().get(i).type().name())) {
-					      return false;
-					}
 				}
 			}
 		}
 		return true;
+	}
+	
+	protected Table convertTimeColsToLocalDateTime(Table table, List<String> timestampColumnNames) {
+		for(String col: timestampColumnNames) {
+			Column<String> originalColumn = table.stringColumn(col);
+			int index = table.columnIndex(col);
+			String originalName = originalColumn.name();
+			LocalDateTime[] dates = new LocalDateTime[originalColumn.size()];
+			int i = 0;
+			for(String StringTime: originalColumn) {
+				dates[i] = textToTime(StringTime);
+				i++;
+			}
+			DateTimeColumn dateTimeColumn = DateTimeColumn.create(originalName , dates);
+			table.replaceColumn(index, dateTimeColumn);
+		}
+		return table;
+	}
+
+
+	protected Table convertColsToString(Table table) {
+		for (int i = 0; i < table.columnCount(); i++) {
+			Column<?> originalColumn = table.column(i);
+			String originalName = originalColumn.name();
+			StringColumn stringColumn = originalColumn.asStringColumn();
+			stringColumn.setName(originalName);
+			table.replaceColumn(i, stringColumn);
+		}
+		return table;
 	}
 
 

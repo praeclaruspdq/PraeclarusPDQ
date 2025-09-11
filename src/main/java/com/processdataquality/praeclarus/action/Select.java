@@ -52,6 +52,7 @@ public class Select extends AbstractAction {
 
 	@Override
 	public Table run(List<Table> inputList) throws InvalidOptionValueException {
+		long startTime = System.currentTimeMillis();
 		if (inputList.size() != 1) {
 			throw new IllegalArgumentException("This action requires one table as input.");
 		}
@@ -75,7 +76,7 @@ public class Select extends AbstractAction {
 			Invocable inv = (Invocable) engine;
 
 			for (Row row : t1) {
-				List<Object> sourceValues = getSourceValues(t1, row, sourceColNames);
+				List<Object> sourceValues = getValues(t1, row, sourceColNames);
 
 				String result = inv.invokeFunction("select", sourceValues).toString();
 				if (result.equalsIgnoreCase("true")) {
@@ -91,6 +92,11 @@ public class Select extends AbstractAction {
 		}
 		Selection isSelected= Selection.with(rowIndices);
 		Table t2 = t1.where(isSelected);	
+		
+		long stopTime = System.currentTimeMillis();
+	    long elapsedTime = stopTime - startTime;
+	    System.out.println("Execution time for Select: " + elapsedTime);
+		
 		return t2;
 
 	}

@@ -63,6 +63,7 @@ public class Transform extends AbstractAction {
 
 	@Override
 	public Table run(List<Table> inputList) throws InvalidOptionValueException {
+		long startTime = System.currentTimeMillis();
 		if (inputList.size() != 1) {
 			throw new IllegalArgumentException("This action requires one table as input.");
 		}
@@ -88,7 +89,7 @@ public class Transform extends AbstractAction {
 				Invocable inv = (Invocable) engine;
 
 				for (Row row : t1) {
-					List<Object> sourceValues = getSourceValues(t1, row, sourceColNames);
+					List<Object> sourceValues = getValues(t1, row, sourceColNames);
 
 					String destValue = inv.invokeFunction(functionName, sourceValues).toString();
 					destCol = destCol.append(destValue);
@@ -99,7 +100,7 @@ public class Transform extends AbstractAction {
 		} else if (baseFunctionName.equals("Sum") || baseFunctionName.equals("Avg")) {
 
 			for (Row row : t1) {
-				List<Object> sourceValues = getSourceValues(t1, row, sourceColNames);
+				List<Object> sourceValues = getValues(t1, row, sourceColNames);
 				if (!areNumericValues(sourceValues)) {
 					throw new IllegalArgumentException(
 							"Function " + baseFunctionName + " is only applicable on numeric values.");
@@ -111,7 +112,7 @@ public class Transform extends AbstractAction {
 
 		else if (baseFunctionName.equals("Min") || baseFunctionName.equals("Max")) {
 			for (Row row : t1) {
-				List<Object> sourceValues = getSourceValues(t1, row, sourceColNames);
+				List<Object> sourceValues = getValues(t1, row, sourceColNames);
 				if (!areNumericValues(sourceValues) && !areTimeValues(sourceValues)) {
 					throw new IllegalArgumentException(
 							"Function " + baseFunctionName + " is only applicable on numeric or time values.");
@@ -121,18 +122,24 @@ public class Transform extends AbstractAction {
 			}
 		} else if (baseFunctionName.equals("Concat")) {
 			for (Row row : t1) {
-				List<Object> sourceValues = getSourceValues(t1, row, sourceColNames);
+				List<Object> sourceValues = getValues(t1, row, sourceColNames);
 				String destValue = String.valueOf(baseFunction(baseFunctionName, sourceValues));
 				destCol = destCol.append(destValue);
 			}
 		}
 		Table t2 = t1.copy();
+		Table result;
 		if (t1.columnNames().contains(destColName)) {
-			return t2.replaceColumn(destCol);
+			result = t2.replaceColumn(destCol);
 		} else {
-			return t2.addColumns(destCol);
+			result =  t2.addColumns(destCol);
 		}
-
+		
+		long stopTime = System.currentTimeMillis();
+	    long elapsedTime = stopTime - startTime;
+	    System.out.println("Execution time for Transform: " + elapsedTime);
+		
+		return result;
 	}
 
 	@Override

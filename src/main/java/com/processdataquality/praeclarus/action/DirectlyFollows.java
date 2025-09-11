@@ -52,6 +52,7 @@ public class DirectlyFollows extends AbstractAction {
 
 	@Override
 	public Table run(List<Table> inputList) throws InvalidOptionValueException {
+		long startTime = System.currentTimeMillis();
 		if (inputList.size() != 1) {
 			throw new IllegalArgumentException("This action requires one table as input.");
 		}
@@ -77,6 +78,11 @@ public class DirectlyFollows extends AbstractAction {
 				}
 			}
 		}
+		
+		long stopTime = System.currentTimeMillis();
+	    long elapsedTime = stopTime - startTime;
+	    System.out.println("Execution time for DirectlyFollows: " + elapsedTime);
+		
 		return res;
 
 	}

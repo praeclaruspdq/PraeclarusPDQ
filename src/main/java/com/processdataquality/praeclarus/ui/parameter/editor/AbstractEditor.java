@@ -20,6 +20,7 @@ import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.ListOption;
 import com.processdataquality.praeclarus.option.Option;
+import com.processdataquality.praeclarus.option.TableNameListOption;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -81,6 +82,9 @@ public abstract class AbstractEditor extends HorizontalLayout {
 		}
 		else if (_option instanceof ColumnNameListOption) {
 			((ColumnNameListOption) _option).setSelected(value);
+		}
+		else if (_option instanceof TableNameListOption) {
+			((TableNameListOption) _option).setSelected(value);
 		}
 		_container.getOptions().update(_option);
 	}

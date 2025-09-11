@@ -20,6 +20,7 @@ import com.processdataquality.praeclarus.option.ColumnNameListOption;
 import com.processdataquality.praeclarus.option.HasOptions;
 import com.processdataquality.praeclarus.option.ListOption;
 import com.processdataquality.praeclarus.option.Option;
+import com.processdataquality.praeclarus.option.TableNameListOption;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.select.Select;
@@ -62,6 +63,16 @@ public class ImmutableListEditor extends AbstractEditor {
 				} else {
 					field.setValue(items.get(0));
 					((ListOption) getOption()).setSelected(items.get(0));
+				}
+			}
+		} else if (getOption() instanceof TableNameListOption) {
+			if (!items.isEmpty()) {
+				String selection = ((TableNameListOption) getOption()).getSelected();
+				if (!StringUtils.isEmpty(selection) && items.contains(selection)) {
+					field.setValue(selection);
+				} else {
+					field.setValue(items.get(0));
+					((TableNameListOption) getOption()).setSelected(items.get(0));
 				}
 			}
 		}

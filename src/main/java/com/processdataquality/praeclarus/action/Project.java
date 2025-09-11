@@ -19,13 +19,21 @@ package com.processdataquality.praeclarus.action;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
 import com.processdataquality.praeclarus.option.ColumnNameListAndStringOption;
+import com.processdataquality.praeclarus.option.ColumnNameListOption;
+import com.processdataquality.praeclarus.option.MultiLineOption;
 import com.processdataquality.praeclarus.option.Option;
 
+import tech.tablesaw.api.Row;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.columns.Column;
 
@@ -51,6 +59,7 @@ public class Project extends AbstractAction {
 
     @Override
     public Table run(List<Table> inputList) throws InvalidOptionValueException {
+    	long startTime = System.currentTimeMillis();
         if (inputList.size() != 1) {
             throw new IllegalArgumentException("This action requires one table as input.");
         }
@@ -64,13 +73,24 @@ public class Project extends AbstractAction {
         	newNames.add(newName);
         	
         }
-        Table t2 = t1.selectColumns(colNames.stream().toArray(String[]::new));
-        for (Column c: t2.columns()) {
-        	int index = t2.columns().indexOf(c);
+        Table t2 = Table.create("Result");
+       
+        int index = 0;
+        for(String col: colNames) {
+        	Column<?> column = t1.column(col).copy();
         	if(index < newNames.size() && !StringUtils.isEmpty(newNames.get(index))) {
-        		c.setName(newNames.get(index));
+        		column.setName(newNames.get(index));
         	}
+        	t2.addColumns(column);
+        	index++;
+        	
         }
+
+
+        long stopTime = System.currentTimeMillis();
+	    long elapsedTime = stopTime - startTime;
+	    System.out.println("Execution time for Project: " + elapsedTime);
+	    
         return t2;
         
     }

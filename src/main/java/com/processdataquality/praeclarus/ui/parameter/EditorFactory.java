@@ -45,6 +45,13 @@ public class EditorFactory {
             }
         }
         
+        else if (option instanceof TableNameListOption) {
+            if (option.value() instanceof List<?>) {
+                return new ImmutableListEditor(container, option);
+            }
+        }
+
+        
         else if (option instanceof ListOption) {
             if (option.value() instanceof List<?>) {
                 return new ImmutableListEditor(container, option);

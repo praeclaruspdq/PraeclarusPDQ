@@ -120,24 +120,38 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
 		formats.add("yyyy-MM-dd'T'HH:mm:ss");
 		formats.add("yyyy-MM-dd HH:mm:ss");
 		formats.add("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		formats.add("yyyy-MM-dd'T'HH:mm:ss.SS");
+		formats.add("yyyy-MM-dd'T'HH:mm:ss.S");
 		formats.add("yyyy-MM-dd HH:mm:ss.SSS");
+		formats.add("yyyy-MM-dd HH:mm:ss.S");
+		formats.add("yyyy-MM-dd HH:mm:ss.SS");
 		formats.add("yyyy-MM-dd'T'HH:mm");
 		formats.add("yyyy-MM-dd HH:mm");
 		formats.add("yyyy-MM-dd");
 		formats.add("HH:mm");
 		formats.add("HH:mm:ss");
 		formats.add("HH:mm:ss.SSS");
+		formats.add("HH:mm:ss.SS");
+		formats.add("HH:mm:ss.S");
 		formats.add("H:mm");
 		formats.add("H:mm:ss");
 		formats.add("H:mm:ss.SSS");
+		formats.add("H:mm:ss.SS");
+		formats.add("H:mm:ss.S");
 		formats.add("dd/MM/yyyy HH:mm:ss");
 		formats.add("dd/MM/yyyy HH:mm:ss.SSS");
+		formats.add("dd/MM/yyyy HH:mm:ss.SS");
+		formats.add("dd/MM/yyyy HH:mm:ss.S");
 		formats.add("dd/MM/yyyy H:mm");
 		formats.add("dd/MM/yyyy H:mm:ss");
 		formats.add("dd/MM/yyyy H:mm:ss.SSS");
+		formats.add("dd/MM/yyyy H:mm:ss.SS");
+		formats.add("dd/MM/yyyy H:mm:ss.S");
 		formats.add("dd/MM/yyyy");
 		formats.add("dd/MM/yyyy HH:mm");
 		formats.add("yyyy/MM/dd HH:mm:ss.SSS");
+		formats.add("yyyy/MM/dd HH:mm:ss.SS");
+		formats.add("yyyy/MM/dd HH:mm:ss.S");
 		for (String f : formats) {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(f);
 			try {
@@ -166,6 +180,7 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
 				}
 			}
 		}
+		
 		return dateTime;
 	}
     
@@ -246,7 +261,7 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
 		return res;
 	}
 	
-	protected List<Object> getSourceValues(Table table, Row row, List<String> sourceColNames) {
+	protected List<Object> getValues(Table table, Row row, List<String> sourceColNames) {
 		List<Object> res = new ArrayList<Object>();
 		for (String col : sourceColNames) {
 			Object val = readObject(table, row, col);
