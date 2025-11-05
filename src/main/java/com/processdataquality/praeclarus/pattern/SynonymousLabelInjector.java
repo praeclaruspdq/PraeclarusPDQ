@@ -37,15 +37,15 @@ import java.util.function.Consumer;
  * @date 19/9/25
  */
 @Plugin(
-        name = "Injector: UnanchoredEvent",
+        name = "Injector: SynonymousLabels",
         author = "Jonghyeon Ko, Marco Comuzzi",
         version = "1.0",
         synopsis = "Injects an imperfection pattern in an event log"
 )
 
-@Pattern(group = PatternGroup.UNANCHORED_EVENT)
+@Pattern(group = PatternGroup.SYNONYMOUS_LABELS)
 
-public class UnanchoredEvent extends AbstractAnomalousTrace {
+public class SynonymousLabelInjector extends AbstractImperfectInjector {
 
     private static final String PYTHON_EXEC = "python";
     private static final String SCRIPT_NAME = "main_imperfection_patterns.py";
@@ -77,15 +77,15 @@ public class UnanchoredEvent extends AbstractAnomalousTrace {
         }
     }
 
-    public UnanchoredEvent() {
+    public SynonymousLabelInjector() {
         super();
-        _detected = createResultTable();
-        getOptions().addDefault("1. SystemList", "[System:('System2', 'System3')]");
-        getOptions().addDefault("2. Time start", "2023-09-26 09:00:00.000");
-        getOptions().addDefault("3. Time end", "2023-12-26 09:00:00.000");
-        getOptions().addDefault("4. Change time format", "%Y/%m/%d %H:%M:%S.%f");
-        getOptions().addDefault("5. Ratio", 1.00);
-        getOptions().addDefault("6. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
+        getOptions().addDefault("1. Target", "[Activity:('Perform checks')]");
+        getOptions().addDefault("2. Syns", "['Perform checks - Dep1',  'Perform checks - Dep2', 'Perform checks - Dep3']");
+        getOptions().addDefault("3. Prob", "[0.1, 0.6, 0.3]");
+        getOptions().addDefault("4. Time start", "2023-09-26 09:00:00.000");
+        getOptions().addDefault("5. Time end", "2023-12-26 09:00:00.000");
+        getOptions().addDefault("6. Ratio", 0.1);
+        getOptions().addDefault("7. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
     }
 
     private String getScriptPath() {
@@ -97,6 +97,7 @@ public class UnanchoredEvent extends AbstractAnomalousTrace {
             throw new RuntimeException("Failed to locate main_imperfection_patterns.py", e);
         }
     }
+
 
 
     /**
@@ -163,17 +164,6 @@ public class UnanchoredEvent extends AbstractAnomalousTrace {
     }
 
 
-
-	@Override
-	public boolean canDetect() {
-		return false;
-	}
-    
-    @Override
-	public boolean canRepair() {
-		return true;
-	}
-
     @Override
     public Table repair(Table master) throws InvalidOptionException {
         try {
@@ -184,25 +174,27 @@ public class UnanchoredEvent extends AbstractAnomalousTrace {
             ensurePythonRequirements();
 
             // 2. Read parameters.
-            String syslist = getOptions().get("1. SystemList").asString();
-            String timeStart = getOptions().get("2. Time start").asString();
-            String timeEnd = getOptions().get("3. Time end").asString();
-            String timeformat = getOptions().get("4. Change time format").asString();
-            String ratio = getOptions().get("5. Ratio").asString();
-            String declare = getOptions().get("6. Declare").asString();
+            String target = getOptions().get("1. Target").asString();
+            String syns = getOptions().get("2. Syns").asString();
+            String prob = getOptions().get("3. Prob").asString();
+            String timeStart = getOptions().get("4. Time start").asString();
+            String timeEnd = getOptions().get("5. Time end").asString();
+            String ratio = getOptions().get("6. Ratio").asString();
+            String declare = getOptions().get("7. Declare").asString();
 
             // 3. Run py
             String scriptPath = getScriptPath();
 
-            String inputParameter_pattern = "Unanchored Event"; 
+            String inputParameter_pattern = "Synonymous Labels"; 
             ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath, 
                                                     inputParameter_pattern,
-                                                    syslist,
+                                                    target,
+                                                    syns,
+                                                    prob,
                                                     timeStart,
                                                     timeEnd,
-                                                    timeformat,
                                                     ratio,
-                                                    declare); 
+                                                    declare);              // ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath);
             Process process = pb.start();
             
             
@@ -248,7 +240,7 @@ public class UnanchoredEvent extends AbstractAnomalousTrace {
                 System.err.println("Python Failure (Exit Code: " + exitCode + "):\n" + errorString);
                 throw new InvalidOptionValueException("Python Failure: " + errorString);
             }
-            
+        
             
             // 9. Parse the outputData string into a Table.
             String outputString = outputData.toString();

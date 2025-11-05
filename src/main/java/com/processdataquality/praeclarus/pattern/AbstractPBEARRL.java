@@ -41,7 +41,7 @@ import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 
 
-public abstract class AbstractPBEARRL extends AbstractDataPattern {
+public abstract class AbstractPBEARRL extends AbstractAnomalousTrace {
 	
 	protected Table _detected;
 	protected Table finalLog;

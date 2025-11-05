@@ -32,20 +32,21 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.function.Consumer;
 
+
 /**
  * @author Jonghyeon Ko,Marco Comuzzi
  * @date 19/9/25
  */
 @Plugin(
-        name = "Injector: PollutedLabel",
+        name = "Injector: DistortedLabel",
         author = "Jonghyeon Ko, Marco Comuzzi",
         version = "1.0",
         synopsis = "Injects an imperfection pattern in an event log"
 )
 
-@Pattern(group = PatternGroup.POLLUTED_LABEL)
+@Pattern(group = PatternGroup.DISTORTED_LABEL)
 
-public class PollutedLabel extends AbstractAnomalousTrace {
+public class DistortedLabelInjector extends AbstractImperfectInjector {
 
     private static final String PYTHON_EXEC = "python";
     private static final String SCRIPT_NAME = "main_imperfection_patterns.py";
@@ -77,11 +78,10 @@ public class PollutedLabel extends AbstractAnomalousTrace {
         }
     }
 
-    public PollutedLabel() {
+    public DistortedLabelInjector() {
         super();
-        _detected = createResultTable();
-        getOptions().addDefault("1. Target", "[Activity:('Perform checks', 'Make decision')]");
-        getOptions().addDefault("2. Action", "[Activity]_[0-9:{2}][a-zA-Z:{5}]_[Timestamp*(%Y%m%d %H%M%S%f)]");
+        getOptions().addDefault("1. Who", "[Resource:(random{m=0.05, s=0.01})]");
+        getOptions().addDefault("2. Distortion", "[Activity:random(Skip, Insert, Interchange, UpLow, Proximity)]");
         getOptions().addDefault("3. Time start", "2023-09-26 09:00:00.000");
         getOptions().addDefault("4. Time end", "2023-12-26 09:00:00.000");
         getOptions().addDefault("5. Ratio", 0.1);
@@ -163,16 +163,6 @@ public class PollutedLabel extends AbstractAnomalousTrace {
     }
 
 
-	@Override
-	public boolean canDetect() {
-		return false;
-	}
-    
-    @Override
-	public boolean canRepair() {
-		return true;
-	}
-
     @Override
     public Table repair(Table master) throws InvalidOptionException {
         try {
@@ -183,27 +173,27 @@ public class PollutedLabel extends AbstractAnomalousTrace {
             ensurePythonRequirements();
 
             // 2. Read parameters.
-            String target = getOptions().get("1. Target").asString();
-            String action = getOptions().get("2. Action").asString();
+            String who = getOptions().get("1. Who").asString();
+            String distortion = getOptions().get("2. Distortion").asString();
             String timeStart = getOptions().get("3. Time start").asString();
             String timeEnd = getOptions().get("4. Time end").asString();
-            String ratio = Double.toString(getOptions().get("5. Ratio").asDouble());
+            String ratio = getOptions().get("5. Ratio").asString();
             String declare = getOptions().get("6. Declare").asString();
 
             // 3. Run py
             String scriptPath = getScriptPath();
 
-            String inputParameter_pattern = "Polluted Label"; 
+            String inputParameter_pattern = "Distorted Label"; 
             ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath, 
                                                     inputParameter_pattern,
-                                                    target,
-                                                    action,
+                                                    who,
+                                                    distortion,
                                                     timeStart,
                                                     timeEnd,
                                                     ratio,
-                                                    declare);             // ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath);
-
+                                                    declare);              // ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath);
             Process process = pb.start();
+            
             
             // 4. Prepare to read stdout/stderr asynchronously to prevent deadlocks
             StringBuilder outputData = new StringBuilder();
@@ -248,7 +238,7 @@ public class PollutedLabel extends AbstractAnomalousTrace {
                 throw new InvalidOptionValueException("Python Failure: " + errorString);
             }
             
-
+            
             // 9. Parse the outputData string into a Table.
             String outputString = outputData.toString();
             if (outputString.trim().isEmpty()) {

@@ -20,6 +20,7 @@ import com.processdataquality.praeclarus.annotation.Pattern;
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
+import com.processdataquality.praeclarus.option.ListOption;
 
 import tech.tablesaw.api.Table;
 
@@ -31,27 +32,28 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.function.Consumer;
+import java.util.ArrayList;
+
 
 /**
  * @author Jonghyeon Ko,Marco Comuzzi
  * @date 19/9/25
  */
 @Plugin(
-        name = "Injector: ScatteredCase",
+        name = "Injector: InadvertentTimeTravel",
         author = "Jonghyeon Ko, Marco Comuzzi",
         version = "1.0",
         synopsis = "Injects an imperfection pattern in an event log"
 )
 
-@Pattern(group = PatternGroup.SCATTERED_CASE)
+@Pattern(group = PatternGroup.TIME_TRAVEL)
 
-public class ScatteredCase extends AbstractAnomalousTrace {
+public class TimeTravelInjector extends AbstractImperfectInjector {
 
     private static final String PYTHON_EXEC = "python";
     private static final String SCRIPT_NAME = "main_imperfection_patterns.py";
 
     private Table _detected;
-    private Table _auxiliary;
 
     /**
      * Helper class to consume an InputStream asynchronously to prevent deadlocks.
@@ -77,14 +79,32 @@ public class ScatteredCase extends AbstractAnomalousTrace {
             }
         }
     }
-
-    public ScatteredCase() {
+    
+    
+    private ArrayList<String> selectTypes1 = new ArrayList<String>();
+    private ArrayList<String> selectTypes2 = new ArrayList<String>();
+    public TimeTravelInjector() {
         super();
-        _detected = createResultTable();
-        _auxiliary = createResultTable();
-        getOptions().addDefault("1. SystemList", "[System:('System2', 'System3')]");
-        getOptions().addDefault("2. Time start", "2023-09-26 09:00:00.000");
-        getOptions().addDefault("3. Time end", "2023-12-26 09:00:00.000");
+        getOptions().addDefault("1. Target", "[Activity:('Perform checks', 'Check for completeness')]");
+
+		selectTypes1.add("Year");
+		selectTypes1.add("Month");
+		selectTypes1.add("Day");
+		
+		getOptions().addDefault(
+				new ListOption("2. T.unit", selectTypes1));
+		
+		selectTypes2.add("poisson");
+		selectTypes2.add("exponential");
+		selectTypes2.add("Day");
+		
+		getOptions().addDefault(
+				new ListOption("3. Prob.dist", selectTypes2));
+		
+        getOptions().addDefault("4. Time start", "2023-09-26 09:00:00.000");
+        getOptions().addDefault("5. Time end", "2023-12-26 09:00:00.000");
+        getOptions().addDefault("6. Ratio", 0.1);
+        getOptions().addDefault("7. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
     }
 
     private String getScriptPath() {
@@ -162,15 +182,6 @@ public class ScatteredCase extends AbstractAnomalousTrace {
     }
 
 
-	@Override
-	public boolean canDetect() {
-		return false;
-	}
-    
-    @Override
-	public boolean canRepair() {
-		return true;
-	}
 
     @Override
     public Table repair(Table master) throws InvalidOptionException {
@@ -182,20 +193,27 @@ public class ScatteredCase extends AbstractAnomalousTrace {
             ensurePythonRequirements();
 
             // 2. Read parameters.
-            String syslist = getOptions().get("1. SystemList").asString();
-            String timeStart = getOptions().get("2. Time start").asString();
-            String timeEnd = getOptions().get("3. Time end").asString();
+            String target = getOptions().get("1. Target").asString();
+            String tunit = ((ListOption) getOptions().get("2. T.unit")).getSelected(); 
+            String prob_func = ((ListOption) getOptions().get("3. Prob.dist")).getSelected(); 
+            String timeStart = getOptions().get("4. Time start").asString();
+            String timeEnd = getOptions().get("5. Time end").asString();
+            String ratio = getOptions().get("6. Ratio").asString();
+            String declare = getOptions().get("7. Declare").asString();
 
             // 3. Run py
-
             String scriptPath = getScriptPath();
 
-            String inputParameter_pattern = "Scattered Case"; 
+            String inputParameter_pattern = "Inadvertent Time Travel"; 
             ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath, 
                                                     inputParameter_pattern,
-                                                    syslist,
+                                                    target,
+                                                    tunit,
+                                                    prob_func,
                                                     timeStart,
-                                                    timeEnd); 
+                                                    timeEnd,
+                                                    ratio,
+                                                    declare);              // ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath);
             Process process = pb.start();
             
             
@@ -204,7 +222,7 @@ public class ScatteredCase extends AbstractAnomalousTrace {
             StringBuilder errorData = new StringBuilder();
 
             // Use a Consumer to append each line to the StringBuilder.
-            Consumer<String> outputConsumer = line -> outputData.append(line).append('\n');
+            Consumer<String> outputConsumer = line -> outputData.append(line).append(System.lineSeparator());
             Consumer<String> errorConsumer = line -> errorData.append(line).append(System.lineSeparator());
 
             Thread outputThread = new Thread(new StreamGobbler(process.getInputStream(), outputConsumer));
@@ -241,52 +259,22 @@ public class ScatteredCase extends AbstractAnomalousTrace {
                 System.err.println("Python Failure (Exit Code: " + exitCode + "):\n" + errorString);
                 throw new InvalidOptionValueException("Python Failure: " + errorString);
             }
-            
-            
+
             // 9. Parse the outputData string into a Table.
             String outputString = outputData.toString();
-            String separator = "\n---AUXILIARY_DATA---\n";
-
             if (outputString.trim().isEmpty()) {
                  System.err.println("Python script returned no data (stdout was empty).");
-                 _detected = createResultTable(); 
-                 _auxiliary = createResultTable(); 
+
             } else {
-                int separatorIndex = outputString.indexOf(separator);
-
-                if (separatorIndex != -1) {
-                    System.out.println("Separator found. Parsing master and auxiliary tables.");
-                    
-                    String masterCsv = outputString.substring(0, separatorIndex);
-                    String auxCsv = outputString.substring(separatorIndex + separator.length());
-
-                    try (StringReader masterReader = new StringReader(masterCsv)) {
-                        _detected = Table.read().csv(masterReader);
-                    }
-                    
-                    if (auxCsv.trim().isEmpty()) {
-                        System.out.println("Auxiliary data is empty.");
-                        _auxiliary = createResultTable();
-                    } else {
-                        try (StringReader auxReader = new StringReader(auxCsv)) {
-                            _auxiliary = Table.read().csv(auxReader);
-                            System.out.println("Auxiliary table parsed successfully.");
-                        }
-                    }
-
-                } else {
-                    System.out.println("Separator not found. Parsing as single master table.");
-                    try (StringReader reader = new StringReader(outputString)) {
-                        _detected = Table.read().csv(reader);
-                    }
-                    _auxiliary = createResultTable(); 
+                try (StringReader reader = new StringReader(outputString)) {
+                    _detected = Table.read().csv(reader);
                 }
             }
 
         } catch (IOException | InterruptedException e) {
             throw new InvalidOptionValueException("Repair step failed", e);
         }
-        return _detected; 
+        return _detected;
     }
 
 }

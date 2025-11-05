@@ -48,7 +48,16 @@ public abstract class AbstractImperfectInjector extends AbstractDataPattern {
     public Table repair(Table master) throws InvalidOptionException {
         return _detected;
     }
-
+    
+	@Override
+	public boolean canDetect() {
+		return false;
+	}
+    
+    @Override
+	public boolean canRepair() {
+		return true;
+	}
     
     @Override
     public PluginUI getUI() {

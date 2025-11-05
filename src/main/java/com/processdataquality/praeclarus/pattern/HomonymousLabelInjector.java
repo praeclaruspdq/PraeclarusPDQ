@@ -20,7 +20,6 @@ import com.processdataquality.praeclarus.annotation.Pattern;
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.ListOption;
 
 import tech.tablesaw.api.Table;
 
@@ -32,23 +31,21 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.function.Consumer;
-import java.util.ArrayList;
-
 
 /**
  * @author Jonghyeon Ko,Marco Comuzzi
  * @date 19/9/25
  */
 @Plugin(
-        name = "Injector: InadvertentTimeTravel",
+        name = "Injector: HomonymousLabel",
         author = "Jonghyeon Ko, Marco Comuzzi",
         version = "1.0",
         synopsis = "Injects an imperfection pattern in an event log"
 )
 
-@Pattern(group = PatternGroup.TIME_TRAVEL)
+@Pattern(group = PatternGroup.HOMONYMOUS_LABELS)
 
-public class TimeTravel extends AbstractAnomalousTrace {
+public class HomonymousLabelInjector extends AbstractImperfectInjector {
 
     private static final String PYTHON_EXEC = "python";
     private static final String SCRIPT_NAME = "main_imperfection_patterns.py";
@@ -79,33 +76,15 @@ public class TimeTravel extends AbstractAnomalousTrace {
             }
         }
     }
-    
-    
-    private ArrayList<String> joinTypes1 = new ArrayList<String>();
-    private ArrayList<String> joinTypes2 = new ArrayList<String>();
-    public TimeTravel() {
-        super();
-        _detected = createResultTable();
-        getOptions().addDefault("1. Target", "[Activity:('Perform checks', 'Check for completeness')]");
 
-		joinTypes1.add("Year");
-		joinTypes1.add("Month");
-		joinTypes1.add("Day");
-		
-		getOptions().addDefault(
-				new ListOption("2. T.unit", joinTypes1));
-		
-		joinTypes2.add("poisson");
-		joinTypes2.add("exponential");
-		joinTypes2.add("Day");
-		
-		getOptions().addDefault(
-				new ListOption("3. Prob.dist", joinTypes2));
-		
-        getOptions().addDefault("4. Time start", "2023-09-26 09:00:00.000");
-        getOptions().addDefault("5. Time end", "2023-12-26 09:00:00.000");
-        getOptions().addDefault("6. Ratio", 0.1);
-        getOptions().addDefault("7. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
+    public HomonymousLabelInjector() {
+        super();
+        getOptions().addDefault("1. Target", "[Activity:('Perform checks', 'Check for completeness')]");
+        getOptions().addDefault("2. H.label", "Check:homonymous");
+        getOptions().addDefault("3. Time start", "2023-09-26 09:00:00.000");
+        getOptions().addDefault("4. Time end", "2023-12-26 09:00:00.000");
+        getOptions().addDefault("5. Ratio", 0.1);
+        getOptions().addDefault("6. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
     }
 
     private String getScriptPath() {
@@ -183,18 +162,6 @@ public class TimeTravel extends AbstractAnomalousTrace {
     }
 
 
-
-
-	@Override
-	public boolean canDetect() {
-		return false;
-	}
-    
-    @Override
-	public boolean canRepair() {
-		return true;
-	}
-
     @Override
     public Table repair(Table master) throws InvalidOptionException {
         try {
@@ -206,26 +173,24 @@ public class TimeTravel extends AbstractAnomalousTrace {
 
             // 2. Read parameters.
             String target = getOptions().get("1. Target").asString();
-            String tunit = ((ListOption) getOptions().get("2. T.unit")).getSelected(); 
-            String prob_func = ((ListOption) getOptions().get("3. Prob.dist")).getSelected(); 
-            String timeStart = getOptions().get("4. Time start").asString();
-            String timeEnd = getOptions().get("5. Time end").asString();
-            String ratio = getOptions().get("6. Ratio").asString();
-            String declare = getOptions().get("7. Declare").asString();
+            String hlabel = getOptions().get("2. H.label").asString();
+            String timeStart = getOptions().get("3. Time start").asString();
+            String timeEnd = getOptions().get("4. Time end").asString();
+            String ratio = getOptions().get("5. Ratio").asString();
+            String declare = getOptions().get("6. Declare").asString();
 
             // 3. Run py
             String scriptPath = getScriptPath();
 
-            String inputParameter_pattern = "Inadvertent Time Travel"; 
+            String inputParameter_pattern = "Homonymous Label"; 
             ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath, 
                                                     inputParameter_pattern,
                                                     target,
-                                                    tunit,
-                                                    prob_func,
+                                                    hlabel,
                                                     timeStart,
                                                     timeEnd,
                                                     ratio,
-                                                    declare);              // ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath);
+                                                    declare);             // ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath);
             Process process = pb.start();
             
             

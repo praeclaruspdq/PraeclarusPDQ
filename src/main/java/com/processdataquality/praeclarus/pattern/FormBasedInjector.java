@@ -20,7 +20,6 @@ import com.processdataquality.praeclarus.annotation.Pattern;
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.ListOption;
 
 import tech.tablesaw.api.Table;
 
@@ -32,27 +31,28 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.function.Consumer;
-import java.util.ArrayList;
+
 
 /**
- * @author Jonghyeon Ko
- * @date 01/10/25
+ * @author Jonghyeon Ko,Marco Comuzzi
+ * @date 19/9/25
  */
 @Plugin(
-        name = "Root-Cause Generator",
-        author = "Jonghyeon Ko",
+        name = "Injector: FormBased",
+        author = "Jonghyeon Ko, Marco Comuzzi",
         version = "1.0",
-        synopsis = "Injects synthetic root-cause attributes in an event log"
+        synopsis = "Injects an imperfection pattern in an event log"
 )
 
-@Pattern(group = PatternGroup.ANOMALOUS_TRACES)
+@Pattern(group = PatternGroup.FORM_BASED)
 
-public class AIRBAGEL_Attributes extends AbstractAnomalousTrace {
+public class FormBasedInjector extends AbstractImperfectInjector {
 
     private static final String PYTHON_EXEC = "python";
-    private static final String SCRIPT_NAME = "main_airbagel_attributes.py";
+    private static final String SCRIPT_NAME = "main_imperfection_patterns.py"; 
 
     private Table _detected;
+
 
     /**
      * Helper class to consume an InputStream asynchronously to prevent deadlocks.
@@ -79,20 +79,14 @@ public class AIRBAGEL_Attributes extends AbstractAnomalousTrace {
         }
     }
 
-    
-	private ArrayList<String> joinTypes = new ArrayList<String>();
-    public AIRBAGEL_Attributes() {
+
+    public FormBasedInjector() {
         super();
-
-		joinTypes.add("Resource");
-		joinTypes.add("System");
-		getOptions().addDefault(
-				new ListOption("1. Attribute", joinTypes));
-	
-        
-        getOptions().addDefault("2. Number (ResGr, Sys)", 4);
-        getOptions().addDefault("3. Size (ResGr)", 0);
-
+        getOptions().addDefault("1. Target", "['Make decision', 'Notify accept', 'Deliver card']");
+        getOptions().addDefault("2. Time start", "2023-09-26 09:00:00.000");
+        getOptions().addDefault("3. Time end", "2023-12-26 09:00:00.000");
+        getOptions().addDefault("4. Ratio", 0.1);
+        getOptions().addDefault("5. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
     }
 
     private String getScriptPath() {
@@ -101,7 +95,7 @@ public class AIRBAGEL_Attributes extends AbstractAnomalousTrace {
             return projectRoot + File.separator + "python" + File.separator + SCRIPT_NAME;
             
         } catch (Exception e) {
-            throw new RuntimeException("Failed to locate main_airbagel_attributes.py", e);
+            throw new RuntimeException("Failed to locate main_imperfection_patterns2.py", e);
         }
     }
 
@@ -129,16 +123,48 @@ public class AIRBAGEL_Attributes extends AbstractAnomalousTrace {
     }
 
 
+    /**
+     * Check and install Python requirements before running script
+     */
+    private static final String REQUIREMENTS = "requirements.txt";
+    private void ensurePythonRequirements() throws IOException, InterruptedException {
+        String projectRoot = System.getProperty("user.dir");
+        File reqFile = new File(projectRoot + File.separator + "python", REQUIREMENTS);
 
-	@Override
-	public boolean canDetect() {
-		return false;
-	}
-    
-    @Override
-	public boolean canRepair() {
-		return true;
-	}
+        if (!reqFile.exists()) {
+            System.out.println("⚠ requirements.txt not found, skipping dependency check.");
+            return;
+        }
+
+        ProcessBuilder pb = new ProcessBuilder(
+                PYTHON_EXEC, "-m", "pip", "install", "-r", reqFile.getAbsolutePath(), "-q"
+        );
+        
+        Process process = pb.start();
+        int exitCode = process.waitFor();
+
+        if (exitCode != 0) {
+            String errorOutput = readStream(process.getErrorStream());
+            System.err.println("❌ Failed to install Python dependencies. Exit code: " + exitCode);
+            System.err.println("--- Error Details ---");
+            System.err.println(errorOutput);
+            throw new RuntimeException("Failed to install Python dependencies. Exit code: " + exitCode);
+        } else {
+        }
+    }
+
+    private String readStream(java.io.InputStream inputStream) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append(System.lineSeparator());
+            }
+        }
+        return sb.toString();
+    }
+
+
 
     @Override
     public Table repair(Table master) throws InvalidOptionException {
@@ -146,21 +172,31 @@ public class AIRBAGEL_Attributes extends AbstractAnomalousTrace {
             // 0. Python version
             printPythonVersion();
 
-            // 1. Read parameters.
-            String attr = ((ListOption) getOptions().get("1. Attribute")).getSelected();
-            String num = getOptions().get("2. Number (ResGr, Sys)").asString();
-            String size = getOptions().get("3. Size (ResGr)").asString();
+            // 1. requirements check and install
+            ensurePythonRequirements();
 
-
-            // 2. Run py
+            // 2. Read parameters.
+            String target = getOptions().get("1. Target").asString();
+            String timeStart = getOptions().get("2. Time start").asString();
+            String timeEnd = getOptions().get("3. Time end").asString();
+            String ratio = getOptions().get("4. Ratio").asString();  
+            String declare = getOptions().get("5. Declare").asString();
+            
+            // 3. Run py
             String scriptPath = getScriptPath();
 
-            ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath, 
-                                                    attr,
-                                                    num,
-                                                    size);
+            String inputParameter_pattern = "Form-based Event Capture"; 
+            ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, "-u", scriptPath, 
+                                                    inputParameter_pattern,
+                                                    target,
+                                                    timeStart,
+                                                    timeEnd,
+                                                    ratio,
+                                                    declare);
+
 
             Process process = pb.start();
+            
             
             // 4. Prepare to read stdout/stderr asynchronously to prevent deadlocks
             StringBuilder outputData = new StringBuilder();
@@ -204,8 +240,6 @@ public class AIRBAGEL_Attributes extends AbstractAnomalousTrace {
                 System.err.println("Python Failure (Exit Code: " + exitCode + "):\n" + errorString);
                 throw new InvalidOptionValueException("Python Failure: " + errorString);
             }
-            
-            
             
             // 9. Parse the outputData string into a Table.
             String outputString = outputData.toString();

@@ -20,6 +20,7 @@ import com.processdataquality.praeclarus.annotation.Pattern;
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
+import com.processdataquality.praeclarus.option.ListOption;
 
 import tech.tablesaw.api.Table;
 
@@ -31,6 +32,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.function.Consumer;
+import java.util.ArrayList;
+
 
 
 /**
@@ -38,21 +41,21 @@ import java.util.function.Consumer;
  * @date 19/9/25
  */
 @Plugin(
-        name = "Injector: FormBased",
+        name = "Injector: ElusiveCase",
         author = "Jonghyeon Ko, Marco Comuzzi",
         version = "1.0",
         synopsis = "Injects an imperfection pattern in an event log"
 )
 
-@Pattern(group = PatternGroup.FORM_BASED)
+@Pattern(group = PatternGroup.ELUSIVE_CASE)
 
-public class FormBased extends AbstractAnomalousTrace {
+public class ElusiveCaseInjector extends AbstractImperfectInjector {
 
     private static final String PYTHON_EXEC = "python";
-    private static final String SCRIPT_NAME = "main_imperfection_patterns.py"; 
+    private static final String SCRIPT_NAME = "main_imperfection_patterns.py";
 
     private Table _detected;
-
+    
 
     /**
      * Helper class to consume an InputStream asynchronously to prevent deadlocks.
@@ -78,15 +81,21 @@ public class FormBased extends AbstractAnomalousTrace {
             }
         }
     }
-
-
-    public FormBased() {
-        super();
-        getOptions().addDefault("1. Target", "['Make decision', 'Notify accept', 'Deliver card']");
-        getOptions().addDefault("2. Time start", "2023-09-26 09:00:00.000");
-        getOptions().addDefault("3. Time end", "2023-12-26 09:00:00.000");
-        getOptions().addDefault("4. Ratio", 0.1);
-        getOptions().addDefault("5. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
+    
+	private ArrayList<String> selectTypes = new ArrayList<String>();
+    public ElusiveCaseInjector() {
+        super();        
+		selectTypes.add("Variant");
+		selectTypes.add("KMeans");
+		
+		getOptions().addDefault(
+				new ListOption("1. Method", selectTypes));
+        
+        getOptions().addDefault("2. params (gnum or n_clusters)", "4");
+        getOptions().addDefault("3. Time start", "2023-09-26 09:00:00.000");
+        getOptions().addDefault("4. Time end", "2023-12-26 09:00:00.000");
+        getOptions().addDefault("5. Ratio", 0.1);
+        getOptions().addDefault("6. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
     }
 
     private String getScriptPath() {
@@ -95,7 +104,7 @@ public class FormBased extends AbstractAnomalousTrace {
             return projectRoot + File.separator + "python" + File.separator + SCRIPT_NAME;
             
         } catch (Exception e) {
-            throw new RuntimeException("Failed to locate main_imperfection_patterns2.py", e);
+            throw new RuntimeException("Failed to locate main_imperfection_patterns.py", e);
         }
     }
 
@@ -121,7 +130,6 @@ public class FormBased extends AbstractAnomalousTrace {
             System.err.println("⚠ Failed to get Python version (exit code " + exitCode + ")");
         }
     }
-
 
     /**
      * Check and install Python requirements before running script
@@ -165,16 +173,6 @@ public class FormBased extends AbstractAnomalousTrace {
     }
 
 
-	@Override
-	public boolean canDetect() {
-		return false;
-	}
-    
-    @Override
-	public boolean canRepair() {
-		return true;
-	}
-
     @Override
     public Table repair(Table master) throws InvalidOptionException {
         try {
@@ -185,25 +183,25 @@ public class FormBased extends AbstractAnomalousTrace {
             ensurePythonRequirements();
 
             // 2. Read parameters.
-            String target = getOptions().get("1. Target").asString();
-            String timeStart = getOptions().get("2. Time start").asString();
-            String timeEnd = getOptions().get("3. Time end").asString();
-            String ratio = getOptions().get("4. Ratio").asString();  
-            String declare = getOptions().get("5. Declare").asString();
-            
+            String method = ((ListOption) getOptions().get("1. Method")).getSelected(); 
+            String params = getOptions().get("2. params (gnum or n_clusters)").asString();
+            String timeStart = getOptions().get("3. Time start").asString();
+            String timeEnd = getOptions().get("4. Time end").asString();
+            String ratio = getOptions().get("5. Ratio").asString();
+            String declare = getOptions().get("6. Declare").asString();
+
             // 3. Run py
             String scriptPath = getScriptPath();
 
-            String inputParameter_pattern = "Form-based Event Capture"; 
-            ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, "-u", scriptPath, 
+            String inputParameter_pattern = "Elusive Case"; 
+            ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath, 
                                                     inputParameter_pattern,
-                                                    target,
+                                                    method,
+                                                    params,
                                                     timeStart,
                                                     timeEnd,
                                                     ratio,
-                                                    declare);
-
-
+                                                    declare);               // ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath);
             Process process = pb.start();
             
             
@@ -249,6 +247,7 @@ public class FormBased extends AbstractAnomalousTrace {
                 System.err.println("Python Failure (Exit Code: " + exitCode + "):\n" + errorString);
                 throw new InvalidOptionValueException("Python Failure: " + errorString);
             }
+            
             
             // 9. Parse the outputData string into a Table.
             String outputString = outputData.toString();

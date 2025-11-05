@@ -20,7 +20,6 @@ import com.processdataquality.praeclarus.annotation.Pattern;
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
 import com.processdataquality.praeclarus.exception.InvalidOptionValueException;
-import com.processdataquality.praeclarus.option.ListOption;
 
 import tech.tablesaw.api.Table;
 
@@ -32,26 +31,24 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.function.Consumer;
-import java.util.ArrayList;
 
 /**
  * @author Jonghyeon Ko,Marco Comuzzi
  * @date 19/9/25
  */
 @Plugin(
-        name = "Injector: AnomalousTraces",
+        name = "Injector: CollateralEvents",
         author = "Jonghyeon Ko, Marco Comuzzi",
         version = "1.0",
-        synopsis = "Injects control-flow patterns in an event log"
+        synopsis = "Injects an imperfection pattern in an event log"
 )
 
-@Pattern(group = PatternGroup.ANOMALOUS_TRACES)
+@Pattern(group = PatternGroup.COLLATERAL_EVENTS)
 
-
-public class AIRBAGEL_Patterns extends AbstractAnomalousTrace {
+public class CollateralEventsInjector extends AbstractImperfectInjector {
 
     private static final String PYTHON_EXEC = "python";
-    private static final String SCRIPT_NAME = "main_airbagel_patterns.py";
+    private static final String SCRIPT_NAME = "main_imperfection_patterns.py";
 
     private Table _detected;
 
@@ -80,32 +77,14 @@ public class AIRBAGEL_Patterns extends AbstractAnomalousTrace {
         }
     }
 
-	private ArrayList<String> joinTypes = new ArrayList<String>();
-   
-
-    public AIRBAGEL_Patterns() {
+    public CollateralEventsInjector() {
         super();
-        // _detected = createResultTable();
-        getOptions().addDefault("1. Weight(Skip)", 0.2);
-        getOptions().addDefault("2. Weight(Insert)", 0.2);
-        getOptions().addDefault("2-A. MaxLen(Insert)", 3);
-        getOptions().addDefault("3. Weight(Replace)", 0.2);
-        getOptions().addDefault("4. Weight(Rework)", 0.2);
-        getOptions().addDefault("4-A. MaxLen(Rework)", 3);
-        getOptions().addDefault("5. Weight(Move)", 0.2);
-        getOptions().addDefault("5-A. MaxDiff(Move)", 5);
-        
-		joinTypes.add("Year");
-		joinTypes.add("Month");
-		joinTypes.add("Day");
-		joinTypes.add("Hour");
-		joinTypes.add("Minute");
-		joinTypes.add("Second");
-		
-		getOptions().addDefault(
-				new ListOption("5-B. TimeUnit", joinTypes));
-
-        getOptions().addDefault("6. Prob(Mistake)", 0.02);
+        getOptions().addDefault("1. Target", "[Activity:'Make decision'>>('Make decision_signed1', 'Make decision_signed2')]");
+        getOptions().addDefault("2. Time bound (sec)", 1);
+        getOptions().addDefault("3. Time start", "2023-09-26 09:00:00.000");
+        getOptions().addDefault("4. Time end", "2023-12-26 09:00:00.000");
+        getOptions().addDefault("5. Ratio", 0.1);
+        getOptions().addDefault("6. Declare", "Chain Response[Make decision, Notify accept] |A.Resource is Manager-000001 |T.Resource is Manager-000003 |");
     }
 
     private String getScriptPath() {
@@ -183,16 +162,6 @@ public class AIRBAGEL_Patterns extends AbstractAnomalousTrace {
     }
 
 
-	@Override
-	public boolean canDetect() {
-		return false;
-	}
-    
-    @Override
-	public boolean canRepair() {
-		return true;
-	}
-
     @Override
     public Table repair(Table master) throws InvalidOptionException {
         try {
@@ -203,25 +172,28 @@ public class AIRBAGEL_Patterns extends AbstractAnomalousTrace {
             ensurePythonRequirements();
 
             // 2. Read parameters.
-            String wskip = getOptions().get("1. Weight(Skip)").asString();
-            String winsert = getOptions().get("2. Weight(Insert)").asString();
-            String p1insert = getOptions().get("2-A. MaxLen(Insert)").asString();
-            String wreplace = getOptions().get("3. Weight(Replace)").asString();
-            String wrework = getOptions().get("4. Weight(Rework)").asString();
-            String p1rework = getOptions().get("4-A. MaxLen(Rework)").asString();
-            String wmove = getOptions().get("5. Weight(Move)").asString();
-            String p1move = getOptions().get("5-A. MaxDiff(Move)").asString();
-            String p2move = ((ListOption) getOptions().get("5-B. TimeUnit")).getSelected();  
-            String prob = getOptions().get("6. Prob(Mistake)").asString();
+            String target = getOptions().get("1. Target").asString();
+            String timet = getOptions().get("2. Time bound (sec)").asString();   
+            String timeStart = getOptions().get("3. Time start").asString();
+            String timeEnd = getOptions().get("4. Time end").asString();
+            String ratio =  getOptions().get("5. Ratio").asString();   
+            String declare = getOptions().get("6. Declare").asString();
 
-            // 3. Run py          
+            // 3. Run py
             String scriptPath = getScriptPath();
+
+            String inputParameter_pattern = "Collateral Events"; 
             ProcessBuilder pb = new ProcessBuilder(PYTHON_EXEC, scriptPath, 
-                                                    wskip,winsert,wrework,wmove,wreplace,
-                                                    p1insert,p1rework,p1move,p2move,
-                                                    prob);
+                                                    inputParameter_pattern,
+                                                    target,
+                                                    timet,
+                                                    timeStart,
+                                                    timeEnd,
+                                                    ratio,
+                                                    declare);
 
             Process process = pb.start();
+            
             
             // 4. Prepare to read stdout/stderr asynchronously to prevent deadlocks
             StringBuilder outputData = new StringBuilder();
@@ -265,6 +237,7 @@ public class AIRBAGEL_Patterns extends AbstractAnomalousTrace {
                 System.err.println("Python Failure (Exit Code: " + exitCode + "):\n" + errorString);
                 throw new InvalidOptionValueException("Python Failure: " + errorString);
             }
+            
             
             // 9. Parse the outputData string into a Table.
             String outputString = outputData.toString();

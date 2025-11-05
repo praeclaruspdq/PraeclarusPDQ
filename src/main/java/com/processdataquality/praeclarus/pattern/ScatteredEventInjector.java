@@ -44,7 +44,7 @@ import java.util.function.Consumer;
 
 @Pattern(group = PatternGroup.SCATTERED_EVENT)
 
-public class ScatteredEvent extends AbstractAnomalousTrace {
+public class ScatteredEventInjector extends AbstractImperfectInjector {
 
     private static final String PYTHON_EXEC = "python";
     private static final String SCRIPT_NAME = "main_imperfection_patterns.py";
@@ -76,9 +76,8 @@ public class ScatteredEvent extends AbstractAnomalousTrace {
         }
     }
 
-    public ScatteredEvent() {
+    public ScatteredEventInjector() {
         super();
-        _detected = createResultTable();
         getOptions().addDefault("1. Target", "[Activity:'Make decision'>>('Make revision1', 'Make revision2')]");
         getOptions().addDefault("2. Action", "[Resource]_[0-9:{2}][a-zA-Z:{5}]_[Timestamp*(%Y%m%d %H%M%S%f)]");
         getOptions().addDefault("3. Loc", "[Description:idx(-1)]");
@@ -163,17 +162,6 @@ public class ScatteredEvent extends AbstractAnomalousTrace {
         return sb.toString();
     }
 
-
-
-	@Override
-	public boolean canDetect() {
-		return false;
-	}
-    
-    @Override
-	public boolean canRepair() {
-		return true;
-	}
 
     @Override
     public Table repair(Table master) throws InvalidOptionException {
