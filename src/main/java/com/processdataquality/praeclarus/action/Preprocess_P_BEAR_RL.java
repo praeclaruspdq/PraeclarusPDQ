@@ -76,8 +76,8 @@ public class Preprocess_P_BEAR_RL extends AbstractAction {
             throw new InvalidOptionValueException("Input tables cannot be null.");
         }
 
-        LOG.info("Received Table Normal Data: '"+ "' (" + tableB.rowCount() + " rows)");
-        LOG.info("Received Table Anomalous Data: '"+ "' (" + tableA.rowCount() + " rows)");
+        LOG.info("Received Table Normal Data (" + tableA.rowCount() + " rows)");
+        LOG.info("Received Table Anomalous Data (" + tableB.rowCount() + " rows)");
 
         Table anomalousLog;
         Table normalLog;
