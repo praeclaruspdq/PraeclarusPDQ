@@ -37,7 +37,7 @@ import tech.tablesaw.api.Table;
 
 /**
  * @author Sareh Sadeghianasl
- * @date 10/2/2023
+ * @date 10/2/2025
  */
 @Plugin(name = "Transform", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Transforms a number of source columns to a destination column")
 public class Transform extends AbstractAction {
@@ -55,6 +55,7 @@ public class Transform extends AbstractAction {
 		baseFunctions.add("Min");
 		baseFunctions.add("Max");
 		baseFunctions.add("Concat");
+		baseFunctions.add("Copy");
 		baseFunctions.add("Custom function");
 		getOptions().addDefault(new ListOption("Function", baseFunctions));
 		numberOfColumns = 0;
@@ -120,7 +121,7 @@ public class Transform extends AbstractAction {
 				String destValue = String.valueOf(baseFunction(baseFunctionName, sourceValues));
 				destCol = destCol.append(destValue);
 			}
-		} else if (baseFunctionName.equals("Concat")) {
+		} else if (baseFunctionName.equals("Concat") || baseFunctionName.equals("Copy")) {
 			for (Row row : t1) {
 				List<Object> sourceValues = getValues(t1, row, sourceColNames);
 				String destValue = String.valueOf(baseFunction(baseFunctionName, sourceValues));

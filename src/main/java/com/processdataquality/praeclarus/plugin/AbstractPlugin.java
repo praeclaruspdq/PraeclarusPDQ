@@ -180,7 +180,6 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
 				}
 			}
 		}
-		
 		return dateTime;
 	}
     

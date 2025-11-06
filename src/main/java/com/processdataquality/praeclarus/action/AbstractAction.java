@@ -23,6 +23,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -62,7 +63,7 @@ public abstract class AbstractAction extends AbstractPlugin {
 	protected String getSelectedColumn(String name) {
 		return ((ColumnNameListAndStringOption) getOptions().get(name)).getSelected().getKey();
 	}
-	
+
 	protected String getSelectedTable(String name) {
 		return ((TableNameListOption) getOptions().get(name)).getSelected();
 	}
@@ -79,8 +80,6 @@ public abstract class AbstractAction extends AbstractPlugin {
 		}
 		return tokens;
 	}
-
-
 
 	protected Object baseFunction(String functionName, List<Object> sourceValues) {
 		Object res = null;
@@ -228,38 +227,95 @@ public abstract class AbstractAction extends AbstractPlugin {
 				conc = conc + o.toString() + " ";
 			}
 			res = conc;
+		}else if (functionName.equals("Copy")) {
+			Object o = sourceValues.get(0);
+			if(isNumericValue(o)) {
+				double val = 0;
+				if (o instanceof Short) {
+					val = (Short) o;
+				} else if (o instanceof Integer) {
+					val = (Integer) o;
+				} else if (o instanceof Long) {
+					val = (Long) o;
+				} else if (o instanceof Float) {
+					val = (Float) o;
+				} else if (o instanceof Double) {
+					val = (Double) o;
+				} else if (o instanceof String) {
+					Double d = textToNumber((String) o);
+					if (!Double.isNaN(d)) {
+						val = d;
+					}
+				}
+				res = val;
+			}else if(isTimeValue(o)) {
+				LocalDateTime val = null;
+				if (o instanceof LocalDateTime) {
+					val = (LocalDateTime) o;
+				} else if (o instanceof LocalTime) {
+					val = ((LocalTime) o).atDate(LocalDate.EPOCH);
+				} else if (o instanceof LocalDate) {
+					val = ((LocalDate) o).atTime(LocalTime.MIDNIGHT);
+				} else if (o instanceof Instant) {
+					val = LocalDateTime.ofInstant((Instant) o, ZoneOffset.UTC);
+				} else if (o instanceof String) {
+					val = textToTime((String) o);
+				}
+				if (val != null) {
+					res = val;
+				}
+			}
+			
 		}
 		return res;
 	}
 
-	
-
-	
-
-	
-
 	protected boolean areNumericValues(List<Object> functionArgs) {
 		for (Object o : functionArgs) {
-			if (!(o instanceof Integer) && !(o instanceof Double) && !(o instanceof Float) && !(o instanceof Number)
-					&& !(o instanceof Short) && !(o instanceof Long)
-					&& !(o instanceof String && !Double.isNaN(textToNumber((String) o)))) {
+			if (!isNumericValue(o)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	
+	protected boolean isNumericValue(Object o) {
+		if (o instanceof String) {
+			String text = (String) o;
+			if (text.isEmpty()) {
+				return true;
+			}
+		}
+		if (!(o instanceof Integer) && !(o instanceof Double) && !(o instanceof Float) && !(o instanceof Number)
+				&& !(o instanceof Short) && !(o instanceof Long)
+				&& !(o instanceof String && !Double.isNaN(textToNumber((String) o)))) {
+			return false;
+		}
+		return true;
+	}
 
 	protected boolean areTimeValues(List<Object> functionArgs) {
 		for (Object o : functionArgs) {
-			if(o instanceof String) {
-			}
-			if (!(o instanceof LocalDate) && !(o instanceof LocalTime) && !(o instanceof LocalDateTime)
-					&& !(o instanceof Instant) && !(o instanceof String && textToTime((String) o) != null)) {
-				return false;				
+			if (!isTimeValue(o)) {
+				return false;
 			}
 		}
+		return true;
+	}
+
+	protected boolean isTimeValue(Object o) {
+
+		if (o instanceof String) {
+			String text = (String) o;
+			if (text.isEmpty()) {
+				return true;
+			}
+		}
+		if (!(o instanceof LocalDate) && !(o instanceof LocalTime) && !(o instanceof LocalDateTime)
+				&& !(o instanceof Instant) && !(o instanceof String && textToTime((String) o) != null)) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -273,33 +329,30 @@ public abstract class AbstractAction extends AbstractPlugin {
 				if (first.columnCount() != t.columnCount()) {
 					return false;
 				}
-				for (int i = 0; i < t.columns().size(); i++) {
-					if (!t.columns().get(i).name().equals(first.columns().get(i).name())) {
-						return false;
-					}
+				if(!(new HashSet<>(first.columnNames()).equals(new HashSet<>(t.columnNames())))) {
+					return false;
 				}
 			}
 		}
 		return true;
 	}
-	
+
 	protected Table convertTimeColsToLocalDateTime(Table table, List<String> timestampColumnNames) {
-		for(String col: timestampColumnNames) {
+		for (String col : timestampColumnNames) {
 			Column<String> originalColumn = table.stringColumn(col);
 			int index = table.columnIndex(col);
 			String originalName = originalColumn.name();
 			LocalDateTime[] dates = new LocalDateTime[originalColumn.size()];
 			int i = 0;
-			for(String StringTime: originalColumn) {
+			for (String StringTime : originalColumn) {
 				dates[i] = textToTime(StringTime);
 				i++;
 			}
-			DateTimeColumn dateTimeColumn = DateTimeColumn.create(originalName , dates);
+			DateTimeColumn dateTimeColumn = DateTimeColumn.create(originalName, dates);
 			table.replaceColumn(index, dateTimeColumn);
 		}
 		return table;
 	}
-
 
 	protected Table convertColsToString(Table table) {
 		for (int i = 0; i < table.columnCount(); i++) {
@@ -311,6 +364,5 @@ public abstract class AbstractAction extends AbstractPlugin {
 		}
 		return table;
 	}
-
 
 }
