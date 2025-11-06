@@ -67,9 +67,9 @@ public abstract class AbstractAnomalousTrace extends AbstractDataPattern {
     	
     	Table filtered = null;
     	
-    	filtered = master.where(
-      		 master.stringColumn("caseid-anomalous-trace-plugin").isNotIn(getRepairs().stringColumn("Case ID")));
-        		 
+    	 filtered = master.where(
+      	 	 master.stringColumn("caseid-anomalous-trace-plugin").isNotIn(getRepairs().stringColumn("Case ID")));
+
     	_log.info("Number of cases in this repaired log: "+filtered.stringColumn("caseid-anomalous-trace-plugin").countUnique());
     	
     	

@@ -16,8 +16,6 @@
 
 package com.processdataquality.praeclarus.pattern;
 
-import java.util.UUID;    
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,18 +31,12 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
 import com.processdataquality.praeclarus.annotation.Pattern;
 import com.processdataquality.praeclarus.annotation.Plugin;
 import com.processdataquality.praeclarus.exception.InvalidOptionException;
-import com.processdataquality.praeclarus.exception.OptionException;
 import com.processdataquality.praeclarus.option.ColumnNameListOption;
-import com.processdataquality.praeclarus.option.Options;
-import com.processdataquality.praeclarus.pattern.PatternGroup;
-import com.processdataquality.praeclarus.plugin.uitemplate.PluginUI;
 
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.DoubleColumn;
-import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
-import tech.tablesaw.selection.Selection;
 
 
 
