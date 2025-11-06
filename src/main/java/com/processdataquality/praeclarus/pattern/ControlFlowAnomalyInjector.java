@@ -48,7 +48,7 @@ import java.util.ArrayList;
 @Pattern(group = PatternGroup.ANOMALOUS_TRACES)
 
 
-public class ControlFlowAnomalyInjector_merged extends AbstractAnomalousTrace {
+public class ControlFlowAnomalyInjector extends AbstractAnomalousTrace {
 
     private static final String PYTHON_EXEC = "python";
     private static final String SCRIPT_NAME_PATTERNS = "main_airbagel_patterns.py";
@@ -85,7 +85,7 @@ public class ControlFlowAnomalyInjector_merged extends AbstractAnomalousTrace {
 	private ArrayList<String> selectAttrTypes = new ArrayList<String>();
    
 
-    public ControlFlowAnomalyInjector_merged() {
+    public ControlFlowAnomalyInjector() {
         super();
         // _detected = createResultTable();
         getOptions().addDefault("1. Weight(Skip)", 0.2);
