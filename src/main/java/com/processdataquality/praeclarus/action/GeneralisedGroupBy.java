@@ -39,6 +39,7 @@ import com.processdataquality.praeclarus.option.ListOption;
 import com.processdataquality.praeclarus.option.MultiLineOption;
 import com.processdataquality.praeclarus.option.Option;
 
+import tech.tablesaw.api.Row;
 import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.columns.Column;
@@ -110,26 +111,21 @@ public class GeneralisedGroupBy extends AbstractAction {
 		for (int i = 1; i <= numberOfColumnsToTranspose; i++) {
 			String colName = getSelectedColumnNameValue("Transposable Column " + i);
 			transposableColumnNames.add(colName);
-			
+
 		}
 		if (transposableColumnNames.contains(timeColName) || transposableColumnNames.contains(mainColName)
 				|| transposableColumnNames.contains(caseidColName)) {
 			throw new IllegalArgumentException(
 					"Transposable columns need to different from the main, case ID and time columns");
 		}
-		
+
 		Table t1 = inputT.sortAscendingOn(caseidColName);
 
 		ArrayList<ArrayList<Integer>> matchingRows = findMatchingRows(t1, values, mainColName, caseidColName,
-				timeColName, timeInterval);
-		int max = findMaxSizeOfMatchingRows(matchingRows);
-		int min = findMinSizeOfMatchingRows(matchingRows);
+				timeColName, timeInterval, values.size());
 
 		System.out.println("Matched sets of rows: " + matchingRows.size());
-		System.out.println("Maximum number of rows in a set: " + max);
-		System.out.println("Minimum number of rows in a set: " + min);
-
-		printMatchingRows(t1, matchingRows, mainColName, caseidColName, timeColName);
+		
 
 		Object[][] newRows;
 		if (numberOfColumnsToTranspose >= 1) {
@@ -137,7 +133,7 @@ public class GeneralisedGroupBy extends AbstractAction {
 		} else {
 			newRows = new Object[matchingRows.size()][t1.columnCount()];
 		}
-		
+
 		for (ArrayList<Integer> match : matchingRows) {
 
 			Object[] newRow;
@@ -146,16 +142,15 @@ public class GeneralisedGroupBy extends AbstractAction {
 			} else {
 				newRow = new Object[t1.columnCount()];
 			}
-			
 
-			newRow[t1.columnIndex(caseidColName)] = readObject(t1, t1.row(match.get(0)), caseidColName);
+			newRow[t1.columnIndex(caseidColName)] = readObject(t1, match.get(0), caseidColName);
 			newRow[t1.columnIndex(mainColName)] = newValue;
 			for (int j = 0; j < baseFunctionNames.length; j++) {
 				String functionName = baseFunctionNames[j];
 				if (!functionName.equals("N/A")) {
 					List<Object> functionArgs = new ArrayList<Object>();
 					for (int i = 0; i < match.size(); i++) {
-						functionArgs.add(readObject(t1, t1.row(match.get(i)), t1.column(j).name()));
+						functionArgs.add(readObject(t1, match.get(i), t1.column(j).name()));
 					}
 					if (functionName.equals("Sum") || functionName.equals("Avg")) {
 						if (!areNumericValues(functionArgs)) {
@@ -193,32 +188,34 @@ public class GeneralisedGroupBy extends AbstractAction {
 					}
 				}
 			}
-			
+
 			if (numberOfColumnsToTranspose >= 1) {
 				for (int c = 0; c < transposableColumnNames.size(); c++) {
 					for (int v = 0; v < values.size(); v++) {
-						int newColIndex = t1.columnCount() + (c*t1.columnCount()) + v;
+						int newColIndex = t1.columnCount() + (c * t1.columnCount()) + v;
 						int index = findMatchingIndex(match, values.get(v), t1, mainColName);
 						if (index == -1) {
 							newRow[newColIndex] = "";
 						} else {
-							newRow[newColIndex] = readObject(t1, t1.row(index),
-									transposableColumnNames.get(c));
+							newRow[newColIndex] = readObject(t1, index, transposableColumnNames.get(c));
 						}
-		}
+					}
 				}
 			}
 			newRows[matchingRows.indexOf(match)] = newRow;
 		}
+		
+		
 		Table t2 = t1.copy();
 		if (numberOfColumnsToTranspose >= 1) {
 			for (int c = 0; c < transposableColumnNames.size(); c++) {
 				for (String v : values) {
-					t2.addColumns(StringColumn.create(transposableColumnNames.get(c) +"_" + v));
+					t2.addColumns(StringColumn.create(transposableColumnNames.get(c) + "_" + v));
 				}
 			}
 		}
-
+		
+		
 		for (int i = 0; i < newRows.length; i++) {
 
 			int rowIndex = matchingRows.get(i).get(0);
@@ -227,6 +224,9 @@ public class GeneralisedGroupBy extends AbstractAction {
 				updateCell(t2, rowIndex, colIndex, newRows[i][j]);
 			}
 		}
+		
+
+		
 		ArrayList<Integer> rowsToDrop = new ArrayList<Integer>();
 		for (ArrayList<Integer> match : matchingRows) {
 			for (int i = 1; i < match.size(); i++) {
@@ -249,7 +249,7 @@ public class GeneralisedGroupBy extends AbstractAction {
 
 	private int findMatchingIndex(ArrayList<Integer> match, String value, Table inputTable, String mainColName) {
 		for (int m : match) {
-			String act = readObject(inputTable, inputTable.row(m), mainColName).toString();
+			String act = readObject(inputTable, m, mainColName).toString();
 			if (act.equals(value)) {
 				return m;
 			}
@@ -281,37 +281,6 @@ public class GeneralisedGroupBy extends AbstractAction {
 		}
 
 		return min;
-	}
-
-	private void printMatchingRows(Table table, ArrayList<ArrayList<Integer>> matchingRows, String mainColName,
-			String caseidColName, String timeColName) {
-		FileWriter myWriter;
-		try {
-			myWriter = new FileWriter(
-					"C:\\Users\\sadeghia\\OneDrive - Queensland University of Technology\\H-Migrated\\Research Projects\\Repair algebra\\Data\\Matched-Rows.txt");
-			for (ArrayList<Integer> match : matchingRows) {
-				myWriter.write("Set " + matchingRows.indexOf(match) + " - Size: " + match.size()
-						+ System.getProperty("line.separator"));
-				for (Integer rowIndex : match) {
-					String val = readObject(table, table.row(rowIndex), mainColName).toString();
-					String cid = readObject(table, table.row(rowIndex), caseidColName).toString();
-					LocalDateTime timestamp = objectToTime(readObject(table, table.row(rowIndex), timeColName));
-					String time;
-					if (timestamp == null) {
-						time = "NULL";
-					} else {
-						time = timestamp.toString();
-					}
-					myWriter.write(rowIndex+ " " + cid + "  " + time + "  " + val + System.getProperty("line.separator"));
-				}
-				myWriter.write("------------------------------------------------------------"
-						+ System.getProperty("line.separator") + System.getProperty("line.separator"));
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 	}
 
 	private void updateCell(Table table, int rowIndex, int colIndex, Object object) {
@@ -435,20 +404,20 @@ public class GeneralisedGroupBy extends AbstractAction {
 			String caseidColName, String timeColName, int timeInterval) {
 		ArrayList<ArrayList<Integer>> foundRows = new ArrayList<ArrayList<Integer>>();
 		for (int i = 0; i < table.rowCount(); i++) {
-			String val = readObject(table, table.row(i), mainColName).toString();
+			String val = readObject(table, i, mainColName).toString();
 			if (val.equals(values.get(0))) {
-				String cid = readObject(table, table.row(i), caseidColName).toString();
+				String cid = readObject(table, i, caseidColName).toString();
 				ArrayList<LocalDateTime> allTimes = new ArrayList<LocalDateTime>();
-				allTimes.add(objectToTime(readObject(table, table.row(i), timeColName)));
+				allTimes.add(objectToTime(readObject(table, i, timeColName)));
 				ArrayList<Integer> temp = new ArrayList<>();
 				temp.add(i);
 				boolean allMatch = true;
 				for (int j = 1; j < values.size(); j++) {
-					String nextVal = readObject(table, table.row(i + j), mainColName).toString();
-					String nextCid = readObject(table, table.row(i + j), caseidColName).toString();
+					String nextVal = readObject(table, i + j, mainColName).toString();
+					String nextCid = readObject(table, i + j, caseidColName).toString();
 					if (cid.equals(nextCid) && nextVal.equals(values.get(j))) {
 						temp.add(i + j);
-						allTimes.add(objectToTime(readObject(table, table.row(i + j), timeColName)));
+						allTimes.add(objectToTime(readObject(table, i + j, timeColName)));
 					} else {
 						allMatch = false;
 						break;
@@ -463,9 +432,12 @@ public class GeneralisedGroupBy extends AbstractAction {
 	}
 
 	private ArrayList<ArrayList<Integer>> findMatchingRows(Table inputTable, List<String> values, String mainColName,
-			String caseidColName, String timeColName, int timeInterval) {
+			String caseidColName, String timeColName, int timeInterval, int maxGroupSize) {
 
 		ArrayList<ArrayList<Integer>> foundRows = new ArrayList<ArrayList<Integer>>();
+		String mainColType = inputTable.column(mainColName).type().name();
+		String caseColType = inputTable.column(caseidColName).type().name();
+		String timeColType = inputTable.column(timeColName).type().name();
 
 		Table table = inputTable.copy();
 		boolean[] visited = new boolean[table.rowCount()];
@@ -473,26 +445,29 @@ public class GeneralisedGroupBy extends AbstractAction {
 			if (visited[i])
 				continue;
 			visited[i] = true;
-			String val = readObject(table, table.row(i), mainColName).toString();
+			String val = readObject(table, i, mainColName, mainColType).toString();
 			if (values.contains(val)) {
-				String cid = readObject(table, table.row(i), caseidColName).toString();
+				String cid = readObject(table, i, caseidColName, caseColType).toString();
 				ArrayList<LocalDateTime> allTimes = new ArrayList<LocalDateTime>();
-				LocalDateTime time = objectToTime(readObject(table, table.row(i), timeColName));
+				LocalDateTime time = objectToTime(readObject(table, i, timeColName, timeColType));
 				allTimes.add(time);
 				ArrayList<Integer> temp = new ArrayList<>();
 				temp.add(i);
 
 				for (int j = i + 1; j < table.rowCount(); j++) {
-					String nextCid = readObject(table, table.row(j), caseidColName).toString();
+					String nextCid = readObject(table, j, caseidColName, caseColType).toString();
 					if (!cid.equals(nextCid)) {
 						break;
 					}
-					String nextVal = readObject(table, table.row(j), mainColName).toString();
+					String nextVal = readObject(table, j, mainColName, mainColType).toString();
 					if (values.contains(nextVal)) {
-						allTimes.add(objectToTime(readObject(table, table.row(j), timeColName)));
+						allTimes.add(objectToTime(readObject(table, j, timeColName, timeColType)));
 						if (isWithinTimeInterval(allTimes, timeInterval)) {
 							temp.add(j);
 							visited[j] = true;
+							if(temp.size()>maxGroupSize) {
+								break;
+							}
 						} else {
 							allTimes.remove(allTimes.size() - 1);
 						}

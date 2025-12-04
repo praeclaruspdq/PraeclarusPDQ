@@ -214,6 +214,67 @@ public abstract class AbstractPlugin implements PDQPlugin, OptionValueChangeList
 		return res;
 	}
     
+    protected Object readObject(Table table, int rowIndex, String colName) {
+		String colType = table.column(colName).type().name();
+		Object res = null;
+		if (colType.equalsIgnoreCase("Integer")) {
+			res = table.intColumn(colName).getInt(rowIndex);
+		} else if (colType.equalsIgnoreCase("Double")) {
+			res = table.doubleColumn(colName).getDouble(rowIndex);
+		}else if (colType.equalsIgnoreCase("Number")) {
+			res = table.numberColumn(colName).getDouble(rowIndex);	
+		} else if (colType.equalsIgnoreCase("Float")) {
+			res = table.floatColumn(colName).getFloat(rowIndex);
+		} else if (colType.equalsIgnoreCase("Short")) {
+			res = table.shortColumn(colName).getShort(rowIndex);
+		} else if (colType.equalsIgnoreCase("Long")) {
+			res = table.longColumn(colName).getLong(rowIndex);
+		} else if (colType.equalsIgnoreCase("Local_Date")) {
+			res = table.dateColumn(colName).get(rowIndex);
+		} else if (colType.equalsIgnoreCase("Local_Time")) {
+			res = table.timeColumn(colName).get(rowIndex);
+		} else if (colType.equalsIgnoreCase("Local_Date_Time")) {
+			res = table.dateTimeColumn(colName).get(rowIndex);
+		} else if (colType.equalsIgnoreCase("Instant")) {
+			res = table.instantColumn(colName).get(rowIndex);
+		} else if (colType.equalsIgnoreCase("Boolean")) {
+			res = table.booleanColumn(colName).get(rowIndex);
+		} else { // String column
+			res = table.stringColumn(colName).getString(rowIndex);
+		}
+		return res;
+	}
+    
+    protected Object readObject(Table table, int rowIndex, String colName, String colType) {
+		Object res = null;
+		if (colType.equalsIgnoreCase("Integer")) {
+			res = table.intColumn(colName).getInt(rowIndex);
+		} else if (colType.equalsIgnoreCase("Double")) {
+			res = table.doubleColumn(colName).getDouble(rowIndex);
+		}else if (colType.equalsIgnoreCase("Number")) {
+			res = table.numberColumn(colName).getDouble(rowIndex);	
+		} else if (colType.equalsIgnoreCase("Float")) {
+			res = table.floatColumn(colName).getFloat(rowIndex);
+		} else if (colType.equalsIgnoreCase("Short")) {
+			res = table.shortColumn(colName).getShort(rowIndex);
+		} else if (colType.equalsIgnoreCase("Long")) {
+			res = table.longColumn(colName).getLong(rowIndex);
+		} else if (colType.equalsIgnoreCase("Local_Date")) {
+			res = table.dateColumn(colName).get(rowIndex);
+		} else if (colType.equalsIgnoreCase("Local_Time")) {
+			res = table.timeColumn(colName).get(rowIndex);
+		} else if (colType.equalsIgnoreCase("Local_Date_Time")) {
+			res = table.dateTimeColumn(colName).get(rowIndex);
+		} else if (colType.equalsIgnoreCase("Instant")) {
+			res = table.instantColumn(colName).get(rowIndex);
+		} else if (colType.equalsIgnoreCase("Boolean")) {
+			res = table.booleanColumn(colName).get(rowIndex);
+		} else { // String column
+			res = table.stringColumn(colName).getString(rowIndex);
+		}
+		return res;
+	}
+    
     protected Double textToNumber(String s) {
 		double res = Double.NaN;
 		try {
