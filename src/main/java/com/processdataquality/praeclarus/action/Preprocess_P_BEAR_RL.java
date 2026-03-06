@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * @author Jonghyeon Ko
+ * @author root
  * @date 03/10/25
  * * This is an Action plugin designed to be run *before* P-BEAR-RL.
  * It takes two tables as input:
@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  */
 @Plugin(
     name = "Preprocess P-BEAR-RL", 
-    author = "Jonghyeon Ko", 
+    author = "root", 
     version = "1.0", 
     synopsis = "Prepares inputs for P-BEAR-RL by storing the Normal Log in Auxiliary Datasets."
 )
