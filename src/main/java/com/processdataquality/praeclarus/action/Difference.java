@@ -38,10 +38,10 @@ import tech.tablesaw.columns.Column;
 import tech.tablesaw.selection.Selection;
 
 /**
- * @author Sareh Sadeghianasl
+ * @author root
  * @date 29/7/25
  */
-@Plugin(name = "Difference", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Returns the difference of a two of tables: Table 1 - Table 2. The tables must have the same schema)")
+@Plugin(name = "Difference", author = "root", version = "1.0", synopsis = "Returns the difference of a two of tables: Table 1 - Table 2. The tables must have the same schema)")
 public class Difference extends AbstractAction {
 
 	private int numberOfTimestampColumns;
