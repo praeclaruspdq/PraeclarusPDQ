@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Michael Adams
+ * @author root
  * @date 25/6/17
  */
-@Plugin(name = "Join", author = "Michael Adams & Sareh Sadeghianasl", version = "1.0", synopsis = "Performs a join on a set of tables (they must have a column of the same name)")
+@Plugin(name = "Join", author = "root", version = "1.0", synopsis = "Performs a join on a set of tables (they must have a column of the same name)")
 public class Join extends AbstractAction {
 	
 	private ArrayList<String> joinTypes = new ArrayList<String>();
