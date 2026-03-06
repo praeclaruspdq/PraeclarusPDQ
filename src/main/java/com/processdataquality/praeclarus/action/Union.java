@@ -28,10 +28,10 @@ import tech.tablesaw.api.Table;
 import tech.tablesaw.selection.Selection;
 
 /**
- * @author Sareh Sadeghianasl
+ * @author root
  * @date 1/8/2025
  */
-@Plugin(name = "Union", author = "Sareh Sadeghianasl", version = "1.0", synopsis = "Returns the union of a set of tables (they must have the same schema)")
+@Plugin(name = "Union", author = "root", version = "1.0", synopsis = "Returns the union of a set of tables (they must have the same schema)")
 public class Union extends AbstractAction {
 	
 	private int numberOfTimestampColumns;
